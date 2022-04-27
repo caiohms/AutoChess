@@ -1,6 +1,3 @@
-//
-// Created by Caio on 26/04/2022.
-//
 
 #ifndef AUTOCHESS_CHESSPIECE_H
 #define AUTOCHESS_CHESSPIECE_H
@@ -13,8 +10,6 @@ public:
 
     ~ChessPiece();
 
-    short xpos = -1;
-    short ypos = -1;
     sf::Sprite sprite;
 
     void draw(sf::RenderWindow &window);
