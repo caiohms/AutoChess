@@ -1,7 +1,8 @@
 
+#include <iostream>
 #include "ChessPiece.h"
 
-ChessPiece::ChessPiece(const std::string &texFile, std::set<int> moves) : moves(moves) {
+void ChessPiece::Init(const std::string &texFile, const std::set<int> &fullMoves) {
 
     if (!texture.loadFromFile(texFile)) {
         throw std::runtime_error("Failed to load texture " + texFile);
@@ -10,8 +11,15 @@ ChessPiece::ChessPiece(const std::string &texFile, std::set<int> moves) : moves(
     sprite.setTexture(texture);
 }
 
-ChessPiece::~ChessPiece() = default;
 
-void ChessPiece::draw(sf::RenderWindow &window) {
-    window.draw(sprite);
+void ChessPiece::draw(float edge, float xPos, float yPos, sf::RenderWindow &renderWindow) {
+
+    sprite.setScale(edge / 8.0f / 256.0f, edge / 8.0f / 256.0f);
+    sprite.setPosition(xPos, yPos);
+    renderWindow.draw(sprite);
 }
+
+ChessPiece::ChessPiece(sf::Sprite sprite) {
+    this->sprite = sprite;
+}
+

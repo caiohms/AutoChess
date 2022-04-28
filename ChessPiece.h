@@ -7,19 +7,17 @@
 
 class ChessPiece {
 public:
-    explicit ChessPiece(const std::string &texFile, std::set<int> moves);
+
+    explicit ChessPiece(sf::Sprite sprite);
+
+    void Init(const std::string &texFile, const std::set<int> &moves);
 
     std::set<int> moves;
 
-    ~ChessPiece();
-
-    sf::Sprite sprite;
-
-    void draw(sf::RenderWindow &window);
-
-
+    void draw(float edge, float d, float d1, sf::RenderWindow &renderWindow);
 
 private:
+    sf::Sprite sprite;
     sf::Texture texture;
 };
 
