@@ -10,24 +10,44 @@
 #define INIT_WINDOW_WIDTH 1600
 #define INIT_WINDOW_HEIGHT 900
 
+void generateMoves(std::set<int> & set);
+
+#include <iostream>
+#include <iterator>
+#include <algorithm>
 
 int main() {
 
     sf::RenderWindow window(sf::VideoMode(1600, 900), "AutoChess");
 
-    ChessPiece bPawn("resources\\sprites\\b_pawn_png_shadow_256px.png");
-    ChessPiece bBishop("resources\\sprites\\b_bishop_png_shadow_256px.png");
-    ChessPiece bKnight("resources\\sprites\\b_knight_png_shadow_256px.png");
-    ChessPiece bRook("resources\\sprites\\b_rook_png_shadow_256px.png");
-    ChessPiece bQueen("resources\\sprites\\b_queen_png_shadow_256px.png");
-    ChessPiece bKing("resources\\sprites\\b_king_png_shadow_256px.png");
+    std::set<int> bPawnMoves = {+8, +16, +7, +9};
+    std::set<int> wPawnMoves = {-8, -16, -7, -9};
+    std::set<int> rookMoves = {+1, +2, +3, +4, +5, +6, +7, +8, +16, +24, +32, +40, +48, +56};
+    std::set<int> bishopMoves = {+9, +18, +27, +36, +45, +54, +63};
+    std::set<int> knightMoves = {+10, +17, +15, +6};
+    std::set<int> kingMoves = {+1, +2, -2, +7, +8, +9};
+    std::set<int> queenMoves = {+1, +2, +3, +4, +5, +6, +7, +8, +16, +24, +32, +40, +48, +56, +9, +18, +27, +36, +45,
+                                +54, +63};
 
-    ChessPiece wPawn("resources\\sprites\\w_pawn_png_shadow_256px.png");
-    ChessPiece wBishop("resources\\sprites\\w_bishop_png_shadow_256px.png");
-    ChessPiece wKnight("resources\\sprites\\w_knight_png_shadow_256px.png");
-    ChessPiece wRook("resources\\sprites\\w_rook_png_shadow_256px.png");
-    ChessPiece wQueen("resources\\sprites\\w_queen_png_shadow_256px.png");
-    ChessPiece wKing("resources\\sprites\\w_king_png_shadow_256px.png");
+    generateMoves(queenMoves);
+    generateMoves(rookMoves);
+    generateMoves(bishopMoves);
+    generateMoves(kingMoves);
+    generateMoves(knightMoves);
+
+    ChessPiece bPawn("resources\\sprites\\b_pawn_png_shadow_256px.png", bPawnMoves);
+    ChessPiece bBishop("resources\\sprites\\b_bishop_png_shadow_256px.png", bishopMoves);
+    ChessPiece bKnight("resources\\sprites\\b_knight_png_shadow_256px.png", knightMoves);
+    ChessPiece bRook("resources\\sprites\\b_rook_png_shadow_256px.png", rookMoves);
+    ChessPiece bQueen("resources\\sprites\\b_queen_png_shadow_256px.png", queenMoves);
+    ChessPiece bKing("resources\\sprites\\b_king_png_shadow_256px.png", kingMoves);
+
+    ChessPiece wPawn("resources\\sprites\\w_pawn_png_shadow_256px.png", wPawnMoves);
+    ChessPiece wBishop("resources\\sprites\\w_bishop_png_shadow_256px.png", bishopMoves);
+    ChessPiece wKnight("resources\\sprites\\w_knight_png_shadow_256px.png", knightMoves);
+    ChessPiece wRook("resources\\sprites\\w_rook_png_shadow_256px.png", rookMoves);
+    ChessPiece wQueen("resources\\sprites\\w_queen_png_shadow_256px.png", queenMoves);
+    ChessPiece wKing("resources\\sprites\\w_king_png_shadow_256px.png", kingMoves);
 
     ChessBoard board(INIT_WINDOW_WIDTH, INIT_WINDOW_HEIGHT);
 
@@ -64,3 +84,9 @@ int main() {
         window.display();
     }
 }
+
+void generateMoves(std::set<int> & set) {
+    for (int i: set) {
+        set.insert(i * -1);
+    }
+};
