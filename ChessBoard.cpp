@@ -108,19 +108,19 @@ void ChessBoard::initChessPieces() {
     generateMoves(kingMoves);
     generateMoves(knightMoves);
 
-    bPawn.Init("resources\\sprites\\b_pawn_png_shadow_256px.png", bPawnMoves);
-    bBishop.Init("resources\\sprites\\b_bishop_png_shadow_256px.png", bishopMoves);
-    bKnight.Init("resources\\sprites\\b_knight_png_shadow_256px.png", knightMoves);
-    bRook.Init("resources\\sprites\\b_rook_png_shadow_256px.png", rookMoves);
-    bQueen.Init("resources\\sprites\\b_queen_png_shadow_256px.png", queenMoves);
-    bKing.Init("resources\\sprites\\b_king_png_shadow_256px.png", kingMoves);
+    bPawn.Init("resources\\sprites\\black-pawn.png", bPawnMoves);
+    bBishop.Init("resources\\sprites\\black-bishop.png", bishopMoves);
+    bKnight.Init("resources\\sprites\\black-knight.png", knightMoves);
+    bRook.Init("resources\\sprites\\black-rook.png", rookMoves);
+    bQueen.Init("resources\\sprites\\black-queen.png", queenMoves);
+    bKing.Init("resources\\sprites\\black-king.png", kingMoves);
 
-    wPawn.Init("resources\\sprites\\w_pawn_png_shadow_256px.png", wPawnMoves);
-    wBishop.Init("resources\\sprites\\w_bishop_png_shadow_256px.png", bishopMoves);
-    wKnight.Init("resources\\sprites\\w_knight_png_shadow_256px.png", knightMoves);
-    wRook.Init("resources\\sprites\\w_rook_png_shadow_256px.png", rookMoves);
-    wQueen.Init("resources\\sprites\\w_queen_png_shadow_256px.png", queenMoves);
-    wKing.Init("resources\\sprites\\w_king_png_shadow_256px.png", kingMoves);
+    wPawn.Init("resources\\sprites\\white-pawn.png", wPawnMoves);
+    wBishop.Init("resources\\sprites\\white-bishop.png", bishopMoves);
+    wKnight.Init("resources\\sprites\\white-knight.png", knightMoves);
+    wRook.Init("resources\\sprites\\white-rook.png", rookMoves);
+    wQueen.Init("resources\\sprites\\white-queen.png", queenMoves);
+    wKing.Init("resources\\sprites\\white-king.png", kingMoves);
 }
 
 
