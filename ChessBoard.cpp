@@ -2,6 +2,8 @@
 #include <iostream>
 #include "ChessBoard.h"
 #include "ChessPiece.h"
+#include <set>
+#include <iterator>
 
 void generateMoves(std::set<int> &set);
 
@@ -55,7 +57,6 @@ void ChessBoard::draw(sf::RenderWindow &window) {
         ChessBoard::drawPiece(squares[i], xPos, yPos, boardEdge, window);
     }
 
-    std::cout << selectedPieceCode << std::endl;
 
     if (selectedPieceCode > 0) {
         ChessBoard::drawPiece(selectedPieceCode, mouseXpos - squareEdge / 2, mouseYpos - squareEdge / 2, boardEdge,
@@ -98,6 +99,8 @@ void ChessBoard::initChessPieces() {
     wRook.Init("resources\\sprites\\white-rook.png", rookMoves);
     wQueen.Init("resources\\sprites\\white-queen.png", queenMoves);
     wKing.Init("resources\\sprites\\white-king.png", kingMoves);
+
+
 }
 
 void ChessBoard::grabPiece(unsigned int mouseX, unsigned int mouseY) {
@@ -114,6 +117,100 @@ void ChessBoard::grabPiece(unsigned int mouseX, unsigned int mouseY) {
     selectedSquareIndex = squareY * 8 + squareX;
 
     selectedPieceCode = squares[selectedSquareIndex];
+
+
+    possibleMoves(selectedSquareIndex, selectedPieceCode);
+
+}
+
+void ChessBoard::possibleMoves(int indexSquare, int codePiece) {
+    std::cout << indexSquare << std::endl;
+    //std::cout << codePiece << std::endl;
+
+    possibilty.clear();
+    if (codePiece == 0) {
+        return;
+    }
+    switch (codePiece) {
+        case 1: {
+            for (int itr: bPawn.moves) {
+                possibilty.insert(indexSquare + itr + 1);
+            }
+            for (int x: possibilty) {
+                std::cout << x << std::endl;
+            }
+            break;
+        }
+        case 2: {
+            for (int itr: bKnight.moves) {
+                possibilty.insert(indexSquare + itr);
+            }
+            break;
+        }
+        case 3: {
+            for (int itr: bBishop.moves) {
+                possibilty.insert(indexSquare + itr);
+            }
+            break;
+        }
+        case 4: {
+            for (int itr: bRook.moves) {
+                possibilty.insert(indexSquare + itr);
+            }
+            break;
+        }
+        case 5: {
+            for (int itr: bQueen.moves) {
+                possibilty.insert(indexSquare + itr);
+            }
+            break;
+        }
+        case 6: {
+            for (int itr: bKing.moves) {
+                possibilty.insert(indexSquare + itr);
+            }
+            break;
+        }
+        case 7: {
+            for (int itr: wPawn.moves) {
+                possibilty.insert(indexSquare + itr);
+            }
+            break;
+        }
+        case 8: {
+            for (int itr: wKnight.moves) {
+                possibilty.insert(indexSquare + itr);
+            }
+            break;
+        }
+        case 9: {
+            for (int itr: wBishop.moves) {
+                possibilty.insert(indexSquare + itr);
+            }
+            break;
+        }
+        case 10: {
+            for (int itr: bRook.moves) {
+                possibilty.insert(indexSquare + itr);
+            }
+            break;
+        }
+        case 11: {
+            for (int itr: bKing.moves) {
+                possibilty.insert(indexSquare + itr);
+            }
+            break;
+        }
+        case 12: {
+            for (int itr: bQueen.moves) {
+                possibilty.insert(indexSquare + itr);
+            }
+            break;
+        }
+        default:{
+
+        }
+    }
 }
 
 void ChessBoard::releasePiece(unsigned int mouseX, unsigned int mouseY) {

@@ -16,6 +16,9 @@ private:
 
     bool mouseDragging = false;
 
+    std::set<int> possibilty = {};
+
+
     sf::Vector2u boardSize;
     sf::RectangleShape boardOutline;
     sf::RectangleShape lightSquare;
@@ -43,7 +46,7 @@ private:
                        0, 0, 0, 0, 0, 0, 0, 0,
                        0, 0, 0, 0, 0, 0, 0, 0,
                        7, 7, 7, 7, 7, 7, 7, 7,
-                       10, 8, 9, 11, 12, 9, 8, 10,};
+                       10, 8, 9, 12, 11, 9, 8, 10,};
 
 public:
 
@@ -62,6 +65,8 @@ public:
     void drawPiece(int pieceCode, float xPos, float yPos, float boardEdge, sf::RenderWindow &window);
 
     void setMousePos(int mouseX, int mouseY);
+
+    void possibleMoves(int indexSquare, int codePiece);
 };
 
 

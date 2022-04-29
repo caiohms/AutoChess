@@ -7,6 +7,8 @@ void ChessPiece::Init(const std::string &texFile, const std::set<int> &fullMoves
         throw std::runtime_error("Failed to load texture " + texFile);
     }
 
+    this->moves = fullMoves;
+
     texture.setSmooth(true);
     sprite.setTexture(texture);
 }
