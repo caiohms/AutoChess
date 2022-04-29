@@ -26,14 +26,15 @@ private:
     ChessPiece wQueen = ChessPiece(sf::Sprite());
     ChessPiece wKing = ChessPiece(sf::Sprite());
 
-    int squares[64] = {1, 0, 0, 1, 0, 0, 0, 0,
-                       0, 1, 0, 0, 0, 0, 0, 0,
-                       0, 0, 1, 0, 0, 0, 0, 0,
-                       0, 0, 0, 1, 0, 0, 0, 0,
+
+    int squares[64] = {4, 2, 3, 6, 5, 3, 2, 4,
+                       1, 1, 1, 1, 1, 1, 1, 1,
                        0, 0, 0, 0, 0, 0, 0, 0,
                        0, 0, 0, 0, 0, 0, 0, 0,
                        0, 0, 0, 0, 0, 0, 0, 0,
-                       0, 2, 3, 4, 5, 6, 7, 8};
+                       0, 0, 0, 0, 0, 0, 0, 0,
+                       7, 7, 7, 7, 7, 7, 7, 7,
+                       10, 8, 9, 11, 12, 9, 8, 10,};
 
 public:
 
@@ -45,6 +46,9 @@ public:
 
     void setBoardSize(const sf::Vector2u &boardSize);
 
+    void grabPieces(int x, int y);
+
+    void dropPieces();
 };
 
 

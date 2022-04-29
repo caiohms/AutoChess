@@ -2,6 +2,7 @@
 #include <SFML\\Graphics.hpp>
 #include "ChessBoard.h"
 #include <algorithm>
+#include <iostream>
 
 #define MIN_WINDOW_WIDTH 1280
 #define MIN_WINDOW_HEIGHT 720
@@ -15,12 +16,14 @@ int main() {
 
     ChessBoard board(INIT_WINDOW_WIDTH, INIT_WINDOW_HEIGHT);
 
+
     while (window.isOpen()) {
         sf::Event event;
 
         while (window.pollEvent(event)) {
             if (event.type == sf::Event::Closed)
                 window.close();
+
 
             switch (event.type) {
                 case sf::Event::Resized: {
@@ -37,7 +40,23 @@ int main() {
                     board.setBoardSize(sf::Vector2u(minSide, minSide));
                     break;
                 }
+                case sf::Event::MouseButtonPressed: {
+                    switch (event.key.code) {
+                        case sf::Mouse::Button::Left: {
+                            int x = event.mouseButton.x;
+                            int y = event.mouseButton.y;
 
+                            board.grabPieces(x, y);
+
+                            break;
+                        }
+
+                        default:
+                            break;
+                    }
+                    break;
+
+                }
             }
 
         }

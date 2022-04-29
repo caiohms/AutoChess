@@ -1,4 +1,5 @@
 
+#include <iostream>
 #include "ChessBoard.h"
 #include "ChessPiece.h"
 
@@ -121,6 +122,25 @@ void ChessBoard::initChessPieces() {
     wRook.Init("resources\\sprites\\white-rook.png", rookMoves);
     wQueen.Init("resources\\sprites\\white-queen.png", queenMoves);
     wKing.Init("resources\\sprites\\white-king.png", kingMoves);
+}
+
+void ChessBoard::grabPieces(int mouseX, int mouseY) {
+
+    if (mouseX + 10 > boardSize.x || mouseY + 10 > boardSize.y || mouseX < 10 || mouseY < 10){
+        return;
+
+    }
+    int squareX = (mouseX + 10) / (boardSize.x / 8);
+    int squareY = (mouseY + 10) / (boardSize.y / 8);
+
+    int square = squareY * 8 + squareX;
+
+    std::cout << square << std::endl;
+
+}
+
+void ChessBoard::dropPieces() {
+
 }
 
 
