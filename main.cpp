@@ -16,7 +16,6 @@ int main() {
 
     ChessBoard board(INIT_WINDOW_WIDTH, INIT_WINDOW_HEIGHT);
 
-
     while (window.isOpen()) {
         sf::Event event;
 
@@ -40,14 +39,34 @@ int main() {
                     board.setBoardSize(sf::Vector2u(minSide, minSide));
                     break;
                 }
+
+                case sf::Event::MouseMoved: {
+                    board.setMousePos(event.mouseMove.x, event.mouseMove.y);
+                    break;
+                }
+
                 case sf::Event::MouseButtonPressed: {
                     switch (event.key.code) {
                         case sf::Mouse::Button::Left: {
                             int x = event.mouseButton.x;
                             int y = event.mouseButton.y;
+                            board.grabPiece(x, y);
+                            break;
+                        }
 
-                            board.grabPieces(x, y);
+                        default:
+                            break;
+                    }
+                    break;
 
+                }
+
+                case sf::Event::MouseButtonReleased: {
+                    switch (event.key.code) {
+                        case sf::Mouse::Button::Left: {
+                            int x = event.mouseButton.x;
+                            int y = event.mouseButton.y;
+                            board.releasePiece(x, y);
                             break;
                         }
 

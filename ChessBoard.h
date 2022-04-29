@@ -8,10 +8,19 @@
 class ChessBoard {
 
 private:
+    short selectedSquareIndex = -1;
+    short selectedPieceCode = -1;
+
+    int mouseXpos = -1;
+    int mouseYpos = -1;
+
+    bool mouseDragging = false;
+
     sf::Vector2u boardSize;
     sf::RectangleShape boardOutline;
     sf::RectangleShape lightSquare;
     sf::RectangleShape darkSquare;
+    sf::RectangleShape selectedSquare;
 
     ChessPiece bPawn = ChessPiece(sf::Sprite());
     ChessPiece bBishop = ChessPiece(sf::Sprite());
@@ -44,11 +53,15 @@ public:
 
     void draw(sf::RenderWindow &window);
 
-    void setBoardSize(const sf::Vector2u &boardSize);
+    void setBoardSize(const sf::Vector2u &size);
 
-    void grabPieces(int x, int y);
+    void grabPiece(unsigned int mouseX, unsigned int mouseY);
 
-    void dropPieces();
+    void releasePiece(unsigned int mouseX, unsigned int mouseY);
+
+    void drawPiece(int pieceCode, float xPos, float yPos, float boardEdge, sf::RenderWindow &window);
+
+    void setMousePos(int mouseX, int mouseY);
 };
 
 

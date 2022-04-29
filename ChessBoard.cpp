@@ -20,6 +20,7 @@ ChessBoard::ChessBoard(int width, int height) {
 
     darkSquare.setFillColor(sf::Color(81, 130, 171));
     lightSquare.setFillColor(sf::Color(124, 163, 193));
+    selectedSquare.setFillColor(sf::Color(200, 50, 50));
 
     initChessPieces();
 }
@@ -28,69 +29,44 @@ void ChessBoard::draw(sf::RenderWindow &window) {
 
     window.draw(boardOutline);
 
-    float edge = (float) boardSize.x - 20;
+    float boardEdge = (float) boardSize.x - 20;
 
-    lightSquare.setSize(sf::Vector2f(edge / 8, edge / 8));
-    darkSquare.setSize(sf::Vector2f(edge / 8, edge / 8));
+    float squareEdge = boardEdge / 8.0f;
+
+    lightSquare.setSize(sf::Vector2f(squareEdge, squareEdge));
+    darkSquare.setSize(sf::Vector2f(squareEdge, squareEdge));
+    selectedSquare.setSize(sf::Vector2f(squareEdge, squareEdge));
 
     for (int i = 0; i < 64; ++i) {
-        float xPos = 10 + edge / 8 * (i % 8);
-        float yPos = 10 + edge / 8 * (i / 8);
+        float xPos = 10 + boardEdge / 8 * (float) (i % 8);
+        float yPos = 10 + boardEdge / 8 * (float) (i / 8);
         lightSquare.setPosition(sf::Vector2f(xPos, yPos));
         darkSquare.setPosition(sf::Vector2f(xPos, yPos));
+        selectedSquare.setPosition(sf::Vector2f(xPos, yPos));
 
         if ((i % 2 + (int) (i / 8)) % 2 == 0)
             window.draw(lightSquare);
         else
             window.draw(darkSquare);
 
-        switch (squares[i]) {
-            case 1:
-                bPawn.draw(edge, xPos, yPos, window);
-                break;
-            case 2:
-                bKnight.draw(edge, xPos, yPos, window);
-                break;
-            case 3:
-                bBishop.draw(edge, xPos, yPos, window);
-                break;
-            case 4:
-                bRook.draw(edge, xPos, yPos, window);
-                break;
-            case 5:
-                bKing.draw(edge, xPos, yPos, window);
-                break;
-            case 6:
-                bQueen.draw(edge, xPos, yPos, window);
-                break;
-            case 7:
-                wPawn.draw(edge, xPos, yPos, window);
-                break;
-            case 8:
-                wKnight.draw(edge, xPos, yPos, window);
-                break;
-            case 9:
-                wBishop.draw(edge, xPos, yPos, window);
-                break;
-            case 10:
-                wRook.draw(edge, xPos, yPos, window);
-                break;
-            case 11:
-                wKing.draw(edge, xPos, yPos, window);
-                break;
-            case 12:
-                wQueen.draw(edge, xPos, yPos, window);
-                break;
-            default:
-                break;
-        }
+        if (selectedSquareIndex == i)
+            window.draw(selectedSquare);
+
+        ChessBoard::drawPiece(squares[i], xPos, yPos, boardEdge, window);
+    }
+
+    std::cout << selectedPieceCode << std::endl;
+
+    if (selectedPieceCode > 0) {
+        ChessBoard::drawPiece(selectedPieceCode, mouseXpos - squareEdge / 2, mouseYpos - squareEdge / 2, boardEdge,
+                              window);
     }
 }
 
 
-void ChessBoard::setBoardSize(const sf::Vector2u &boardSize) {
-    boardOutline.setSize(sf::Vector2f((float) boardSize.x - 20, (float) boardSize.y - 20));
-    ChessBoard::boardSize = boardSize;
+void ChessBoard::setBoardSize(const sf::Vector2u &size) {
+    boardOutline.setSize(sf::Vector2f((float) size.x - 20, (float) size.y - 20));
+    ChessBoard::boardSize = size;
 }
 
 void ChessBoard::initChessPieces() {
@@ -124,23 +100,73 @@ void ChessBoard::initChessPieces() {
     wKing.Init("resources\\sprites\\white-king.png", kingMoves);
 }
 
-void ChessBoard::grabPieces(int mouseX, int mouseY) {
+void ChessBoard::grabPiece(unsigned int mouseX, unsigned int mouseY) {
+    mouseDragging = true;
 
-    if (mouseX + 10 > boardSize.x || mouseY + 10 > boardSize.y || mouseX < 10 || mouseY < 10){
+    if (mouseX + 10 > boardSize.x || mouseY + 10 > boardSize.y || mouseX < 10 || mouseY < 10) {
+        selectedSquareIndex = -1;
         return;
-
     }
-    int squareX = (mouseX + 10) / (boardSize.x / 8);
-    int squareY = (mouseY + 10) / (boardSize.y / 8);
 
-    int square = squareY * 8 + squareX;
+    unsigned short squareX = (mouseX) / ((boardSize.x) / 8);
+    unsigned short squareY = (mouseY) / ((boardSize.y) / 8);
 
-    std::cout << square << std::endl;
+    selectedSquareIndex = squareY * 8 + squareX;
 
+    selectedPieceCode = squares[selectedSquareIndex];
 }
 
-void ChessBoard::dropPieces() {
+void ChessBoard::releasePiece(unsigned int mouseX, unsigned int mouseY) {
+    mouseDragging = false;
+    selectedPieceCode = -1;
+}
 
+void ChessBoard::drawPiece(int pieceCode, float xPos, float yPos, float boardEdge, sf::RenderWindow &window) {
+    switch (pieceCode) {
+        case 1:
+            bPawn.draw(boardEdge, xPos, yPos, window);
+            break;
+        case 2:
+            bKnight.draw(boardEdge, xPos, yPos, window);
+            break;
+        case 3:
+            bBishop.draw(boardEdge, xPos, yPos, window);
+            break;
+        case 4:
+            bRook.draw(boardEdge, xPos, yPos, window);
+            break;
+        case 5:
+            bKing.draw(boardEdge, xPos, yPos, window);
+            break;
+        case 6:
+            bQueen.draw(boardEdge, xPos, yPos, window);
+            break;
+        case 7:
+            wPawn.draw(boardEdge, xPos, yPos, window);
+            break;
+        case 8:
+            wKnight.draw(boardEdge, xPos, yPos, window);
+            break;
+        case 9:
+            wBishop.draw(boardEdge, xPos, yPos, window);
+            break;
+        case 10:
+            wRook.draw(boardEdge, xPos, yPos, window);
+            break;
+        case 11:
+            wKing.draw(boardEdge, xPos, yPos, window);
+            break;
+        case 12:
+            wQueen.draw(boardEdge, xPos, yPos, window);
+            break;
+        default:
+            break;
+    }
+}
+
+void ChessBoard::setMousePos(int mouseX, int mouseY) {
+    this->mouseXpos = mouseX;
+    this->mouseYpos = mouseY;
 }
 
 
