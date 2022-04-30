@@ -157,16 +157,38 @@ void ChessBoard::possibleMoves(int currentSquare, int pieceCode) {
     switch (pieceCode & 0b00111111) {
         case 0b1: {
             // pawn
-            if ((pieceCode &0b11000000) == 0b10000000){
+            if ((pieceCode & 0b11000000) == 0b10000000) {
+                if (minBottomLeft) {
+                    selectedPieceMovementSet.insert(currentSquare + 1 * 7);
+                }
+                if (minBottomRight) {
+                    selectedPieceMovementSet.insert(currentSquare + 1 * 9);
+                }
+
+                if (spacesBelow) {
+                    selectedPieceMovementSet.insert(currentSquare + 1 * 8);
+                }
+
+                if (spacesBelow) {
+                    selectedPieceMovementSet.insert(currentSquare + 2 * 8);
+                }
 
             }
+            if ((pieceCode & 0b11000000) == 0b01000000) {
+                if (minTopLeft) {
+                    selectedPieceMovementSet.insert(currentSquare - 1 * 9);
+                }
+                if (minTopRight) {
+                    selectedPieceMovementSet.insert(currentSquare - 1 * 7);
+                }
 
+                if (spacesAbove) {
+                    selectedPieceMovementSet.insert(currentSquare - 1 * 8);
+                }
 
-            for (int i = 1; i <= spacesAbove; ++i) {
-                selectedPieceMovementSet.insert(currentSquare - i * 2);
-            }
-            for (int i = 1; i <= spacesBelow; ++i) {
-                selectedPieceMovementSet.insert(currentSquare + i * 2);
+                if (spacesAbove) {
+                    selectedPieceMovementSet.insert(currentSquare - 2 * 8);
+                }
             }
 
             break;
@@ -238,7 +260,35 @@ void ChessBoard::possibleMoves(int currentSquare, int pieceCode) {
         }
         case 0b100000: {
             // king
-            selectedPieceMovementSet.insert({});
+            if (minBottomLeft) {
+                selectedPieceMovementSet.insert(currentSquare + 1 * 7);
+            }
+            if (minBottomRight) {
+                selectedPieceMovementSet.insert(currentSquare + 1 * 9);
+            }
+
+            if (spacesBelow) {
+                selectedPieceMovementSet.insert(currentSquare + 1 * 8);
+            }
+
+            if (minTopLeft) {
+                selectedPieceMovementSet.insert(currentSquare - 1 * 9);
+            }
+            if (minTopRight) {
+                selectedPieceMovementSet.insert(currentSquare - 1 * 7);
+            }
+
+            if (spacesAbove) {
+                selectedPieceMovementSet.insert(currentSquare - 1 * 8);
+            }
+
+            if(spacesLeft){
+                selectedPieceMovementSet.insert(currentSquare - 1);
+            }
+            if(spacesRight){
+                selectedPieceMovementSet.insert(currentSquare + 1);
+            }
+
             break;
         }
 
