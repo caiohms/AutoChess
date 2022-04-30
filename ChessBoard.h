@@ -16,7 +16,7 @@ private:
 
     bool mouseDragging = false;
 
-    std::set<int> possibilty = {};
+    std::set<int> possibilities = {};
 
 
     sf::Vector2u boardSize;
@@ -40,11 +40,11 @@ private:
     ChessPiece wKing = ChessPiece(sf::Sprite());
 
 
-    int squares[64] = {4, 2, 3, 6, 5, 3, 2, 4,
+    int squares[64] = {1, 2, 3, 6, 5, 3, 2, 4,
                        1, 1, 1, 1, 1, 1, 1, 1,
                        1, 0, 0, 7, 0, 0, 0, 0,
-                       0, 0, 0, 0, 0, 0, 0, 0,
-                       0, 0, 0, 2, 0, 0, 0, 0,
+                       0, 0, 0, 0, 0, 0, 2, 2,
+                       0, 0, 0, 2, 0, 0, 2, 2,
                        0, 0, 1, 0, 0, 0, 0, 0,
                        7, 7, 7, 7, 7, 7, 7, 7,
                        10, 8, 9, 12, 11, 9, 8, 10,};
@@ -67,7 +67,9 @@ public:
 
     void setMousePos(int mouseX, int mouseY);
 
-    void possibleMoves(int indexSquare, int codePiece);
+    void possibleMoves(int squareIndex, int pieceCode);
+
+    std::set<int> getPieceMovements(int pieceCode);
 };
 
 
