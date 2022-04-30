@@ -8,8 +8,8 @@
 class ChessBoard {
 
 private:
-    short selectedSquareIndex = -1;
-    short selectedPieceCode = -1;
+    int selectedSquareIndex = -1;
+    unsigned short selectedPieceCode = -1;
 
     int mouseXpos = -1;
     int mouseYpos = -1;
@@ -23,7 +23,8 @@ private:
     sf::RectangleShape lightSquare;
     sf::RectangleShape darkSquare;
     sf::RectangleShape selectedSquare;
-    sf::RectangleShape possibleSquare;
+//    sf::RectangleShape possibleSquare;
+    sf::CircleShape targetCircleShape;
 
     ChessPiece bPawn = ChessPiece(sf::Sprite());
     ChessPiece bBishop = ChessPiece(sf::Sprite());
@@ -39,18 +40,24 @@ private:
     ChessPiece wKing = ChessPiece(sf::Sprite());
 
 
-    int squares[64] = {0b01001000, 0b10000010, 0b10001000, 0b10100000, 0b10010000, 0b10000010, 0b10000010, 0b10001000,
-                       0b10000001, 0b01001000, 0b10000001, 0b10000001, 0b10000001, 0b10000001, 0b10000001, 0b10000001,
-                       0b10000001, 0, 0, 0b01001000, 0, 0, 0, 0,
-                       0, 0, 0, 0b01000100, 0b10100000, 0, 0b10000010, 0b10000010,
-                       0b10001000, 0b10001000, 0b10001000, 0b10001000, 0b01001000, 0b10001000, 0b10001000, 0b10001000,
-                       0, 0, 0b10000001, 0b10100000, 0b10000100, 0b01001000, 0, 0,
-                       0b01000001, 0b01000001, 0b01000001, 0b01000001, 0b01000001, 0b01000001, 0b01001000, 0b01000001,
-                       0b01001000, 0b01000010, 0b01000100, 0b01010000, 0b01100000, 0b01000100, 0b01000010, 0b01001000};
+    unsigned int squares[64] = {
+            0b01001000, 0b10000010, 0b10001000, 0b10010000, 0b10100000, 0b10000010, 0b10000010,
+            0b10001000,
+            0b10000001, 0b01001000, 0b10000001, 0b10000001, 0b10000001, 0b10000001, 0b10000001,
+            0b10000001,
+            0b10000001, 0, 0, 0b01001000, 0, 0, 0, 0,
+            0, 0, 0, 0b01000100, 0b10100000, 0, 0b10000010, 0b10000010,
+            0b10001000, 0b10001000, 0b10001000, 0b10001000, 0b01001000, 0b10001000, 0b10001000,
+            0b10001000,
+            0, 0, 0b10000001, 0b10100000, 0b10000100, 0b01001000, 0, 0,
+            0b01000001, 0b01000001, 0b01000001, 0b01000001, 0b01000001, 0b01000001, 0b01001000,
+            0b01000001,
+            0b01001000, 0b01000010, 0b01000100, 0b01010000, 0b01100000, 0b01000100, 0b01000010,
+            0b01001000};
 
 public:
 
-    void initChessPieces();
+    void initTextures();
 
     ChessBoard(int width, int height);
 
@@ -62,11 +69,13 @@ public:
 
     void releasePiece(unsigned int mouseX, unsigned int mouseY);
 
-    void drawPiece(int pieceCode, float xPos, float yPos, float boardEdge, sf::RenderWindow &window);
+    void drawPiece(unsigned short pieceCode, float xPos, float yPos, float boardEdge, sf::RenderWindow &window);
 
     void setMousePos(int mouseX, int mouseY);
 
     void possibleMoves(int currentSquare, int pieceCode);
+
+    int getSquareUnderMousePos(unsigned int mouseX, unsigned int mouseY);
 };
 
 

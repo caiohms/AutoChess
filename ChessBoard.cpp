@@ -23,9 +23,13 @@ ChessBoard::ChessBoard(int width, int height) {
     darkSquare.setFillColor(sf::Color(81, 130, 171));
     lightSquare.setFillColor(sf::Color(124, 163, 193));
     selectedSquare.setFillColor(sf::Color(200, 50, 50));
-    possibleSquare.setFillColor(sf::Color(2, 188, 0));
 
-    initChessPieces();
+    targetCircleShape.setOutlineThickness(4);
+    targetCircleShape.setOutlineColor(sf::Color(80, 80, 80));
+
+//    possibleSquare.setFillColor(sf::Color(2, 188, 0));
+
+    initTextures();
 }
 
 void ChessBoard::draw(sf::RenderWindow &window) {
@@ -38,7 +42,8 @@ void ChessBoard::draw(sf::RenderWindow &window) {
     lightSquare.setSize(sf::Vector2f(squareEdge, squareEdge));
     darkSquare.setSize(sf::Vector2f(squareEdge, squareEdge));
     selectedSquare.setSize(sf::Vector2f(squareEdge, squareEdge));
-    possibleSquare.setSize(sf::Vector2f(squareEdge, squareEdge));
+
+//    possibleSquare.setSize(sf::Vector2f(squareEdge, squareEdge));
 
     for (int i = 0; i < 64; ++i) {
         float xPos = 10 + boardEdge / 8 * (float) (i % 8);
@@ -46,7 +51,23 @@ void ChessBoard::draw(sf::RenderWindow &window) {
         lightSquare.setPosition(sf::Vector2f(xPos, yPos));
         darkSquare.setPosition(sf::Vector2f(xPos, yPos));
         selectedSquare.setPosition(sf::Vector2f(xPos, yPos));
-        possibleSquare.setPosition(sf::Vector2f(xPos, yPos));
+
+        if (squares[i] > 0) {
+            // opponent piece on square
+            targetCircleShape.setFillColor(sf::Color::Transparent);
+            targetCircleShape.setRadius(squareEdge / 2.2f);
+        } else {
+            //empty square
+            targetCircleShape.setFillColor(sf::Color(80, 80, 80));
+            targetCircleShape.setRadius(squareEdge / 10);
+        }
+
+        targetCircleShape.setPosition(xPos, yPos);
+        targetCircleShape.setOrigin(-squareEdge / 2 + targetCircleShape.getRadius(),
+                                    -squareEdge / 2 + targetCircleShape.getRadius());
+
+
+        //        possibleSquare.setPosition(sf::Vector2f(xPos, yPos));
 
         if ((i % 2 + (int) (i / 8)) % 2 == 0)
             window.draw(lightSquare);
@@ -56,11 +77,11 @@ void ChessBoard::draw(sf::RenderWindow &window) {
         if (selectedSquareIndex == i)
             window.draw(selectedSquare);
 
-        if (possibilities.count(i)) {
-            window.draw(possibleSquare);
-        }
-
         ChessBoard::drawPiece(squares[i], xPos, yPos, boardEdge, window);
+
+        if (possibilities.count(i)) {
+            window.draw(targetCircleShape);
+        }
     }
 
 
@@ -70,79 +91,68 @@ void ChessBoard::draw(sf::RenderWindow &window) {
     }
 }
 
-
 void ChessBoard::setBoardSize(const sf::Vector2u &size) {
     boardOutline.setSize(sf::Vector2f((float) size.x - 20, (float) size.y - 20));
     ChessBoard::boardSize = size;
 }
 
-void ChessBoard::initChessPieces() {
-    std::set<int> bPawnMoves = {+8, +16, +7, +9};
-    std::set<int> wPawnMoves = {-8, -16, -7, -9};
-    std::set<int> rookMoves = {+1, +2, +3, +4, +5, +6, +7, +8, +16, +24, +32, +40, +48, +56};
+void ChessBoard::initTextures() {
+    bPawn.Init("resources\\sprites\\black-pawn.png");
+    bBishop.Init("resources\\sprites\\black-bishop.png");
+    bKnight.Init("resources\\sprites\\black-knight.png");
+    bRook.Init("resources\\sprites\\black-rook.png");
+    bQueen.Init("resources\\sprites\\black-queen.png");
+    bKing.Init("resources\\sprites\\black-king.png");
 
-    std::set<int> bishopMoves = {7, 14, 21, 28, 35, 42, 49};
-
-//    std::set<int> bishopMoves = {+9, +18, +27, +36, +45, +54, +63, 7, 14, 21, 28, 35, 42, 49};
-    std::set<int> knightMoves = {+10, +17, +15, +6};
-    std::set<int> kingMoves = {+1, +2, -2, +7, +8, +9};
-    std::set<int> queenMoves = {+1, +2, +3, +4, +5, +6, +7, +8, +16, +24, +32, +40, +48, +56, +9, +18, +27, +36, +45,
-                                +54, +63, 7, 14, 21, 28, 35, 42, 49};
-
-//    generateMoves(queenMoves);
-//    generateMoves(rookMoves);
-//    generateMoves(bishopMoves);
-//    generateMoves(kingMoves);
-//    generateMoves(knightMoves);
-
-    bPawn.Init("resources\\sprites\\black-pawn.png", bPawnMoves);
-    bBishop.Init("resources\\sprites\\black-bishop.png", bishopMoves);
-    bKnight.Init("resources\\sprites\\black-knight.png", knightMoves);
-    bRook.Init("resources\\sprites\\black-rook.png", rookMoves);
-    bQueen.Init("resources\\sprites\\black-queen.png", queenMoves);
-    bKing.Init("resources\\sprites\\black-king.png", kingMoves);
-
-    wPawn.Init("resources\\sprites\\white-pawn.png", wPawnMoves);
-    wBishop.Init("resources\\sprites\\white-bishop.png", bishopMoves);
-    wKnight.Init("resources\\sprites\\white-knight.png", knightMoves);
-    wRook.Init("resources\\sprites\\white-rook.png", rookMoves);
-    wQueen.Init("resources\\sprites\\white-queen.png", queenMoves);
-    wKing.Init("resources\\sprites\\white-king.png", kingMoves);
-
-
+    wPawn.Init("resources\\sprites\\white-pawn.png");
+    wBishop.Init("resources\\sprites\\white-bishop.png");
+    wKnight.Init("resources\\sprites\\white-knight.png");
+    wRook.Init("resources\\sprites\\white-rook.png");
+    wQueen.Init("resources\\sprites\\white-queen.png");
+    wKing.Init("resources\\sprites\\white-king.png");
 }
 
 void ChessBoard::grabPiece(unsigned int mouseX, unsigned int mouseY) {
     mouseDragging = true;
 
     if (mouseX + 10 > boardSize.x || mouseY + 10 > boardSize.y || mouseX < 10 || mouseY < 10) {
-        selectedSquareIndex = -1;
+        selectedSquareIndex = 0;
         return;
     }
 
-    unsigned short squareX = (mouseX) / ((boardSize.x) / 8);
-    unsigned short squareY = (mouseY) / ((boardSize.y) / 8);
-
-    selectedSquareIndex = squareY * 8 + squareX;
+    selectedSquareIndex = getSquareUnderMousePos(mouseX, mouseY);
 
     selectedPieceCode = squares[selectedSquareIndex];
 
-
     possibleMoves(selectedSquareIndex, selectedPieceCode);
+}
 
+void ChessBoard::releasePiece(unsigned int mouseX, unsigned int mouseY) {
+    if (selectedPieceCode == 0) return;
+
+    mouseDragging = false;
+
+    int hoveringSquare = getSquareUnderMousePos(mouseX, mouseY);
+
+//    if (hoveringSquare)
+
+    squares[selectedSquareIndex] = 0;
+    squares[hoveringSquare] = selectedPieceCode;
+    selectedPieceCode = 0;
+    selectedSquareIndex = -1;
+    possibilities = {};
+}
+
+int ChessBoard::getSquareUnderMousePos(unsigned int mouseX, unsigned int mouseY) {
+    unsigned short squareX = (mouseX) / ((boardSize.x) / 8);
+    unsigned short squareY = (mouseY) / ((boardSize.y) / 8);
+
+    return squareY * 8 + squareX;
 }
 
 void ChessBoard::possibleMoves(int currentSquare, int pieceCode) {
     possibilities.clear();
     if (pieceCode == 0) return;
-
-    std::set<int> selectedPieceMovementSet = std::set<int>();
-
-//    for (int item: getPieceMovements(pieceCode)) {
-//        int target = item + currentSquare;
-
-//        if (target < 0) continue;
-//        if (target > 63) continue;
 
     int spacesAbove = currentSquare / 8;
     int spacesBelow = 7 - currentSquare / 8;
@@ -159,470 +169,131 @@ void ChessBoard::possibleMoves(int currentSquare, int pieceCode) {
             // pawn
             if ((pieceCode & 0b11000000) == 0b10000000) {
                 if (minBottomLeft) {
-                    selectedPieceMovementSet.insert(currentSquare + 1 * 7);
+                    possibilities.insert(currentSquare + 1 * 7);
                 }
                 if (minBottomRight) {
-                    selectedPieceMovementSet.insert(currentSquare + 1 * 9);
+                    possibilities.insert(currentSquare + 1 * 9);
                 }
-
                 if (spacesBelow) {
-                    selectedPieceMovementSet.insert(currentSquare + 1 * 8);
+                    possibilities.insert(currentSquare + 1 * 8);
                 }
-
                 if (spacesBelow) {
-                    selectedPieceMovementSet.insert(currentSquare + 2 * 8);
+                    possibilities.insert(currentSquare + 2 * 8);
                 }
-
-            }
-            if ((pieceCode & 0b11000000) == 0b01000000) {
+            } else {
                 if (minTopLeft) {
-                    selectedPieceMovementSet.insert(currentSquare - 1 * 9);
+                    possibilities.insert(currentSquare - 1 * 9);
                 }
                 if (minTopRight) {
-                    selectedPieceMovementSet.insert(currentSquare - 1 * 7);
+                    possibilities.insert(currentSquare - 1 * 7);
                 }
-
                 if (spacesAbove) {
-                    selectedPieceMovementSet.insert(currentSquare - 1 * 8);
+                    possibilities.insert(currentSquare - 1 * 8);
                 }
-
                 if (spacesAbove) {
-                    selectedPieceMovementSet.insert(currentSquare - 2 * 8);
+                    possibilities.insert(currentSquare - 2 * 8);
                 }
             }
-
             break;
         }
         case 0b10: {
             // knight
-            selectedPieceMovementSet.insert({});
+            possibilities.insert({});
             break;
         }
         case 0b100: {
             // bishop
             for (int i = 1; i <= minTopLeft; ++i) {
-                selectedPieceMovementSet.insert(currentSquare - i * 9);
+                possibilities.insert(currentSquare - i * 9);
             }
             for (int i = 1; i <= minTopRight; ++i) {
-                selectedPieceMovementSet.insert(currentSquare - i * 7);
+                possibilities.insert(currentSquare - i * 7);
             }
             for (int i = 1; i <= minBottomLeft; ++i) {
-                selectedPieceMovementSet.insert(currentSquare + i * 7);
+                possibilities.insert(currentSquare + i * 7);
             }
             for (int i = 1; i <= minBottomRight; ++i) {
-                selectedPieceMovementSet.insert(currentSquare + i * 9);
+                possibilities.insert(currentSquare + i * 9);
             }
             break;
         }
         case 0b1000: {
             // rook
             for (int i = 1; i <= spacesAbove; ++i) {
-                selectedPieceMovementSet.insert(currentSquare - i * 8);
+                possibilities.insert(currentSquare - i * 8);
             }
             for (int i = 1; i <= spacesBelow; ++i) {
-                selectedPieceMovementSet.insert(currentSquare + i * 8);
+                possibilities.insert(currentSquare + i * 8);
             }
             for (int i = 1; i <= spacesLeft; ++i) {
-                selectedPieceMovementSet.insert(currentSquare - i);
+                possibilities.insert(currentSquare - i);
             }
             for (int i = 1; i <= spacesRight; ++i) {
-                selectedPieceMovementSet.insert(currentSquare + i);
+                possibilities.insert(currentSquare + i);
             }
             break;
         }
         case 0b10000: {
             // queen
             for (int i = 1; i <= minTopLeft; ++i) {
-                selectedPieceMovementSet.insert(currentSquare - i * 9);
+                possibilities.insert(currentSquare - i * 9);
             }
             for (int i = 1; i <= minTopRight; ++i) {
-                selectedPieceMovementSet.insert(currentSquare - i * 7);
+                possibilities.insert(currentSquare - i * 7);
             }
             for (int i = 1; i <= minBottomLeft; ++i) {
-                selectedPieceMovementSet.insert(currentSquare + i * 7);
+                possibilities.insert(currentSquare + i * 7);
             }
             for (int i = 1; i <= minBottomRight; ++i) {
-                selectedPieceMovementSet.insert(currentSquare + i * 9);
+                possibilities.insert(currentSquare + i * 9);
             }
             for (int i = 1; i <= spacesAbove; ++i) {
-                selectedPieceMovementSet.insert(currentSquare - i * 8);
+                possibilities.insert(currentSquare - i * 8);
             }
             for (int i = 1; i <= spacesBelow; ++i) {
-                selectedPieceMovementSet.insert(currentSquare + i * 8);
+                possibilities.insert(currentSquare + i * 8);
             }
             for (int i = 1; i <= spacesLeft; ++i) {
-                selectedPieceMovementSet.insert(currentSquare - i);
+                possibilities.insert(currentSquare - i);
             }
             for (int i = 1; i <= spacesRight; ++i) {
-                selectedPieceMovementSet.insert(currentSquare + i);
+                possibilities.insert(currentSquare + i);
             }
             break;
         }
         case 0b100000: {
             // king
             if (minBottomLeft) {
-                selectedPieceMovementSet.insert(currentSquare + 1 * 7);
+                possibilities.insert(currentSquare + 1 * 7);
             }
             if (minBottomRight) {
-                selectedPieceMovementSet.insert(currentSquare + 1 * 9);
+                possibilities.insert(currentSquare + 1 * 9);
             }
-
             if (spacesBelow) {
-                selectedPieceMovementSet.insert(currentSquare + 1 * 8);
+                possibilities.insert(currentSquare + 1 * 8);
             }
-
             if (minTopLeft) {
-                selectedPieceMovementSet.insert(currentSquare - 1 * 9);
+                possibilities.insert(currentSquare - 1 * 9);
             }
             if (minTopRight) {
-                selectedPieceMovementSet.insert(currentSquare - 1 * 7);
+                possibilities.insert(currentSquare - 1 * 7);
             }
-
             if (spacesAbove) {
-                selectedPieceMovementSet.insert(currentSquare - 1 * 8);
+                possibilities.insert(currentSquare - 1 * 8);
             }
-
-            if(spacesLeft){
-                selectedPieceMovementSet.insert(currentSquare - 1);
+            if (spacesLeft) {
+                possibilities.insert(currentSquare - 1);
             }
-            if(spacesRight){
-                selectedPieceMovementSet.insert(currentSquare + 1);
+            if (spacesRight) {
+                possibilities.insert(currentSquare + 1);
             }
-
             break;
         }
-
     }
-
-    possibilities = selectedPieceMovementSet;
-/*
-//
-//    switch (pieceCode) {
-//        case 1: {
-//            //Diagonal esquerda
-//            if (currentSquare != 8 && currentSquare != 16 && currentSquare != 24 && currentSquare != 32 && currentSquare != 40 &&
-//                currentSquare != 48 && squares[(currentSquare + 7)] >= 7) {
-//                possibilities.insert(currentSquare + 7);
-//            }
-//
-//            //Diagonal direita
-//            if (currentSquare != 15 && currentSquare != 23 && currentSquare != 31 && currentSquare != 39 && currentSquare != 47 &&
-//                currentSquare != 55 && squares[(currentSquare + 9)] >= 7) {
-//                possibilities.insert(currentSquare + 9);
-//            }
-//
-//            // 1 para frente
-//            if (squares[currentSquare + 8] == 0) {
-//                possibilities.insert(currentSquare + 8);
-//            }
-//
-//            // 2 para frente
-//            if (currentSquare >= 8 && currentSquare <= 15 && squares[currentSquare + 8] == 0 &&
-//                squares[currentSquare + 16] == 0) {
-//                possibilities.insert(currentSquare + 16);
-//            }
-//
-//            break;
-//        }
-//        case 2: {
-//            if (currentSquare != 8 && currentSquare != 16 && currentSquare != 24 &&
-//                currentSquare != 32 && currentSquare != 40 && currentSquare != 48 &&
-//                currentSquare != 56 && currentSquare != 1 && currentSquare != 9 &&
-//                currentSquare != 17 && currentSquare != 25 && currentSquare != 33 &&
-//                currentSquare != 41 && currentSquare != 49 && currentSquare != 57 &&
-//                currentSquare != 2 && currentSquare != 3 && currentSquare != 4 &&
-//                currentSquare != 5 && currentSquare != 6 && currentSquare != 7 &&
-//                currentSquare != 0 &&
-//                (squares[currentSquare - 10] ==  0 || squares[currentSquare - 10] >= 7)) {
-//
-//                possibilities.insert(currentSquare - 10);
-//
-//            }
-//
-//            if (currentSquare != 8 && currentSquare != 16 && currentSquare != 24 &&
-//                currentSquare != 32 && currentSquare != 40 && currentSquare != 48 &&
-//                currentSquare != 56 && currentSquare != 1 && currentSquare != 9 &&
-//                currentSquare != 17 && currentSquare != 25 && currentSquare != 33 &&
-//                currentSquare != 41 && currentSquare != 49 && currentSquare != 57 &&
-//                currentSquare != 58 && currentSquare != 59 && currentSquare != 60 &&
-//                currentSquare != 61 && currentSquare != 62 && currentSquare != 63 &&
-//                currentSquare != 0 &&
-//                (squares[currentSquare + 6] ==  0 || squares[currentSquare + 6] >= 7)) {
-//
-//                possibilities.insert(currentSquare + 6);
-//            }
-//
-//            if (currentSquare != 8 && currentSquare != 16 && currentSquare != 24 &&
-//                currentSquare != 32 && currentSquare != 40 && currentSquare != 48 &&
-//                currentSquare != 56 && currentSquare != 1 && currentSquare != 2 &&
-//                currentSquare != 3 && currentSquare != 4 && currentSquare != 5 &&
-//                currentSquare != 6 && currentSquare != 7 && currentSquare != 9 &&
-//                currentSquare != 10 && currentSquare != 11 && currentSquare != 12 &&
-//                currentSquare != 13 && currentSquare != 14 && currentSquare != 15 &&
-//                currentSquare != 0 &&
-//                (squares[currentSquare - 17] ==  0 || squares[currentSquare - 17] >= 7)) {
-//
-//                possibilities.insert(currentSquare - 17);
-//            }
-//
-//            if (currentSquare != 7 && currentSquare != 15 && currentSquare != 23 &&
-//                currentSquare != 31 && currentSquare != 39 && currentSquare != 47 &&
-//                currentSquare != 55 && currentSquare != 63 && currentSquare != 2 &&
-//                currentSquare != 3 && currentSquare != 4 && currentSquare != 5 &&
-//                currentSquare != 6 && currentSquare != 0 && currentSquare != 9 &&
-//                currentSquare != 10 && currentSquare != 11 && currentSquare != 12 &&
-//                currentSquare != 13 && currentSquare != 14 && currentSquare != 8 &&
-//                currentSquare != 1 &&
-//                (squares[currentSquare - 15] ==  0 || squares[currentSquare - 15] >= 7)) {
-//
-//                possibilities.insert(currentSquare - 15);
-//            }
-//
-//            if (currentSquare != 7 && currentSquare != 15 && currentSquare != 23 &&
-//                currentSquare != 31 && currentSquare != 39 && currentSquare != 47 &&
-//                currentSquare != 55 && currentSquare != 63 && currentSquare != 6 &&
-//                currentSquare != 14 && currentSquare != 22 && currentSquare != 30 &&
-//                currentSquare != 38 && currentSquare != 46 && currentSquare != 54 &&
-//                currentSquare != 62 && currentSquare != 0 && currentSquare != 1 &&
-//                currentSquare != 2 && currentSquare != 3 && currentSquare != 4 &&
-//                currentSquare != 5 &&
-//                (squares[currentSquare - 6] ==  0 || squares[currentSquare - 6] >= 7)) {
-//
-//                possibilities.insert(currentSquare - 6);
-//            }
-//
-//            if (currentSquare != 7 && currentSquare != 15 && currentSquare != 23 &&
-//                currentSquare != 31 && currentSquare != 39 && currentSquare != 47 &&
-//                currentSquare != 55 && currentSquare != 63 && currentSquare != 6 &&
-//                currentSquare != 14 && currentSquare != 22 && currentSquare != 30 &&
-//                currentSquare != 38 && currentSquare != 46 && currentSquare != 54 &&
-//                currentSquare != 62 && currentSquare != 56 && currentSquare != 57 &&
-//                currentSquare != 58 && currentSquare != 59 && currentSquare != 60 &&
-//                currentSquare != 61 &&
-//                (squares[currentSquare + 10] ==  0 || squares[currentSquare + 10] >= 7)) {
-//
-//                possibilities.insert(currentSquare + 10);
-//            }
-//
-//            if (currentSquare != 7 && currentSquare != 15 && currentSquare != 23 &&
-//                currentSquare != 31 && currentSquare != 39 && currentSquare != 47 &&
-//                currentSquare != 55 && currentSquare != 63 && currentSquare != 48 &&
-//                currentSquare != 49 && currentSquare != 50 && currentSquare != 51 &&
-//                currentSquare != 52 && currentSquare != 53 && currentSquare != 54 &&
-//                currentSquare != 56 && currentSquare != 57 && currentSquare != 58 &&
-//                currentSquare != 59 && currentSquare != 60 && currentSquare != 61 &&
-//                currentSquare != 62 &&
-//                (squares[currentSquare + 17] ==  0 || squares[currentSquare + 17] >= 7)) {
-//
-//                possibilities.insert(currentSquare + 17);
-//            }
-//
-//            if (currentSquare != 0 && currentSquare != 8 && currentSquare != 16 &&
-//                currentSquare != 24 && currentSquare != 32 && currentSquare != 40 &&
-//                currentSquare != 48 && currentSquare != 56 && currentSquare != 55 &&
-//                currentSquare != 49 && currentSquare != 50 && currentSquare != 51 &&
-//                currentSquare != 52 && currentSquare != 53 && currentSquare != 54 &&
-//                currentSquare != 63 && currentSquare != 57 && currentSquare != 58 &&
-//                currentSquare != 59 && currentSquare != 60 && currentSquare != 61 &&
-//                currentSquare != 62 &&
-//                (squares[currentSquare + 15] ==  0 || squares[currentSquare + 15] >= 7)) {
-//
-//                possibilities.insert(currentSquare + 15);
-//            }
-//
-//            break;
-//        }
-//        case 3: {
-//
-//            break;
-//        }
-//        case 4: {
-//            for (int x: possibilities) {
-//                std::cout << x << std::endl;
-//            }
-//            break;
-//        }
-//        case 5: {
-//            for (int x: possibilities) {
-//                std::cout << x << std::endl;
-//            }
-//            break;
-//        }
-//        case 6: {
-//            for (int x: possibilities) {
-//                std::cout << x << std::endl;
-//            }
-//            break;
-//        }
-//        case 7: {
-//            //Diagonal esquerda
-//            if (currentSquare != 8 && currentSquare != 16 && currentSquare != 24 && currentSquare != 32 && currentSquare != 40 &&
-//                currentSquare != 48 && squares[(currentSquare - 9)] <= 7 && squares[(currentSquare - 9)] > 0) {
-//                possibilities.insert(currentSquare - 9);
-//            }
-//
-//            //Diagonal direita
-//            if (currentSquare != 15 && currentSquare != 23 && currentSquare != 31 && currentSquare != 39 && currentSquare != 47 &&
-//                currentSquare != 55 && squares[(currentSquare -7)] <= 7 && squares[(currentSquare - 7)] > 0) {
-//                possibilities.insert(currentSquare - 7);
-//            }
-//
-//            // 1 para frente
-//            if (squares[currentSquare - 8] == 0) {
-//                possibilities.insert(currentSquare - 8);
-//            }
-//
-//            // 2 para frente
-//            if (currentSquare >= 48 && currentSquare <= 55 && squares[currentSquare - 8] == 0 &&
-//                squares[currentSquare - 16] == 0) {
-//                possibilities.insert(currentSquare - 16);
-//            }
-//            break;
-//        }
-//        case 8: {
-//            if (currentSquare != 8 && currentSquare != 16 && currentSquare != 24 &&
-//                currentSquare != 32 && currentSquare != 40 && currentSquare != 48 &&
-//                currentSquare != 56 && currentSquare != 1 && currentSquare != 9 &&
-//                currentSquare != 17 && currentSquare != 25 && currentSquare != 33 &&
-//                currentSquare != 41 && currentSquare != 49 && currentSquare != 57 &&
-//                currentSquare != 2 && currentSquare != 3 && currentSquare != 4 &&
-//                currentSquare != 5 && currentSquare != 6 && currentSquare != 7 &&
-//                currentSquare != 0 &&
-//                squares[currentSquare - 10] < 7) {
-//
-//                possibilities.insert(currentSquare - 10);
-//
-//            }
-//
-//            if (currentSquare != 8 && currentSquare != 16 && currentSquare != 24 &&
-//                currentSquare != 32 && currentSquare != 40 && currentSquare != 48 &&
-//                currentSquare != 56 && currentSquare != 1 && currentSquare != 9 &&
-//                currentSquare != 17 && currentSquare != 25 && currentSquare != 33 &&
-//                currentSquare != 41 && currentSquare != 49 && currentSquare != 57 &&
-//                currentSquare != 58 && currentSquare != 59 && currentSquare != 60 &&
-//                currentSquare != 61 && currentSquare != 62 && currentSquare != 63 &&
-//                currentSquare != 0 &&
-//                squares[currentSquare + 6] < 7) {
-//
-//                possibilities.insert(currentSquare + 6);
-//            }
-//
-//            if (currentSquare != 8 && currentSquare != 16 && currentSquare != 24 &&
-//                currentSquare != 32 && currentSquare != 40 && currentSquare != 48 &&
-//                currentSquare != 56 && currentSquare != 1 && currentSquare != 2 &&
-//                currentSquare != 3 && currentSquare != 4 && currentSquare != 5 &&
-//                currentSquare != 6 && currentSquare != 7 && currentSquare != 9 &&
-//                currentSquare != 10 && currentSquare != 11 && currentSquare != 12 &&
-//                currentSquare != 13 && currentSquare != 14 && currentSquare != 15 &&
-//                currentSquare != 0 &&
-//                squares[currentSquare - 17] < 7) {
-//
-//                possibilities.insert(currentSquare - 17);
-//            }
-//
-//            if (currentSquare != 7 && currentSquare != 15 && currentSquare != 23 &&
-//                currentSquare != 31 && currentSquare != 39 && currentSquare != 47 &&
-//                currentSquare != 55 && currentSquare != 63 && currentSquare != 2 &&
-//                currentSquare != 3 && currentSquare != 4 && currentSquare != 5 &&
-//                currentSquare != 6 && currentSquare != 0 && currentSquare != 9 &&
-//                currentSquare != 10 && currentSquare != 11 && currentSquare != 12 &&
-//                currentSquare != 13 && currentSquare != 14 && currentSquare != 8 &&
-//                currentSquare != 1 &&
-//                squares[currentSquare - 15] < 7) {
-//
-//                possibilities.insert(currentSquare - 15);
-//            }
-//
-//            if (currentSquare != 7 && currentSquare != 15 && currentSquare != 23 &&
-//                currentSquare != 31 && currentSquare != 39 && currentSquare != 47 &&
-//                currentSquare != 55 && currentSquare != 63 && currentSquare != 6 &&
-//                currentSquare != 14 && currentSquare != 22 && currentSquare != 30 &&
-//                currentSquare != 38 && currentSquare != 46 && currentSquare != 54 &&
-//                currentSquare != 62 && currentSquare != 0 && currentSquare != 1 &&
-//                currentSquare != 2 && currentSquare != 3 && currentSquare != 4 &&
-//                currentSquare != 5 &&
-//                squares[currentSquare - 6] < 7) {
-//
-//                possibilities.insert(currentSquare - 6);
-//            }
-//
-//            if (currentSquare != 7 && currentSquare != 15 && currentSquare != 23 &&
-//                currentSquare != 31 && currentSquare != 39 && currentSquare != 47 &&
-//                currentSquare != 55 && currentSquare != 63 && currentSquare != 6 &&
-//                currentSquare != 14 && currentSquare != 22 && currentSquare != 30 &&
-//                currentSquare != 38 && currentSquare != 46 && currentSquare != 54 &&
-//                currentSquare != 62 && currentSquare != 56 && currentSquare != 57 &&
-//                currentSquare != 58 && currentSquare != 59 && currentSquare != 60 &&
-//                currentSquare != 61 &&
-//                squares[currentSquare +10] < 7) {
-//
-//                possibilities.insert(currentSquare + 10);
-//            }
-//
-//            if (currentSquare != 7 && currentSquare != 15 && currentSquare != 23 &&
-//                currentSquare != 31 && currentSquare != 39 && currentSquare != 47 &&
-//                currentSquare != 55 && currentSquare != 63 && currentSquare != 48 &&
-//                currentSquare != 49 && currentSquare != 50 && currentSquare != 51 &&
-//                currentSquare != 52 && currentSquare != 53 && currentSquare != 54 &&
-//                currentSquare != 56 && currentSquare != 57 && currentSquare != 58 &&
-//                currentSquare != 59 && currentSquare != 60 && currentSquare != 61 &&
-//                currentSquare != 62 &&
-//                squares[currentSquare +17] < 7) {
-//
-//                possibilities.insert(currentSquare + 17);
-//            }
-//
-//            if (currentSquare != 0 && currentSquare != 8 && currentSquare != 16 &&
-//                currentSquare != 24 && currentSquare != 32 && currentSquare != 40 &&
-//                currentSquare != 48 && currentSquare != 56 && currentSquare != 55 &&
-//                currentSquare != 49 && currentSquare != 50 && currentSquare != 51 &&
-//                currentSquare != 52 && currentSquare != 53 && currentSquare != 54 &&
-//                currentSquare != 63 && currentSquare != 57 && currentSquare != 58 &&
-//                currentSquare != 59 && currentSquare != 60 && currentSquare != 61 &&
-//                currentSquare != 62 &&
-//                squares[currentSquare +15] < 7) {
-//
-//                possibilities.insert(currentSquare + 15);
-//            }
-//            break;
-//        }
-//        case 9: {
-//            for (int x: possibilities) {
-//                std::cout << x << std::endl;
-//            }
-//            break;
-//        }
-//        case 10: {
-//            for (int x: possibilities) {
-//                std::cout << x << std::endl;
-//            }
-//            break;
-//        }
-//        case 11: {
-//            for (int x: possibilities) {
-//                std::cout << x << std::endl;
-//            }
-//            break;
-//        }
-//        case 12: {
-//            for (int x: possibilities) {
-//                std::cout << x << std::endl;
-//            }
-//            break;
-//        }
-//        default: {
-//
-//        }
-//    }
-*/
 }
 
-void ChessBoard::releasePiece(unsigned int mouseX, unsigned int mouseY) {
-    mouseDragging = false;
-    selectedPieceCode = -1;
-}
-
-void ChessBoard::drawPiece(int pieceCode, float xPos, float yPos, float boardEdge, sf::RenderWindow &window) {
+void
+ChessBoard::drawPiece(unsigned short pieceCode, float xPos, float yPos, float boardEdge, sf::RenderWindow &window) {
     switch (pieceCode) {
         case 0b10000001:
             bPawn.draw(boardEdge, xPos, yPos, window);

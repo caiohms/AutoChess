@@ -58,7 +58,6 @@ int main() {
                             break;
                     }
                     break;
-
                 }
 
                 case sf::Event::MouseButtonReleased: {
