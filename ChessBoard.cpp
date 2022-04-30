@@ -574,41 +574,41 @@ void ChessBoard::releasePiece(unsigned int mouseX, unsigned int mouseY) {
 
 void ChessBoard::drawPiece(int pieceCode, float xPos, float yPos, float boardEdge, sf::RenderWindow &window) {
     switch (pieceCode) {
-        case 1:
+        case 0b10000001:
             bPawn.draw(boardEdge, xPos, yPos, window);
             break;
-        case 2:
+        case 0b10000010:
             bKnight.draw(boardEdge, xPos, yPos, window);
             break;
-        case 3:
+        case 0b10000100:
             bBishop.draw(boardEdge, xPos, yPos, window);
             break;
-        case 4:
+        case 0b10001000:
             bRook.draw(boardEdge, xPos, yPos, window);
             break;
-        case 5:
-            bKing.draw(boardEdge, xPos, yPos, window);
-            break;
-        case 6:
+        case 0b10010000:
             bQueen.draw(boardEdge, xPos, yPos, window);
             break;
-        case 7:
+        case 0b10100000:
+            bKing.draw(boardEdge, xPos, yPos, window);
+            break;
+        case 0b01000001:
             wPawn.draw(boardEdge, xPos, yPos, window);
             break;
-        case 8:
+        case 0b01000010:
             wKnight.draw(boardEdge, xPos, yPos, window);
             break;
-        case 9:
+        case 0b01000100:
             wBishop.draw(boardEdge, xPos, yPos, window);
             break;
-        case 10:
+        case 0b01001000:
             wRook.draw(boardEdge, xPos, yPos, window);
             break;
-        case 11:
-            wKing.draw(boardEdge, xPos, yPos, window);
-            break;
-        case 12:
+        case 0b01010000:
             wQueen.draw(boardEdge, xPos, yPos, window);
+            break;
+        case 0b01100000:
+            wKing.draw(boardEdge, xPos, yPos, window);
             break;
         default:
             break;
