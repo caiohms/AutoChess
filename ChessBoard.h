@@ -24,6 +24,7 @@ private:
     sf::RectangleShape lightSquare;
     sf::RectangleShape darkSquare;
     sf::RectangleShape selectedSquare;
+    sf::RectangleShape possibiltyPiece;
 
     ChessPiece bPawn = ChessPiece(sf::Sprite());
     ChessPiece bBishop = ChessPiece(sf::Sprite());
@@ -41,10 +42,10 @@ private:
 
     int squares[64] = {4, 2, 3, 6, 5, 3, 2, 4,
                        1, 1, 1, 1, 1, 1, 1, 1,
+                       1, 0, 0, 7, 0, 0, 0, 0,
                        0, 0, 0, 0, 0, 0, 0, 0,
-                       0, 0, 0, 0, 0, 0, 0, 0,
-                       0, 0, 0, 0, 0, 0, 0, 0,
-                       0, 0, 0, 0, 0, 0, 0, 0,
+                       0, 0, 0, 2, 0, 0, 0, 0,
+                       0, 0, 1, 0, 0, 0, 0, 0,
                        7, 7, 7, 7, 7, 7, 7, 7,
                        10, 8, 9, 12, 11, 9, 8, 10,};
 
