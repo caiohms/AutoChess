@@ -198,7 +198,40 @@ void ChessBoard::possibleMoves(int currentSquare, int pieceCode) {
         }
         case 0b10: {
             // knight
-            possibilities.insert({});
+            if (spacesAbove>1 && spacesLeft>0) {
+                possibilities.insert((currentSquare - 1 * 8) - 1 * 9);
+            }
+
+            if (spacesAbove>0 && spacesLeft>1) {
+                possibilities.insert((currentSquare - 1 * 9) - 1);
+            }
+
+            if (spacesBelow>0 && spacesLeft>1) {
+                possibilities.insert((currentSquare + 1 * 7) - 1);
+            }
+
+            if (spacesBelow>1 && spacesLeft>0) {
+                possibilities.insert((currentSquare + 1 * 8) + 1 * 7);
+            }
+
+
+            if (spacesAbove>1 && spacesRight>0) {
+                possibilities.insert((currentSquare - 1 * 8) - 1 * 7);
+            }
+
+            if (spacesAbove>0 && spacesRight>1) {
+                possibilities.insert((currentSquare + 2) - 1 * 8);
+            }
+
+            if (spacesBelow>1 && spacesRight>0) {
+                possibilities.insert((currentSquare + 1 * 8) + 1 * 9);
+            }
+
+            if (spacesBelow>0 && spacesRight>1) {
+                possibilities.insert((currentSquare + 1 * 9) +1);
+            }
+
+
             break;
         }
         case 0b100: {
