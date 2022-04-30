@@ -23,7 +23,7 @@ ChessBoard::ChessBoard(int width, int height) {
     darkSquare.setFillColor(sf::Color(81, 130, 171));
     lightSquare.setFillColor(sf::Color(124, 163, 193));
     selectedSquare.setFillColor(sf::Color(200, 50, 50));
-    possibiltyPiece.setFillColor(sf::Color(2, 188, 0));
+    possibleSquare.setFillColor(sf::Color(2, 188, 0));
 
     initChessPieces();
 }
@@ -33,13 +33,12 @@ void ChessBoard::draw(sf::RenderWindow &window) {
     window.draw(boardOutline);
 
     float boardEdge = (float) boardSize.x - 20;
-
     float squareEdge = boardEdge / 8.0f;
 
     lightSquare.setSize(sf::Vector2f(squareEdge, squareEdge));
     darkSquare.setSize(sf::Vector2f(squareEdge, squareEdge));
     selectedSquare.setSize(sf::Vector2f(squareEdge, squareEdge));
-    possibiltyPiece.setSize(sf::Vector2f(squareEdge, squareEdge));
+    possibleSquare.setSize(sf::Vector2f(squareEdge, squareEdge));
 
     for (int i = 0; i < 64; ++i) {
         float xPos = 10 + boardEdge / 8 * (float) (i % 8);
@@ -47,7 +46,7 @@ void ChessBoard::draw(sf::RenderWindow &window) {
         lightSquare.setPosition(sf::Vector2f(xPos, yPos));
         darkSquare.setPosition(sf::Vector2f(xPos, yPos));
         selectedSquare.setPosition(sf::Vector2f(xPos, yPos));
-        possibiltyPiece.setPosition(sf::Vector2f(xPos, yPos));
+        possibleSquare.setPosition(sf::Vector2f(xPos, yPos));
 
         if ((i % 2 + (int) (i / 8)) % 2 == 0)
             window.draw(lightSquare);
@@ -57,8 +56,8 @@ void ChessBoard::draw(sf::RenderWindow &window) {
         if (selectedSquareIndex == i)
             window.draw(selectedSquare);
 
-        if (std::find(possibilities.begin(), possibilities.end(), i) != possibilities.end()) {
-            window.draw(possibiltyPiece);
+        if (possibilities.count(i)) {
+            window.draw(possibleSquare);
         }
 
         ChessBoard::drawPiece(squares[i], xPos, yPos, boardEdge, window);
@@ -81,17 +80,20 @@ void ChessBoard::initChessPieces() {
     std::set<int> bPawnMoves = {+8, +16, +7, +9};
     std::set<int> wPawnMoves = {-8, -16, -7, -9};
     std::set<int> rookMoves = {+1, +2, +3, +4, +5, +6, +7, +8, +16, +24, +32, +40, +48, +56};
-    std::set<int> bishopMoves = {+9, +18, +27, +36, +45, +54, +63, 7, 14, 21, 28, 35, 42, 49};
+
+    std::set<int> bishopMoves = {7, 14, 21, 28, 35, 42, 49};
+
+//    std::set<int> bishopMoves = {+9, +18, +27, +36, +45, +54, +63, 7, 14, 21, 28, 35, 42, 49};
     std::set<int> knightMoves = {+10, +17, +15, +6};
     std::set<int> kingMoves = {+1, +2, -2, +7, +8, +9};
     std::set<int> queenMoves = {+1, +2, +3, +4, +5, +6, +7, +8, +16, +24, +32, +40, +48, +56, +9, +18, +27, +36, +45,
                                 +54, +63, 7, 14, 21, 28, 35, 42, 49};
 
-    generateMoves(queenMoves);
-    generateMoves(rookMoves);
-    generateMoves(bishopMoves);
-    generateMoves(kingMoves);
-    generateMoves(knightMoves);
+//    generateMoves(queenMoves);
+//    generateMoves(rookMoves);
+//    generateMoves(bishopMoves);
+//    generateMoves(kingMoves);
+//    generateMoves(knightMoves);
 
     bPawn.Init("resources\\sprites\\black-pawn.png", bPawnMoves);
     bBishop.Init("resources\\sprites\\black-bishop.png", bishopMoves);
@@ -130,172 +132,252 @@ void ChessBoard::grabPiece(unsigned int mouseX, unsigned int mouseY) {
 
 }
 
-void ChessBoard::possibleMoves(int squareIndex, int pieceCode) {
-    //std::cout << squareIndex << std::endl;
-    //std::cout << pieceCode << std::endl;
-
+void ChessBoard::possibleMoves(int currentSquare, int pieceCode) {
     possibilities.clear();
-    if (pieceCode == 0) {
-        return;
-    }
+    if (pieceCode == 0) return;
 
     std::set<int> selectedPieceMovementSet = std::set<int>();
 
-    for (int item: getPieceMovements(pieceCode)) {
-        int target = item + squareIndex;
+//    for (int item: getPieceMovements(pieceCode)) {
+//        int target = item + currentSquare;
 
-        if (target < 0) continue;
-        if (target > 63) continue;
+//        if (target < 0) continue;
+//        if (target > 63) continue;
 
-        int leftSpaces = 7 - squareIndex % 7;
-        int rightSpaces = squareIndex / 7;
+    int spacesAbove = currentSquare / 8;
+    int spacesBelow = 7 - currentSquare / 8;
+    int spacesLeft = (currentSquare % 8);
+    int spacesRight = 7 - (currentSquare % 8);
 
-//        if ( item + rightSpaces)
+    int minTopLeft = std::min(spacesAbove, spacesLeft);
+    int minTopRight = std::min(spacesAbove, spacesRight);
+    int minBottomLeft = std::min(spacesBelow, spacesLeft);
+    int minBottomRight = std::min(spacesBelow, spacesRight);
+
+    switch (pieceCode & 0b00111111) {
+        case 0b1: {
+            // pawn
+            if ((pieceCode &0b11000000) == 0b10000000){
+
+            }
 
 
-            selectedPieceMovementSet.insert(target);
+            for (int i = 1; i <= spacesAbove; ++i) {
+                selectedPieceMovementSet.insert(currentSquare - i * 2);
+            }
+            for (int i = 1; i <= spacesBelow; ++i) {
+                selectedPieceMovementSet.insert(currentSquare + i * 2);
+            }
+
+            break;
+        }
+        case 0b10: {
+            // knight
+            selectedPieceMovementSet.insert({});
+            break;
+        }
+        case 0b100: {
+            // bishop
+            for (int i = 1; i <= minTopLeft; ++i) {
+                selectedPieceMovementSet.insert(currentSquare - i * 9);
+            }
+            for (int i = 1; i <= minTopRight; ++i) {
+                selectedPieceMovementSet.insert(currentSquare - i * 7);
+            }
+            for (int i = 1; i <= minBottomLeft; ++i) {
+                selectedPieceMovementSet.insert(currentSquare + i * 7);
+            }
+            for (int i = 1; i <= minBottomRight; ++i) {
+                selectedPieceMovementSet.insert(currentSquare + i * 9);
+            }
+            break;
+        }
+        case 0b1000: {
+            // rook
+            for (int i = 1; i <= spacesAbove; ++i) {
+                selectedPieceMovementSet.insert(currentSquare - i * 8);
+            }
+            for (int i = 1; i <= spacesBelow; ++i) {
+                selectedPieceMovementSet.insert(currentSquare + i * 8);
+            }
+            for (int i = 1; i <= spacesLeft; ++i) {
+                selectedPieceMovementSet.insert(currentSquare - i);
+            }
+            for (int i = 1; i <= spacesRight; ++i) {
+                selectedPieceMovementSet.insert(currentSquare + i);
+            }
+            break;
+        }
+        case 0b10000: {
+            // queen
+            for (int i = 1; i <= minTopLeft; ++i) {
+                selectedPieceMovementSet.insert(currentSquare - i * 9);
+            }
+            for (int i = 1; i <= minTopRight; ++i) {
+                selectedPieceMovementSet.insert(currentSquare - i * 7);
+            }
+            for (int i = 1; i <= minBottomLeft; ++i) {
+                selectedPieceMovementSet.insert(currentSquare + i * 7);
+            }
+            for (int i = 1; i <= minBottomRight; ++i) {
+                selectedPieceMovementSet.insert(currentSquare + i * 9);
+            }
+            for (int i = 1; i <= spacesAbove; ++i) {
+                selectedPieceMovementSet.insert(currentSquare - i * 8);
+            }
+            for (int i = 1; i <= spacesBelow; ++i) {
+                selectedPieceMovementSet.insert(currentSquare + i * 8);
+            }
+            for (int i = 1; i <= spacesLeft; ++i) {
+                selectedPieceMovementSet.insert(currentSquare - i);
+            }
+            for (int i = 1; i <= spacesRight; ++i) {
+                selectedPieceMovementSet.insert(currentSquare + i);
+            }
+            break;
+        }
+        case 0b100000: {
+            // king
+            selectedPieceMovementSet.insert({});
+            break;
+        }
+
     }
 
-    for (int movement: selectedPieceMovementSet) {
-        possibilities = selectedPieceMovementSet;
-    }
-
-
-
-
+    possibilities = selectedPieceMovementSet;
 /*
 //
 //    switch (pieceCode) {
 //        case 1: {
 //            //Diagonal esquerda
-//            if (squareIndex != 8 && squareIndex != 16 && squareIndex != 24 && squareIndex != 32 && squareIndex != 40 &&
-//                squareIndex != 48 && squares[(squareIndex + 7)] >= 7) {
-//                possibilities.insert(squareIndex + 7);
+//            if (currentSquare != 8 && currentSquare != 16 && currentSquare != 24 && currentSquare != 32 && currentSquare != 40 &&
+//                currentSquare != 48 && squares[(currentSquare + 7)] >= 7) {
+//                possibilities.insert(currentSquare + 7);
 //            }
 //
 //            //Diagonal direita
-//            if (squareIndex != 15 && squareIndex != 23 && squareIndex != 31 && squareIndex != 39 && squareIndex != 47 &&
-//                squareIndex != 55 && squares[(squareIndex + 9)] >= 7) {
-//                possibilities.insert(squareIndex + 9);
+//            if (currentSquare != 15 && currentSquare != 23 && currentSquare != 31 && currentSquare != 39 && currentSquare != 47 &&
+//                currentSquare != 55 && squares[(currentSquare + 9)] >= 7) {
+//                possibilities.insert(currentSquare + 9);
 //            }
 //
 //            // 1 para frente
-//            if (squares[squareIndex + 8] == 0) {
-//                possibilities.insert(squareIndex + 8);
+//            if (squares[currentSquare + 8] == 0) {
+//                possibilities.insert(currentSquare + 8);
 //            }
 //
 //            // 2 para frente
-//            if (squareIndex >= 8 && squareIndex <= 15 && squares[squareIndex + 8] == 0 &&
-//                squares[squareIndex + 16] == 0) {
-//                possibilities.insert(squareIndex + 16);
+//            if (currentSquare >= 8 && currentSquare <= 15 && squares[currentSquare + 8] == 0 &&
+//                squares[currentSquare + 16] == 0) {
+//                possibilities.insert(currentSquare + 16);
 //            }
 //
 //            break;
 //        }
 //        case 2: {
-//            if (squareIndex != 8 && squareIndex != 16 && squareIndex != 24 &&
-//                squareIndex != 32 && squareIndex != 40 && squareIndex != 48 &&
-//                squareIndex != 56 && squareIndex != 1 && squareIndex != 9 &&
-//                squareIndex != 17 && squareIndex != 25 && squareIndex != 33 &&
-//                squareIndex != 41 && squareIndex != 49 && squareIndex != 57 &&
-//                squareIndex != 2 && squareIndex != 3 && squareIndex != 4 &&
-//                squareIndex != 5 && squareIndex != 6 && squareIndex != 7 &&
-//                squareIndex != 0 &&
-//                (squares[squareIndex - 10] ==  0 || squares[squareIndex - 10] >= 7)) {
+//            if (currentSquare != 8 && currentSquare != 16 && currentSquare != 24 &&
+//                currentSquare != 32 && currentSquare != 40 && currentSquare != 48 &&
+//                currentSquare != 56 && currentSquare != 1 && currentSquare != 9 &&
+//                currentSquare != 17 && currentSquare != 25 && currentSquare != 33 &&
+//                currentSquare != 41 && currentSquare != 49 && currentSquare != 57 &&
+//                currentSquare != 2 && currentSquare != 3 && currentSquare != 4 &&
+//                currentSquare != 5 && currentSquare != 6 && currentSquare != 7 &&
+//                currentSquare != 0 &&
+//                (squares[currentSquare - 10] ==  0 || squares[currentSquare - 10] >= 7)) {
 //
-//                possibilities.insert(squareIndex - 10);
+//                possibilities.insert(currentSquare - 10);
 //
 //            }
 //
-//            if (squareIndex != 8 && squareIndex != 16 && squareIndex != 24 &&
-//                squareIndex != 32 && squareIndex != 40 && squareIndex != 48 &&
-//                squareIndex != 56 && squareIndex != 1 && squareIndex != 9 &&
-//                squareIndex != 17 && squareIndex != 25 && squareIndex != 33 &&
-//                squareIndex != 41 && squareIndex != 49 && squareIndex != 57 &&
-//                squareIndex != 58 && squareIndex != 59 && squareIndex != 60 &&
-//                squareIndex != 61 && squareIndex != 62 && squareIndex != 63 &&
-//                squareIndex != 0 &&
-//                (squares[squareIndex + 6] ==  0 || squares[squareIndex + 6] >= 7)) {
+//            if (currentSquare != 8 && currentSquare != 16 && currentSquare != 24 &&
+//                currentSquare != 32 && currentSquare != 40 && currentSquare != 48 &&
+//                currentSquare != 56 && currentSquare != 1 && currentSquare != 9 &&
+//                currentSquare != 17 && currentSquare != 25 && currentSquare != 33 &&
+//                currentSquare != 41 && currentSquare != 49 && currentSquare != 57 &&
+//                currentSquare != 58 && currentSquare != 59 && currentSquare != 60 &&
+//                currentSquare != 61 && currentSquare != 62 && currentSquare != 63 &&
+//                currentSquare != 0 &&
+//                (squares[currentSquare + 6] ==  0 || squares[currentSquare + 6] >= 7)) {
 //
-//                possibilities.insert(squareIndex + 6);
+//                possibilities.insert(currentSquare + 6);
 //            }
 //
-//            if (squareIndex != 8 && squareIndex != 16 && squareIndex != 24 &&
-//                squareIndex != 32 && squareIndex != 40 && squareIndex != 48 &&
-//                squareIndex != 56 && squareIndex != 1 && squareIndex != 2 &&
-//                squareIndex != 3 && squareIndex != 4 && squareIndex != 5 &&
-//                squareIndex != 6 && squareIndex != 7 && squareIndex != 9 &&
-//                squareIndex != 10 && squareIndex != 11 && squareIndex != 12 &&
-//                squareIndex != 13 && squareIndex != 14 && squareIndex != 15 &&
-//                squareIndex != 0 &&
-//                (squares[squareIndex - 17] ==  0 || squares[squareIndex - 17] >= 7)) {
+//            if (currentSquare != 8 && currentSquare != 16 && currentSquare != 24 &&
+//                currentSquare != 32 && currentSquare != 40 && currentSquare != 48 &&
+//                currentSquare != 56 && currentSquare != 1 && currentSquare != 2 &&
+//                currentSquare != 3 && currentSquare != 4 && currentSquare != 5 &&
+//                currentSquare != 6 && currentSquare != 7 && currentSquare != 9 &&
+//                currentSquare != 10 && currentSquare != 11 && currentSquare != 12 &&
+//                currentSquare != 13 && currentSquare != 14 && currentSquare != 15 &&
+//                currentSquare != 0 &&
+//                (squares[currentSquare - 17] ==  0 || squares[currentSquare - 17] >= 7)) {
 //
-//                possibilities.insert(squareIndex - 17);
+//                possibilities.insert(currentSquare - 17);
 //            }
 //
-//            if (squareIndex != 7 && squareIndex != 15 && squareIndex != 23 &&
-//                squareIndex != 31 && squareIndex != 39 && squareIndex != 47 &&
-//                squareIndex != 55 && squareIndex != 63 && squareIndex != 2 &&
-//                squareIndex != 3 && squareIndex != 4 && squareIndex != 5 &&
-//                squareIndex != 6 && squareIndex != 0 && squareIndex != 9 &&
-//                squareIndex != 10 && squareIndex != 11 && squareIndex != 12 &&
-//                squareIndex != 13 && squareIndex != 14 && squareIndex != 8 &&
-//                squareIndex != 1 &&
-//                (squares[squareIndex - 15] ==  0 || squares[squareIndex - 15] >= 7)) {
+//            if (currentSquare != 7 && currentSquare != 15 && currentSquare != 23 &&
+//                currentSquare != 31 && currentSquare != 39 && currentSquare != 47 &&
+//                currentSquare != 55 && currentSquare != 63 && currentSquare != 2 &&
+//                currentSquare != 3 && currentSquare != 4 && currentSquare != 5 &&
+//                currentSquare != 6 && currentSquare != 0 && currentSquare != 9 &&
+//                currentSquare != 10 && currentSquare != 11 && currentSquare != 12 &&
+//                currentSquare != 13 && currentSquare != 14 && currentSquare != 8 &&
+//                currentSquare != 1 &&
+//                (squares[currentSquare - 15] ==  0 || squares[currentSquare - 15] >= 7)) {
 //
-//                possibilities.insert(squareIndex - 15);
+//                possibilities.insert(currentSquare - 15);
 //            }
 //
-//            if (squareIndex != 7 && squareIndex != 15 && squareIndex != 23 &&
-//                squareIndex != 31 && squareIndex != 39 && squareIndex != 47 &&
-//                squareIndex != 55 && squareIndex != 63 && squareIndex != 6 &&
-//                squareIndex != 14 && squareIndex != 22 && squareIndex != 30 &&
-//                squareIndex != 38 && squareIndex != 46 && squareIndex != 54 &&
-//                squareIndex != 62 && squareIndex != 0 && squareIndex != 1 &&
-//                squareIndex != 2 && squareIndex != 3 && squareIndex != 4 &&
-//                squareIndex != 5 &&
-//                (squares[squareIndex - 6] ==  0 || squares[squareIndex - 6] >= 7)) {
+//            if (currentSquare != 7 && currentSquare != 15 && currentSquare != 23 &&
+//                currentSquare != 31 && currentSquare != 39 && currentSquare != 47 &&
+//                currentSquare != 55 && currentSquare != 63 && currentSquare != 6 &&
+//                currentSquare != 14 && currentSquare != 22 && currentSquare != 30 &&
+//                currentSquare != 38 && currentSquare != 46 && currentSquare != 54 &&
+//                currentSquare != 62 && currentSquare != 0 && currentSquare != 1 &&
+//                currentSquare != 2 && currentSquare != 3 && currentSquare != 4 &&
+//                currentSquare != 5 &&
+//                (squares[currentSquare - 6] ==  0 || squares[currentSquare - 6] >= 7)) {
 //
-//                possibilities.insert(squareIndex - 6);
+//                possibilities.insert(currentSquare - 6);
 //            }
 //
-//            if (squareIndex != 7 && squareIndex != 15 && squareIndex != 23 &&
-//                squareIndex != 31 && squareIndex != 39 && squareIndex != 47 &&
-//                squareIndex != 55 && squareIndex != 63 && squareIndex != 6 &&
-//                squareIndex != 14 && squareIndex != 22 && squareIndex != 30 &&
-//                squareIndex != 38 && squareIndex != 46 && squareIndex != 54 &&
-//                squareIndex != 62 && squareIndex != 56 && squareIndex != 57 &&
-//                squareIndex != 58 && squareIndex != 59 && squareIndex != 60 &&
-//                squareIndex != 61 &&
-//                (squares[squareIndex + 10] ==  0 || squares[squareIndex + 10] >= 7)) {
+//            if (currentSquare != 7 && currentSquare != 15 && currentSquare != 23 &&
+//                currentSquare != 31 && currentSquare != 39 && currentSquare != 47 &&
+//                currentSquare != 55 && currentSquare != 63 && currentSquare != 6 &&
+//                currentSquare != 14 && currentSquare != 22 && currentSquare != 30 &&
+//                currentSquare != 38 && currentSquare != 46 && currentSquare != 54 &&
+//                currentSquare != 62 && currentSquare != 56 && currentSquare != 57 &&
+//                currentSquare != 58 && currentSquare != 59 && currentSquare != 60 &&
+//                currentSquare != 61 &&
+//                (squares[currentSquare + 10] ==  0 || squares[currentSquare + 10] >= 7)) {
 //
-//                possibilities.insert(squareIndex + 10);
+//                possibilities.insert(currentSquare + 10);
 //            }
 //
-//            if (squareIndex != 7 && squareIndex != 15 && squareIndex != 23 &&
-//                squareIndex != 31 && squareIndex != 39 && squareIndex != 47 &&
-//                squareIndex != 55 && squareIndex != 63 && squareIndex != 48 &&
-//                squareIndex != 49 && squareIndex != 50 && squareIndex != 51 &&
-//                squareIndex != 52 && squareIndex != 53 && squareIndex != 54 &&
-//                squareIndex != 56 && squareIndex != 57 && squareIndex != 58 &&
-//                squareIndex != 59 && squareIndex != 60 && squareIndex != 61 &&
-//                squareIndex != 62 &&
-//                (squares[squareIndex + 17] ==  0 || squares[squareIndex + 17] >= 7)) {
+//            if (currentSquare != 7 && currentSquare != 15 && currentSquare != 23 &&
+//                currentSquare != 31 && currentSquare != 39 && currentSquare != 47 &&
+//                currentSquare != 55 && currentSquare != 63 && currentSquare != 48 &&
+//                currentSquare != 49 && currentSquare != 50 && currentSquare != 51 &&
+//                currentSquare != 52 && currentSquare != 53 && currentSquare != 54 &&
+//                currentSquare != 56 && currentSquare != 57 && currentSquare != 58 &&
+//                currentSquare != 59 && currentSquare != 60 && currentSquare != 61 &&
+//                currentSquare != 62 &&
+//                (squares[currentSquare + 17] ==  0 || squares[currentSquare + 17] >= 7)) {
 //
-//                possibilities.insert(squareIndex + 17);
+//                possibilities.insert(currentSquare + 17);
 //            }
 //
-//            if (squareIndex != 0 && squareIndex != 8 && squareIndex != 16 &&
-//                squareIndex != 24 && squareIndex != 32 && squareIndex != 40 &&
-//                squareIndex != 48 && squareIndex != 56 && squareIndex != 55 &&
-//                squareIndex != 49 && squareIndex != 50 && squareIndex != 51 &&
-//                squareIndex != 52 && squareIndex != 53 && squareIndex != 54 &&
-//                squareIndex != 63 && squareIndex != 57 && squareIndex != 58 &&
-//                squareIndex != 59 && squareIndex != 60 && squareIndex != 61 &&
-//                squareIndex != 62 &&
-//                (squares[squareIndex + 15] ==  0 || squares[squareIndex + 15] >= 7)) {
+//            if (currentSquare != 0 && currentSquare != 8 && currentSquare != 16 &&
+//                currentSquare != 24 && currentSquare != 32 && currentSquare != 40 &&
+//                currentSquare != 48 && currentSquare != 56 && currentSquare != 55 &&
+//                currentSquare != 49 && currentSquare != 50 && currentSquare != 51 &&
+//                currentSquare != 52 && currentSquare != 53 && currentSquare != 54 &&
+//                currentSquare != 63 && currentSquare != 57 && currentSquare != 58 &&
+//                currentSquare != 59 && currentSquare != 60 && currentSquare != 61 &&
+//                currentSquare != 62 &&
+//                (squares[currentSquare + 15] ==  0 || squares[currentSquare + 15] >= 7)) {
 //
-//                possibilities.insert(squareIndex + 15);
+//                possibilities.insert(currentSquare + 15);
 //            }
 //
 //            break;
@@ -324,133 +406,133 @@ void ChessBoard::possibleMoves(int squareIndex, int pieceCode) {
 //        }
 //        case 7: {
 //            //Diagonal esquerda
-//            if (squareIndex != 8 && squareIndex != 16 && squareIndex != 24 && squareIndex != 32 && squareIndex != 40 &&
-//                squareIndex != 48 && squares[(squareIndex - 9)] <= 7 && squares[(squareIndex - 9)] > 0) {
-//                possibilities.insert(squareIndex - 9);
+//            if (currentSquare != 8 && currentSquare != 16 && currentSquare != 24 && currentSquare != 32 && currentSquare != 40 &&
+//                currentSquare != 48 && squares[(currentSquare - 9)] <= 7 && squares[(currentSquare - 9)] > 0) {
+//                possibilities.insert(currentSquare - 9);
 //            }
 //
 //            //Diagonal direita
-//            if (squareIndex != 15 && squareIndex != 23 && squareIndex != 31 && squareIndex != 39 && squareIndex != 47 &&
-//                squareIndex != 55 && squares[(squareIndex -7)] <= 7 && squares[(squareIndex - 7)] > 0) {
-//                possibilities.insert(squareIndex - 7);
+//            if (currentSquare != 15 && currentSquare != 23 && currentSquare != 31 && currentSquare != 39 && currentSquare != 47 &&
+//                currentSquare != 55 && squares[(currentSquare -7)] <= 7 && squares[(currentSquare - 7)] > 0) {
+//                possibilities.insert(currentSquare - 7);
 //            }
 //
 //            // 1 para frente
-//            if (squares[squareIndex - 8] == 0) {
-//                possibilities.insert(squareIndex - 8);
+//            if (squares[currentSquare - 8] == 0) {
+//                possibilities.insert(currentSquare - 8);
 //            }
 //
 //            // 2 para frente
-//            if (squareIndex >= 48 && squareIndex <= 55 && squares[squareIndex - 8] == 0 &&
-//                squares[squareIndex - 16] == 0) {
-//                possibilities.insert(squareIndex - 16);
+//            if (currentSquare >= 48 && currentSquare <= 55 && squares[currentSquare - 8] == 0 &&
+//                squares[currentSquare - 16] == 0) {
+//                possibilities.insert(currentSquare - 16);
 //            }
 //            break;
 //        }
 //        case 8: {
-//            if (squareIndex != 8 && squareIndex != 16 && squareIndex != 24 &&
-//                squareIndex != 32 && squareIndex != 40 && squareIndex != 48 &&
-//                squareIndex != 56 && squareIndex != 1 && squareIndex != 9 &&
-//                squareIndex != 17 && squareIndex != 25 && squareIndex != 33 &&
-//                squareIndex != 41 && squareIndex != 49 && squareIndex != 57 &&
-//                squareIndex != 2 && squareIndex != 3 && squareIndex != 4 &&
-//                squareIndex != 5 && squareIndex != 6 && squareIndex != 7 &&
-//                squareIndex != 0 &&
-//                squares[squareIndex - 10] < 7) {
+//            if (currentSquare != 8 && currentSquare != 16 && currentSquare != 24 &&
+//                currentSquare != 32 && currentSquare != 40 && currentSquare != 48 &&
+//                currentSquare != 56 && currentSquare != 1 && currentSquare != 9 &&
+//                currentSquare != 17 && currentSquare != 25 && currentSquare != 33 &&
+//                currentSquare != 41 && currentSquare != 49 && currentSquare != 57 &&
+//                currentSquare != 2 && currentSquare != 3 && currentSquare != 4 &&
+//                currentSquare != 5 && currentSquare != 6 && currentSquare != 7 &&
+//                currentSquare != 0 &&
+//                squares[currentSquare - 10] < 7) {
 //
-//                possibilities.insert(squareIndex - 10);
+//                possibilities.insert(currentSquare - 10);
 //
 //            }
 //
-//            if (squareIndex != 8 && squareIndex != 16 && squareIndex != 24 &&
-//                squareIndex != 32 && squareIndex != 40 && squareIndex != 48 &&
-//                squareIndex != 56 && squareIndex != 1 && squareIndex != 9 &&
-//                squareIndex != 17 && squareIndex != 25 && squareIndex != 33 &&
-//                squareIndex != 41 && squareIndex != 49 && squareIndex != 57 &&
-//                squareIndex != 58 && squareIndex != 59 && squareIndex != 60 &&
-//                squareIndex != 61 && squareIndex != 62 && squareIndex != 63 &&
-//                squareIndex != 0 &&
-//                squares[squareIndex + 6] < 7) {
+//            if (currentSquare != 8 && currentSquare != 16 && currentSquare != 24 &&
+//                currentSquare != 32 && currentSquare != 40 && currentSquare != 48 &&
+//                currentSquare != 56 && currentSquare != 1 && currentSquare != 9 &&
+//                currentSquare != 17 && currentSquare != 25 && currentSquare != 33 &&
+//                currentSquare != 41 && currentSquare != 49 && currentSquare != 57 &&
+//                currentSquare != 58 && currentSquare != 59 && currentSquare != 60 &&
+//                currentSquare != 61 && currentSquare != 62 && currentSquare != 63 &&
+//                currentSquare != 0 &&
+//                squares[currentSquare + 6] < 7) {
 //
-//                possibilities.insert(squareIndex + 6);
+//                possibilities.insert(currentSquare + 6);
 //            }
 //
-//            if (squareIndex != 8 && squareIndex != 16 && squareIndex != 24 &&
-//                squareIndex != 32 && squareIndex != 40 && squareIndex != 48 &&
-//                squareIndex != 56 && squareIndex != 1 && squareIndex != 2 &&
-//                squareIndex != 3 && squareIndex != 4 && squareIndex != 5 &&
-//                squareIndex != 6 && squareIndex != 7 && squareIndex != 9 &&
-//                squareIndex != 10 && squareIndex != 11 && squareIndex != 12 &&
-//                squareIndex != 13 && squareIndex != 14 && squareIndex != 15 &&
-//                squareIndex != 0 &&
-//                squares[squareIndex - 17] < 7) {
+//            if (currentSquare != 8 && currentSquare != 16 && currentSquare != 24 &&
+//                currentSquare != 32 && currentSquare != 40 && currentSquare != 48 &&
+//                currentSquare != 56 && currentSquare != 1 && currentSquare != 2 &&
+//                currentSquare != 3 && currentSquare != 4 && currentSquare != 5 &&
+//                currentSquare != 6 && currentSquare != 7 && currentSquare != 9 &&
+//                currentSquare != 10 && currentSquare != 11 && currentSquare != 12 &&
+//                currentSquare != 13 && currentSquare != 14 && currentSquare != 15 &&
+//                currentSquare != 0 &&
+//                squares[currentSquare - 17] < 7) {
 //
-//                possibilities.insert(squareIndex - 17);
+//                possibilities.insert(currentSquare - 17);
 //            }
 //
-//            if (squareIndex != 7 && squareIndex != 15 && squareIndex != 23 &&
-//                squareIndex != 31 && squareIndex != 39 && squareIndex != 47 &&
-//                squareIndex != 55 && squareIndex != 63 && squareIndex != 2 &&
-//                squareIndex != 3 && squareIndex != 4 && squareIndex != 5 &&
-//                squareIndex != 6 && squareIndex != 0 && squareIndex != 9 &&
-//                squareIndex != 10 && squareIndex != 11 && squareIndex != 12 &&
-//                squareIndex != 13 && squareIndex != 14 && squareIndex != 8 &&
-//                squareIndex != 1 &&
-//                squares[squareIndex - 15] < 7) {
+//            if (currentSquare != 7 && currentSquare != 15 && currentSquare != 23 &&
+//                currentSquare != 31 && currentSquare != 39 && currentSquare != 47 &&
+//                currentSquare != 55 && currentSquare != 63 && currentSquare != 2 &&
+//                currentSquare != 3 && currentSquare != 4 && currentSquare != 5 &&
+//                currentSquare != 6 && currentSquare != 0 && currentSquare != 9 &&
+//                currentSquare != 10 && currentSquare != 11 && currentSquare != 12 &&
+//                currentSquare != 13 && currentSquare != 14 && currentSquare != 8 &&
+//                currentSquare != 1 &&
+//                squares[currentSquare - 15] < 7) {
 //
-//                possibilities.insert(squareIndex - 15);
+//                possibilities.insert(currentSquare - 15);
 //            }
 //
-//            if (squareIndex != 7 && squareIndex != 15 && squareIndex != 23 &&
-//                squareIndex != 31 && squareIndex != 39 && squareIndex != 47 &&
-//                squareIndex != 55 && squareIndex != 63 && squareIndex != 6 &&
-//                squareIndex != 14 && squareIndex != 22 && squareIndex != 30 &&
-//                squareIndex != 38 && squareIndex != 46 && squareIndex != 54 &&
-//                squareIndex != 62 && squareIndex != 0 && squareIndex != 1 &&
-//                squareIndex != 2 && squareIndex != 3 && squareIndex != 4 &&
-//                squareIndex != 5 &&
-//                squares[squareIndex - 6] < 7) {
+//            if (currentSquare != 7 && currentSquare != 15 && currentSquare != 23 &&
+//                currentSquare != 31 && currentSquare != 39 && currentSquare != 47 &&
+//                currentSquare != 55 && currentSquare != 63 && currentSquare != 6 &&
+//                currentSquare != 14 && currentSquare != 22 && currentSquare != 30 &&
+//                currentSquare != 38 && currentSquare != 46 && currentSquare != 54 &&
+//                currentSquare != 62 && currentSquare != 0 && currentSquare != 1 &&
+//                currentSquare != 2 && currentSquare != 3 && currentSquare != 4 &&
+//                currentSquare != 5 &&
+//                squares[currentSquare - 6] < 7) {
 //
-//                possibilities.insert(squareIndex - 6);
+//                possibilities.insert(currentSquare - 6);
 //            }
 //
-//            if (squareIndex != 7 && squareIndex != 15 && squareIndex != 23 &&
-//                squareIndex != 31 && squareIndex != 39 && squareIndex != 47 &&
-//                squareIndex != 55 && squareIndex != 63 && squareIndex != 6 &&
-//                squareIndex != 14 && squareIndex != 22 && squareIndex != 30 &&
-//                squareIndex != 38 && squareIndex != 46 && squareIndex != 54 &&
-//                squareIndex != 62 && squareIndex != 56 && squareIndex != 57 &&
-//                squareIndex != 58 && squareIndex != 59 && squareIndex != 60 &&
-//                squareIndex != 61 &&
-//                squares[squareIndex +10] < 7) {
+//            if (currentSquare != 7 && currentSquare != 15 && currentSquare != 23 &&
+//                currentSquare != 31 && currentSquare != 39 && currentSquare != 47 &&
+//                currentSquare != 55 && currentSquare != 63 && currentSquare != 6 &&
+//                currentSquare != 14 && currentSquare != 22 && currentSquare != 30 &&
+//                currentSquare != 38 && currentSquare != 46 && currentSquare != 54 &&
+//                currentSquare != 62 && currentSquare != 56 && currentSquare != 57 &&
+//                currentSquare != 58 && currentSquare != 59 && currentSquare != 60 &&
+//                currentSquare != 61 &&
+//                squares[currentSquare +10] < 7) {
 //
-//                possibilities.insert(squareIndex + 10);
+//                possibilities.insert(currentSquare + 10);
 //            }
 //
-//            if (squareIndex != 7 && squareIndex != 15 && squareIndex != 23 &&
-//                squareIndex != 31 && squareIndex != 39 && squareIndex != 47 &&
-//                squareIndex != 55 && squareIndex != 63 && squareIndex != 48 &&
-//                squareIndex != 49 && squareIndex != 50 && squareIndex != 51 &&
-//                squareIndex != 52 && squareIndex != 53 && squareIndex != 54 &&
-//                squareIndex != 56 && squareIndex != 57 && squareIndex != 58 &&
-//                squareIndex != 59 && squareIndex != 60 && squareIndex != 61 &&
-//                squareIndex != 62 &&
-//                squares[squareIndex +17] < 7) {
+//            if (currentSquare != 7 && currentSquare != 15 && currentSquare != 23 &&
+//                currentSquare != 31 && currentSquare != 39 && currentSquare != 47 &&
+//                currentSquare != 55 && currentSquare != 63 && currentSquare != 48 &&
+//                currentSquare != 49 && currentSquare != 50 && currentSquare != 51 &&
+//                currentSquare != 52 && currentSquare != 53 && currentSquare != 54 &&
+//                currentSquare != 56 && currentSquare != 57 && currentSquare != 58 &&
+//                currentSquare != 59 && currentSquare != 60 && currentSquare != 61 &&
+//                currentSquare != 62 &&
+//                squares[currentSquare +17] < 7) {
 //
-//                possibilities.insert(squareIndex + 17);
+//                possibilities.insert(currentSquare + 17);
 //            }
 //
-//            if (squareIndex != 0 && squareIndex != 8 && squareIndex != 16 &&
-//                squareIndex != 24 && squareIndex != 32 && squareIndex != 40 &&
-//                squareIndex != 48 && squareIndex != 56 && squareIndex != 55 &&
-//                squareIndex != 49 && squareIndex != 50 && squareIndex != 51 &&
-//                squareIndex != 52 && squareIndex != 53 && squareIndex != 54 &&
-//                squareIndex != 63 && squareIndex != 57 && squareIndex != 58 &&
-//                squareIndex != 59 && squareIndex != 60 && squareIndex != 61 &&
-//                squareIndex != 62 &&
-//                squares[squareIndex +15] < 7) {
+//            if (currentSquare != 0 && currentSquare != 8 && currentSquare != 16 &&
+//                currentSquare != 24 && currentSquare != 32 && currentSquare != 40 &&
+//                currentSquare != 48 && currentSquare != 56 && currentSquare != 55 &&
+//                currentSquare != 49 && currentSquare != 50 && currentSquare != 51 &&
+//                currentSquare != 52 && currentSquare != 53 && currentSquare != 54 &&
+//                currentSquare != 63 && currentSquare != 57 && currentSquare != 58 &&
+//                currentSquare != 59 && currentSquare != 60 && currentSquare != 61 &&
+//                currentSquare != 62 &&
+//                squares[currentSquare +15] < 7) {
 //
-//                possibilities.insert(squareIndex + 15);
+//                possibilities.insert(currentSquare + 15);
 //            }
 //            break;
 //        }
@@ -537,21 +619,3 @@ void ChessBoard::setMousePos(int mouseX, int mouseY) {
     this->mouseXpos = mouseX;
     this->mouseYpos = mouseY;
 }
-
-std::set<int> ChessBoard::getPieceMovements(int pieceCode) {
-    switch (pieceCode) {
-        case 1:
-            return bPawn.moves;
-            break;
-        case 6:
-            return bQueen.moves;
-    }
-    return {};
-}
-
-
-void generateMoves(std::set<int> &set) {
-    for (int i: set) {
-        set.insert(i * -1);
-    }
-};
