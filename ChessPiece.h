@@ -10,9 +10,7 @@ public:
 
     explicit ChessPiece(sf::Sprite sprite);
 
-    void Init(const std::string &texFile, const std::set<int> &moves);
-
-    std::set<int> moves;
+    void Init(const std::string &texFile);
 
     void draw(float edge, float d, float d1, sf::RenderWindow &renderWindow);
 
