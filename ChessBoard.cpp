@@ -196,29 +196,37 @@ void ChessBoard::possibleMoves(int currentSquare, int pieceCode) {
             // pawn
             if ((pieceCode & 0b11000000) == 0b10000000) {
                 if (minBottomLeft) {
-                    possibilities.insert(currentSquare + 7);
+                    target = currentSquare + 7;
+                    addTarget(target, selectedPieceColor, oppositePieceColor);
                 }
                 if (minBottomRight) {
-                    possibilities.insert(currentSquare + 9);
+                    target = currentSquare + 9;
+                    addTarget(target, selectedPieceColor, oppositePieceColor);
                 }
                 if (spacesBelow) {
-                    possibilities.insert(currentSquare + 8);
+                    target = currentSquare + 8;
+                    addTarget(target, selectedPieceColor, oppositePieceColor);
                 }
                 if (spacesBelow > 1) {
-                    possibilities.insert(currentSquare + 16);
+                    target = currentSquare + 16;
+                    addTarget(target, selectedPieceColor, oppositePieceColor);
                 }
             } else {
                 if (minTopLeft) {
-                    possibilities.insert(currentSquare - 9);
+                    target = currentSquare - 9;
+                    addTarget(target, selectedPieceColor, oppositePieceColor);
                 }
                 if (minTopRight) {
-                    possibilities.insert(currentSquare - 7);
+                    target = currentSquare - 7;
+                    addTarget(target, selectedPieceColor, oppositePieceColor);
                 }
                 if (spacesAbove) {
-                    possibilities.insert(currentSquare - 8);
+                    target = currentSquare - 8;
+                    addTarget(target, selectedPieceColor, oppositePieceColor);
                 }
                 if (spacesAbove > 1) {
-                    possibilities.insert(currentSquare - 16);
+                    target = currentSquare - 16;
+                    addTarget(target, selectedPieceColor, oppositePieceColor);
                 }
             }
             break;
@@ -227,45 +235,57 @@ void ChessBoard::possibleMoves(int currentSquare, int pieceCode) {
             // knight
             if (spacesAbove > 1) {
                 if (spacesLeft > 1) {
-                    possibilities.insert(currentSquare - 10);
+                    target = currentSquare - 10;
+                    addTarget(target, selectedPieceColor, oppositePieceColor);
                 }
                 if (spacesRight > 1) {
-                    possibilities.insert(currentSquare - 6);
+                    target = currentSquare - 6;
+                    addTarget(target, selectedPieceColor, oppositePieceColor);
                 }
                 if (spacesLeft > 0) {
-                    possibilities.insert(currentSquare - 17);
+                    target = currentSquare - 17;
+                    addTarget(target, selectedPieceColor, oppositePieceColor);
                 }
                 if (spacesRight > 0) {
-                    possibilities.insert(currentSquare - 15);
+                    target = currentSquare - 15;
+                    addTarget(target, selectedPieceColor, oppositePieceColor);
                 }
             } else if (spacesAbove > 0) {
                 if (spacesLeft > 1) {
-                    possibilities.insert(currentSquare - 10);
+                    target = currentSquare - 10;
+                    addTarget(target, selectedPieceColor, oppositePieceColor);
                 }
                 if (spacesRight > 1) {
-                    possibilities.insert(currentSquare - 6);
+                    target = currentSquare - 6;
+                    addTarget(target, selectedPieceColor, oppositePieceColor);
                 }
             }
 
             if (spacesBelow > 1) {
                 if (spacesLeft > 1) {
-                    possibilities.insert(currentSquare + 6);
+                    target = currentSquare + 6;
+                    addTarget(target, selectedPieceColor, oppositePieceColor);
                 }
                 if (spacesRight > 1) {
-                    possibilities.insert(currentSquare + 10);
+                    target = currentSquare + 10;
+                    addTarget(target, selectedPieceColor, oppositePieceColor);
                 }
                 if (spacesLeft > 0) {
-                    possibilities.insert(currentSquare + 15);
+                    target = currentSquare + 15;
+                    addTarget(target, selectedPieceColor, oppositePieceColor);
                 }
                 if (spacesRight > 0) {
-                    possibilities.insert(currentSquare + 17);
+                    target = currentSquare + 17;
+                    addTarget(target, selectedPieceColor, oppositePieceColor);
                 }
             } else if (spacesBelow > 0) {
                 if (spacesLeft > 1) {
-                    possibilities.insert(currentSquare + 6);
+                    target = currentSquare + 6;
+                    addTarget(target, selectedPieceColor, oppositePieceColor);
                 }
                 if (spacesRight > 1) {
-                    possibilities.insert(currentSquare + 10);
+                    target = currentSquare + 10;
+                    addTarget(target, selectedPieceColor, oppositePieceColor);
                 }
             }
             break;
@@ -302,69 +322,100 @@ void ChessBoard::possibleMoves(int currentSquare, int pieceCode) {
                     break;
             }
             for (int i = 1; i <= spacesBelow; ++i) {
-                possibilities.insert(currentSquare + i * 8);
+                target = currentSquare + i * 8;
+                if (!addTarget(target, selectedPieceColor, oppositePieceColor))
+                    break;
             }
             for (int i = 1; i <= spacesLeft; ++i) {
-                possibilities.insert(currentSquare - i);
+                target = currentSquare - i;
+                if (!addTarget(target, selectedPieceColor, oppositePieceColor))
+                    break;
             }
             for (int i = 1; i <= spacesRight; ++i) {
-                possibilities.insert(currentSquare + i);
+                target = currentSquare + i;
+                if (!addTarget(target, selectedPieceColor, oppositePieceColor))
+                    break;
             }
             break;
         }
         case 0b10000: {
             // queen
             for (int i = 1; i <= minTopLeft; ++i) {
-                possibilities.insert(currentSquare - i * 9);
+                target = currentSquare - i * 9;
+                if (!addTarget(target, selectedPieceColor, oppositePieceColor))
+                    break;
             }
             for (int i = 1; i <= minTopRight; ++i) {
-                possibilities.insert(currentSquare - i * 7);
+                target = currentSquare - i * 7;
+                if (!addTarget(target, selectedPieceColor, oppositePieceColor))
+                    break;
             }
             for (int i = 1; i <= minBottomLeft; ++i) {
-                possibilities.insert(currentSquare + i * 7);
+                target = currentSquare + i * 7;
+                if (!addTarget(target, selectedPieceColor, oppositePieceColor))
+                    break;
             }
             for (int i = 1; i <= minBottomRight; ++i) {
-                possibilities.insert(currentSquare + i * 9);
+                target = currentSquare + i * 9;
+                if (!addTarget(target, selectedPieceColor, oppositePieceColor))
+                    break;
             }
             for (int i = 1; i <= spacesAbove; ++i) {
-                possibilities.insert(currentSquare - i * 8);
+                target = currentSquare - i * 8;
+                if (!addTarget(target, selectedPieceColor, oppositePieceColor))
+                    break;
             }
             for (int i = 1; i <= spacesBelow; ++i) {
-                possibilities.insert(currentSquare + i * 8);
+                target = currentSquare + i * 8;
+                if (!addTarget(target, selectedPieceColor, oppositePieceColor))
+                    break;
             }
             for (int i = 1; i <= spacesLeft; ++i) {
-                possibilities.insert(currentSquare - i);
+                target = currentSquare - i;
+                if (!addTarget(target, selectedPieceColor, oppositePieceColor))
+                    break;
             }
             for (int i = 1; i <= spacesRight; ++i) {
-                possibilities.insert(currentSquare + i);
+                target = currentSquare + i;
+                if (!addTarget(target, selectedPieceColor, oppositePieceColor))
+                    break;
             }
             break;
         }
         case 0b100000: {
             // king
             if (minBottomLeft) {
-                possibilities.insert(currentSquare + 7);
+                target = currentSquare + 7;
+                addTarget(target, selectedPieceColor, oppositePieceColor);
+
             }
             if (minBottomRight) {
-                possibilities.insert(currentSquare + 9);
+                target = currentSquare + 9;
+                addTarget(target, selectedPieceColor, oppositePieceColor);
             }
             if (minTopLeft) {
-                possibilities.insert(currentSquare - 9);
+                target = currentSquare - 9;
+                addTarget(target, selectedPieceColor, oppositePieceColor);
             }
             if (minTopRight) {
-                possibilities.insert(currentSquare - 7);
+                target = currentSquare - 7;
+                addTarget(target, selectedPieceColor, oppositePieceColor);
             }
             if (spacesAbove) {
-                possibilities.insert(currentSquare - 8);
+                target = currentSquare - 8;
+                addTarget(target, selectedPieceColor, oppositePieceColor);
             }
             if (spacesBelow) {
-                possibilities.insert(currentSquare + 8);
+                target = currentSquare + 8;
+                addTarget(target, selectedPieceColor, oppositePieceColor);
             }
             if (spacesLeft) {
-                possibilities.insert(currentSquare - 1);
+                target = currentSquare - 1;
+                addTarget(target, selectedPieceColor, oppositePieceColor);
             }
             if (spacesRight) {
-                possibilities.insert(currentSquare + 1);
+                target = currentSquare + 1;
+                addTarget(target, selectedPieceColor, oppositePieceColor);
             }
             break;
         }
