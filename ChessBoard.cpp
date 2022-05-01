@@ -134,13 +134,27 @@ void ChessBoard::releasePiece(unsigned int mouseX, unsigned int mouseY) {
 
     int hoveringSquare = getSquareUnderMousePos(mouseX, mouseY);
 
-//    if (hoveringSquare)
+    for (int i: possibilities) {
+        if (hoveringSquare == i) {
+            if ((selectedPieceCode & 0b11000000) == 0b10000000 && ((squares[hoveringSquare] & 0b11000000) == 0b01000000)|| squares[hoveringSquare] == 0){
+                squares[selectedSquareIndex] = 0;
+                squares[hoveringSquare] = selectedPieceCode;
+                selectedPieceCode = 0;
+                selectedSquareIndex = -1;
+                possibilities.clear();
+            }
+            if ((selectedPieceCode & 0b11000000) == 0b01000000 && ((squares[hoveringSquare] & 0b11000000) == 0b10000000)|| squares[hoveringSquare] == 0) {
+                squares[selectedSquareIndex] = 0;
+                squares[hoveringSquare] = selectedPieceCode;
+                selectedPieceCode = 0;
+                selectedSquareIndex = -1;
+                possibilities.clear();
+            }
+        }
+    }
 
-    squares[selectedSquareIndex] = 0;
-    squares[hoveringSquare] = selectedPieceCode;
     selectedPieceCode = 0;
-    selectedSquareIndex = -1;
-    possibilities = {};
+    possibilities.clear();
 }
 
 int ChessBoard::getSquareUnderMousePos(unsigned int mouseX, unsigned int mouseY) {
@@ -198,37 +212,37 @@ void ChessBoard::possibleMoves(int currentSquare, int pieceCode) {
         }
         case 0b10: {
             // knight
-            if (spacesAbove>1 && spacesLeft>0) {
+            if (spacesAbove > 1 && spacesLeft > 0) {
                 possibilities.insert((currentSquare - 1 * 8) - 1 * 9);
             }
 
-            if (spacesAbove>0 && spacesLeft>1) {
+            if (spacesAbove > 0 && spacesLeft > 1) {
                 possibilities.insert((currentSquare - 1 * 9) - 1);
             }
 
-            if (spacesBelow>0 && spacesLeft>1) {
+            if (spacesBelow > 0 && spacesLeft > 1) {
                 possibilities.insert((currentSquare + 1 * 7) - 1);
             }
 
-            if (spacesBelow>1 && spacesLeft>0) {
+            if (spacesBelow > 1 && spacesLeft > 0) {
                 possibilities.insert((currentSquare + 1 * 8) + 1 * 7);
             }
 
 
-            if (spacesAbove>1 && spacesRight>0) {
+            if (spacesAbove > 1 && spacesRight > 0) {
                 possibilities.insert((currentSquare - 1 * 8) - 1 * 7);
             }
 
-            if (spacesAbove>0 && spacesRight>1) {
+            if (spacesAbove > 0 && spacesRight > 1) {
                 possibilities.insert((currentSquare + 2) - 1 * 8);
             }
 
-            if (spacesBelow>1 && spacesRight>0) {
+            if (spacesBelow > 1 && spacesRight > 0) {
                 possibilities.insert((currentSquare + 1 * 8) + 1 * 9);
             }
 
-            if (spacesBelow>0 && spacesRight>1) {
-                possibilities.insert((currentSquare + 1 * 9) +1);
+            if (spacesBelow > 0 && spacesRight > 1) {
+                possibilities.insert((currentSquare + 1 * 9) + 1);
             }
 
 
