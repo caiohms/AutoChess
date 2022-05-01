@@ -149,7 +149,7 @@ void ChessBoard::releasePiece(unsigned int mouseX, unsigned int mouseY) {
 
                 squares[selectedSquareIndex] = 0;
                 if(hoveringSquare>=56 && hoveringSquare<=63 && selectedPieceCode == 0b10000001){
-                    squares[hoveringSquare] = 0b10010000;
+                    squares[hoveringSquare] =0b10010000;
                 }
                 else{
                     squares[hoveringSquare] = selectedPieceCode;
