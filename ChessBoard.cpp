@@ -134,6 +134,7 @@ void ChessBoard::grabPiece(unsigned int mouseX, unsigned int mouseY) {
 void ChessBoard::releasePiece(unsigned int mouseX, unsigned int mouseY) {
     if (selectedPieceCode == 0) return;
 
+
     mouseDragging = false;
 
     int hoveringSquare = getSquareUnderMousePos(mouseX, mouseY);
@@ -145,8 +146,14 @@ void ChessBoard::releasePiece(unsigned int mouseX, unsigned int mouseY) {
                     ChessPiece::getPieceColor(selectedPieceCode) == ChessPiece::PieceColor::BLACK &&
                     ChessPiece::getPieceColor(hoveringSquarePieceCode) == ChessPiece::PieceColor::WHITE ||
                     squares[hoveringSquare] == 0) {
+
                 squares[selectedSquareIndex] = 0;
-                squares[hoveringSquare] = selectedPieceCode;
+                if(hoveringSquare>=56 && hoveringSquare<=63 && selectedPieceCode == 0b10000001){
+                    squares[hoveringSquare] = 0b10010000;
+                }
+                else{
+                    squares[hoveringSquare] = selectedPieceCode;
+                }
                 selectedPieceCode = 0;
                 selectedSquareIndex = -1;
                 possibilities.clear();
@@ -154,7 +161,12 @@ void ChessBoard::releasePiece(unsigned int mouseX, unsigned int mouseY) {
                     ChessPiece::getPieceColor(selectedPieceCode) == ChessPiece::PieceColor::WHITE &&
                     ChessPiece::getPieceColor(hoveringSquarePieceCode) == ChessPiece::PieceColor::BLACK) {
                 squares[selectedSquareIndex] = 0;
-                squares[hoveringSquare] = selectedPieceCode;
+                if(hoveringSquare>=56 && hoveringSquare<=63 && selectedPieceCode == 0b01000001){
+                    squares[hoveringSquare] = 0b01010000;
+                }
+                else{
+                    squares[hoveringSquare] = selectedPieceCode;
+                }
                 selectedPieceCode = 0;
                 selectedSquareIndex = -1;
                 possibilities.clear();
@@ -199,6 +211,9 @@ void ChessBoard::possibleMoves(int currentSquare, int pieceCode) {
                 if (minBottomLeft && squares[currentSquare+7]!=0) {
                     target = currentSquare + 7;
                     addTarget(target, selectedPieceColor, oppositePieceColor);
+//                    if (spacesBelow==0){
+//                        squares[currentSquare] = 0b01010000;
+//                    }
                 }
                 if (minBottomRight && squares[currentSquare+9]!=0) {
                     target = currentSquare + 9;
@@ -212,6 +227,7 @@ void ChessBoard::possibleMoves(int currentSquare, int pieceCode) {
                     target = currentSquare + 16;
                     addTarget(target, selectedPieceColor, oppositePieceColor);
                 }
+
             } else {
                 if (minTopLeft && squares[currentSquare-9]!=0) {
                     target = currentSquare - 9;
