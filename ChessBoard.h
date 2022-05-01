@@ -79,8 +79,8 @@ public:
 
     int getSquareUnderMousePos(unsigned int mouseX, unsigned int mouseY);
 
-    bool addTarget(unsigned short target, ChessPiece::PieceColor targetPieceColor,
-                   ChessPiece::PieceColor selectedPieceColor, ChessPiece::PieceColor oppositePieceColor);
+    bool addTarget(unsigned short target, ChessPiece::PieceColor selectedPieceColor,
+                   ChessPiece::PieceColor oppositePieceColor);
 };
 
 

@@ -188,7 +188,7 @@ void ChessBoard::possibleMoves(int currentSquare, int pieceCode) {
 
     ChessPiece::PieceColor selectedPieceColor = ChessPiece::getPieceColor(pieceCode);
     ChessPiece::PieceColor oppositePieceColor = ChessPiece::getPieceColor(pieceCode ^ 0b11000000 << 6 >> 6);
-    ChessPiece::PieceColor targetPieceColor;
+
     int target;
 
     switch (pieceCode & 0b00111111) {
@@ -274,22 +274,22 @@ void ChessBoard::possibleMoves(int currentSquare, int pieceCode) {
             // bishop
             for (int i = 1; i <= minTopLeft; ++i) {
                 target = currentSquare - i * 9;
-                if (!addTarget(target, targetPieceColor, selectedPieceColor, oppositePieceColor))
+                if (!addTarget(target, selectedPieceColor, oppositePieceColor))
                     break;
             }
             for (int i = 1; i <= minTopRight; ++i) {
                 target = currentSquare - i * 7;
-                if (!addTarget(target, targetPieceColor, selectedPieceColor, oppositePieceColor))
+                if (!addTarget(target, selectedPieceColor, oppositePieceColor))
                     break;
             }
             for (int i = 1; i <= minBottomLeft; ++i) {
                 target = currentSquare + i * 7;
-                if (!addTarget(target, targetPieceColor, selectedPieceColor, oppositePieceColor))
+                if (!addTarget(target, selectedPieceColor, oppositePieceColor))
                     break;
             }
             for (int i = 1; i <= minBottomRight; ++i) {
                 target = currentSquare + i * 9;
-                if (!addTarget(target, targetPieceColor, selectedPieceColor, oppositePieceColor))
+                if (!addTarget(target, selectedPieceColor, oppositePieceColor))
                     break;
             }
             break;
@@ -298,7 +298,7 @@ void ChessBoard::possibleMoves(int currentSquare, int pieceCode) {
             // rook
             for (int i = 1; i <= spacesAbove; ++i) {
                 target = currentSquare - i * 8;
-                if (!addTarget(target, targetPieceColor, selectedPieceColor, oppositePieceColor))
+                if (!addTarget(target, selectedPieceColor, oppositePieceColor))
                     break;
             }
             for (int i = 1; i <= spacesBelow; ++i) {
@@ -420,9 +420,9 @@ void ChessBoard::setMousePos(int mouseX, int mouseY) {
     this->mouseYpos = mouseY;
 }
 
-bool ChessBoard::addTarget(unsigned short target, ChessPiece::PieceColor targetPieceColor,
-                           ChessPiece::PieceColor selectedPieceColor, ChessPiece::PieceColor oppositePieceColor) {
-    targetPieceColor = ChessPiece::getPieceColor(squares[target]);
+bool ChessBoard::addTarget(unsigned short target, ChessPiece::PieceColor selectedPieceColor,
+                           ChessPiece::PieceColor oppositePieceColor) {
+    ChessPiece::PieceColor targetPieceColor = ChessPiece::getPieceColor(squares[target]);
     if (targetPieceColor == selectedPieceColor)
         return false;
     else if (targetPieceColor == oppositePieceColor) {
