@@ -2,6 +2,7 @@
 #include "ChessBoard.h"
 #include "ChessPiece.h"
 #include <set>
+#include <iostream>
 
 ChessBoard::ChessBoard(int width, int height, sf::Font font) {
     this->boardSize.x = width;
@@ -195,36 +196,36 @@ void ChessBoard::possibleMoves(int currentSquare, int pieceCode) {
         case 0b1: {
             // pawn
             if ((pieceCode & 0b11000000) == 0b10000000) {
-                if (minBottomLeft) {
+                if (minBottomLeft && squares[currentSquare+7]!=0) {
                     target = currentSquare + 7;
                     addTarget(target, selectedPieceColor, oppositePieceColor);
                 }
-                if (minBottomRight) {
+                if (minBottomRight && squares[currentSquare+9]!=0) {
                     target = currentSquare + 9;
                     addTarget(target, selectedPieceColor, oppositePieceColor);
                 }
-                if (spacesBelow) {
+                if (spacesBelow && squares[currentSquare+8]==0) {
                     target = currentSquare + 8;
                     addTarget(target, selectedPieceColor, oppositePieceColor);
                 }
-                if (spacesBelow > 1) {
+                if (spacesBelow == 6 && squares[currentSquare+16]==0) {
                     target = currentSquare + 16;
                     addTarget(target, selectedPieceColor, oppositePieceColor);
                 }
             } else {
-                if (minTopLeft) {
+                if (minTopLeft && squares[currentSquare-9]!=0) {
                     target = currentSquare - 9;
                     addTarget(target, selectedPieceColor, oppositePieceColor);
                 }
-                if (minTopRight) {
+                if (minTopRight && squares[currentSquare-7]!=0) {
                     target = currentSquare - 7;
                     addTarget(target, selectedPieceColor, oppositePieceColor);
                 }
-                if (spacesAbove) {
+                if (spacesAbove && squares[currentSquare-8]==0) {
                     target = currentSquare - 8;
                     addTarget(target, selectedPieceColor, oppositePieceColor);
                 }
-                if (spacesAbove > 1) {
+                if (spacesAbove == 6 && squares[currentSquare-16]==0) {
                     target = currentSquare - 16;
                     addTarget(target, selectedPieceColor, oppositePieceColor);
                 }
