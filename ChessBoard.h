@@ -8,6 +8,8 @@
 class ChessBoard {
 
 private:
+    sf::Font font;
+
     int selectedSquareIndex = -1;
     unsigned short selectedPieceCode = -1;
 
@@ -40,7 +42,7 @@ private:
     ChessPiece wKing = ChessPiece(sf::Sprite());
 
 
-    unsigned int squares[64] = {
+    unsigned short squares[64] = {
             0b01001000, 0b10000010, 0b10001000, 0b10010000, 0b10100000, 0b10000010, 0b10000010,
             0b10001000,
             0b10000001, 0b01001000, 0b10000001, 0b10000001, 0b10000001, 0b10000001, 0b10000001,
@@ -59,7 +61,7 @@ public:
 
     void initTextures();
 
-    ChessBoard(int width, int height);
+    ChessBoard(int width, int height, sf::Font font);
 
     void draw(sf::RenderWindow &window);
 
@@ -76,6 +78,9 @@ public:
     void possibleMoves(int currentSquare, int pieceCode);
 
     int getSquareUnderMousePos(unsigned int mouseX, unsigned int mouseY);
+
+    bool addTarget(unsigned short target, ChessPiece::PieceColor targetPieceColor,
+                   ChessPiece::PieceColor selectedPieceColor, ChessPiece::PieceColor oppositePieceColor);
 };
 
 

@@ -1,15 +1,12 @@
 
-#include <iostream>
 #include "ChessBoard.h"
 #include "ChessPiece.h"
 #include <set>
-#include <iterator>
 
-void generateMoves(std::set<int> &set);
-
-ChessBoard::ChessBoard(int width, int height) {
+ChessBoard::ChessBoard(int width, int height, sf::Font font) {
     this->boardSize.x = width;
     this->boardSize.y = height;
+    this->font = font;
 
     int minSide = std::min(width, height);
 
@@ -33,6 +30,8 @@ ChessBoard::ChessBoard(int width, int height) {
 }
 
 void ChessBoard::draw(sf::RenderWindow &window) {
+    sf::Text t;
+    t.setFont(font);
 
     window.draw(boardOutline);
 
@@ -46,11 +45,14 @@ void ChessBoard::draw(sf::RenderWindow &window) {
 //    possibleSquare.setSize(sf::Vector2f(squareEdge, squareEdge));
 
     for (int i = 0; i < 64; ++i) {
+        t.setString(std::to_string(i));
+
         float xPos = 10 + boardEdge / 8 * (float) (i % 8);
         float yPos = 10 + boardEdge / 8 * (float) (i / 8);
         lightSquare.setPosition(sf::Vector2f(xPos, yPos));
         darkSquare.setPosition(sf::Vector2f(xPos, yPos));
         selectedSquare.setPosition(sf::Vector2f(xPos, yPos));
+        t.setPosition(xPos, yPos);
 
         if (squares[i] > 0) {
             // opponent piece on square
@@ -82,6 +84,7 @@ void ChessBoard::draw(sf::RenderWindow &window) {
         if (possibilities.count(i)) {
             window.draw(targetCircleShape);
         }
+        window.draw(t);
     }
 
 
@@ -116,7 +119,7 @@ void ChessBoard::grabPiece(unsigned int mouseX, unsigned int mouseY) {
     mouseDragging = true;
 
     if (mouseX + 10 > boardSize.x || mouseY + 10 > boardSize.y || mouseX < 10 || mouseY < 10) {
-        selectedSquareIndex = 0;
+        selectedSquareIndex = -1;
         return;
     }
 
@@ -135,15 +138,20 @@ void ChessBoard::releasePiece(unsigned int mouseX, unsigned int mouseY) {
     int hoveringSquare = getSquareUnderMousePos(mouseX, mouseY);
 
     for (int i: possibilities) {
-        if (hoveringSquare == i) {
-            if ((selectedPieceCode & 0b11000000) == 0b10000000 && ((squares[hoveringSquare] & 0b11000000) == 0b01000000)|| squares[hoveringSquare] == 0){
+        if (i == hoveringSquare) {
+            short hoveringSquarePieceCode = squares[hoveringSquare];
+            if (
+                    ChessPiece::getPieceColor(selectedPieceCode) == ChessPiece::PieceColor::BLACK &&
+                    ChessPiece::getPieceColor(hoveringSquarePieceCode) == ChessPiece::PieceColor::WHITE ||
+                    squares[hoveringSquare] == 0) {
                 squares[selectedSquareIndex] = 0;
                 squares[hoveringSquare] = selectedPieceCode;
                 selectedPieceCode = 0;
                 selectedSquareIndex = -1;
                 possibilities.clear();
-            }
-            if ((selectedPieceCode & 0b11000000) == 0b01000000 && ((squares[hoveringSquare] & 0b11000000) == 0b10000000)|| squares[hoveringSquare] == 0) {
+            } else if (
+                    ChessPiece::getPieceColor(selectedPieceCode) == ChessPiece::PieceColor::WHITE &&
+                    ChessPiece::getPieceColor(hoveringSquarePieceCode) == ChessPiece::PieceColor::BLACK) {
                 squares[selectedSquareIndex] = 0;
                 squares[hoveringSquare] = selectedPieceCode;
                 selectedPieceCode = 0;
@@ -178,96 +186,120 @@ void ChessBoard::possibleMoves(int currentSquare, int pieceCode) {
     int minBottomLeft = std::min(spacesBelow, spacesLeft);
     int minBottomRight = std::min(spacesBelow, spacesRight);
 
+    ChessPiece::PieceColor selectedPieceColor = ChessPiece::getPieceColor(pieceCode);
+    ChessPiece::PieceColor oppositePieceColor = ChessPiece::getPieceColor(pieceCode ^ 0b11000000 << 6 >> 6);
+    ChessPiece::PieceColor targetPieceColor;
+    int target;
+
     switch (pieceCode & 0b00111111) {
         case 0b1: {
             // pawn
             if ((pieceCode & 0b11000000) == 0b10000000) {
                 if (minBottomLeft) {
-                    possibilities.insert(currentSquare + 1 * 7);
+                    possibilities.insert(currentSquare + 7);
                 }
                 if (minBottomRight) {
-                    possibilities.insert(currentSquare + 1 * 9);
+                    possibilities.insert(currentSquare + 9);
                 }
                 if (spacesBelow) {
-                    possibilities.insert(currentSquare + 1 * 8);
+                    possibilities.insert(currentSquare + 8);
                 }
-                if (spacesBelow) {
-                    possibilities.insert(currentSquare + 2 * 8);
+                if (spacesBelow > 1) {
+                    possibilities.insert(currentSquare + 16);
                 }
             } else {
                 if (minTopLeft) {
-                    possibilities.insert(currentSquare - 1 * 9);
+                    possibilities.insert(currentSquare - 9);
                 }
                 if (minTopRight) {
-                    possibilities.insert(currentSquare - 1 * 7);
+                    possibilities.insert(currentSquare - 7);
                 }
                 if (spacesAbove) {
-                    possibilities.insert(currentSquare - 1 * 8);
+                    possibilities.insert(currentSquare - 8);
                 }
-                if (spacesAbove) {
-                    possibilities.insert(currentSquare - 2 * 8);
+                if (spacesAbove > 1) {
+                    possibilities.insert(currentSquare - 16);
                 }
             }
             break;
         }
         case 0b10: {
             // knight
-            if (spacesAbove > 1 && spacesLeft > 0) {
-                possibilities.insert((currentSquare - 1 * 8) - 1 * 9);
+            if (spacesAbove > 1) {
+                if (spacesLeft > 1) {
+                    possibilities.insert(currentSquare - 10);
+                }
+                if (spacesRight > 1) {
+                    possibilities.insert(currentSquare - 6);
+                }
+                if (spacesLeft > 0) {
+                    possibilities.insert(currentSquare - 17);
+                }
+                if (spacesRight > 0) {
+                    possibilities.insert(currentSquare - 15);
+                }
+            } else if (spacesAbove > 0) {
+                if (spacesLeft > 1) {
+                    possibilities.insert(currentSquare - 10);
+                }
+                if (spacesRight > 1) {
+                    possibilities.insert(currentSquare - 6);
+                }
             }
 
-            if (spacesAbove > 0 && spacesLeft > 1) {
-                possibilities.insert((currentSquare - 1 * 9) - 1);
+            if (spacesBelow > 1) {
+                if (spacesLeft > 1) {
+                    possibilities.insert(currentSquare + 6);
+                }
+                if (spacesRight > 1) {
+                    possibilities.insert(currentSquare + 10);
+                }
+                if (spacesLeft > 0) {
+                    possibilities.insert(currentSquare + 15);
+                }
+                if (spacesRight > 0) {
+                    possibilities.insert(currentSquare + 17);
+                }
+            } else if (spacesBelow > 0) {
+                if (spacesLeft > 1) {
+                    possibilities.insert(currentSquare + 6);
+                }
+                if (spacesRight > 1) {
+                    possibilities.insert(currentSquare + 10);
+                }
             }
-
-            if (spacesBelow > 0 && spacesLeft > 1) {
-                possibilities.insert((currentSquare + 1 * 7) - 1);
-            }
-
-            if (spacesBelow > 1 && spacesLeft > 0) {
-                possibilities.insert((currentSquare + 1 * 8) + 1 * 7);
-            }
-
-
-            if (spacesAbove > 1 && spacesRight > 0) {
-                possibilities.insert((currentSquare - 1 * 8) - 1 * 7);
-            }
-
-            if (spacesAbove > 0 && spacesRight > 1) {
-                possibilities.insert((currentSquare + 2) - 1 * 8);
-            }
-
-            if (spacesBelow > 1 && spacesRight > 0) {
-                possibilities.insert((currentSquare + 1 * 8) + 1 * 9);
-            }
-
-            if (spacesBelow > 0 && spacesRight > 1) {
-                possibilities.insert((currentSquare + 1 * 9) + 1);
-            }
-
-
             break;
         }
         case 0b100: {
             // bishop
             for (int i = 1; i <= minTopLeft; ++i) {
-                possibilities.insert(currentSquare - i * 9);
+                target = currentSquare - i * 9;
+                if (!addTarget(target, targetPieceColor, selectedPieceColor, oppositePieceColor))
+                    break;
             }
             for (int i = 1; i <= minTopRight; ++i) {
-                possibilities.insert(currentSquare - i * 7);
+                target = currentSquare - i * 7;
+                if (!addTarget(target, targetPieceColor, selectedPieceColor, oppositePieceColor))
+                    break;
             }
             for (int i = 1; i <= minBottomLeft; ++i) {
-                possibilities.insert(currentSquare + i * 7);
+                target = currentSquare + i * 7;
+                if (!addTarget(target, targetPieceColor, selectedPieceColor, oppositePieceColor))
+                    break;
             }
             for (int i = 1; i <= minBottomRight; ++i) {
-                possibilities.insert(currentSquare + i * 9);
+                target = currentSquare + i * 9;
+                if (!addTarget(target, targetPieceColor, selectedPieceColor, oppositePieceColor))
+                    break;
             }
             break;
         }
         case 0b1000: {
             // rook
             for (int i = 1; i <= spacesAbove; ++i) {
-                possibilities.insert(currentSquare - i * 8);
+                target = currentSquare - i * 8;
+                if (!addTarget(target, targetPieceColor, selectedPieceColor, oppositePieceColor))
+                    break;
             }
             for (int i = 1; i <= spacesBelow; ++i) {
                 possibilities.insert(currentSquare + i * 8);
@@ -311,22 +343,22 @@ void ChessBoard::possibleMoves(int currentSquare, int pieceCode) {
         case 0b100000: {
             // king
             if (minBottomLeft) {
-                possibilities.insert(currentSquare + 1 * 7);
+                possibilities.insert(currentSquare + 7);
             }
             if (minBottomRight) {
-                possibilities.insert(currentSquare + 1 * 9);
-            }
-            if (spacesBelow) {
-                possibilities.insert(currentSquare + 1 * 8);
+                possibilities.insert(currentSquare + 9);
             }
             if (minTopLeft) {
-                possibilities.insert(currentSquare - 1 * 9);
+                possibilities.insert(currentSquare - 9);
             }
             if (minTopRight) {
-                possibilities.insert(currentSquare - 1 * 7);
+                possibilities.insert(currentSquare - 7);
             }
             if (spacesAbove) {
-                possibilities.insert(currentSquare - 1 * 8);
+                possibilities.insert(currentSquare - 8);
+            }
+            if (spacesBelow) {
+                possibilities.insert(currentSquare + 8);
             }
             if (spacesLeft) {
                 possibilities.insert(currentSquare - 1);
@@ -386,4 +418,17 @@ ChessBoard::drawPiece(unsigned short pieceCode, float xPos, float yPos, float bo
 void ChessBoard::setMousePos(int mouseX, int mouseY) {
     this->mouseXpos = mouseX;
     this->mouseYpos = mouseY;
+}
+
+bool ChessBoard::addTarget(unsigned short target, ChessPiece::PieceColor targetPieceColor,
+                           ChessPiece::PieceColor selectedPieceColor, ChessPiece::PieceColor oppositePieceColor) {
+    targetPieceColor = ChessPiece::getPieceColor(squares[target]);
+    if (targetPieceColor == selectedPieceColor)
+        return false;
+    else if (targetPieceColor == oppositePieceColor) {
+        possibilities.insert(target);
+        return false;
+    } else
+        possibilities.insert(target);
+    return true;
 }

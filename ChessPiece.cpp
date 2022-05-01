@@ -22,3 +22,12 @@ ChessPiece::ChessPiece(sf::Sprite sprite) {
     this->sprite = sprite;
 }
 
+ChessPiece::PieceColor ChessPiece::getPieceColor(unsigned short pieceCode) {
+    unsigned short value = pieceCode & 0b11000000;
+    if (value == 0b10000000)
+        return PieceColor::BLACK;
+    else if (value == 0b01000000)
+        return PieceColor::WHITE;
+    return PieceColor::BLANK;
+}
+

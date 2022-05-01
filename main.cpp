@@ -13,8 +13,14 @@
 int main() {
 
     sf::RenderWindow window(sf::VideoMode(1600, 900), "AutoChess");
+    sf::Font font;
 
-    ChessBoard board(INIT_WINDOW_WIDTH, INIT_WINDOW_HEIGHT);
+    if (!font.loadFromFile("resources\\fonts\\Roboto-Regular.ttf")){
+        std::cout << "Failed to load font" << std::endl;
+        system("pause");
+    }
+
+    ChessBoard board(INIT_WINDOW_WIDTH, INIT_WINDOW_HEIGHT, font);
 
     while (window.isOpen()) {
         sf::Event event;
