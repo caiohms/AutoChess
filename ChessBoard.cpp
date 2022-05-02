@@ -159,18 +159,14 @@ bool ChessBoard::isChecked(unsigned short color, unsigned short board[64]) {
 void ChessBoard::releasePiece(unsigned int mouseX, unsigned int mouseY) {
     if (selectedPieceCode == 0) return;
     mouseDragging = false;
-
     int hoveringSquare = getSquareUnderMousePos(mouseX, mouseY);
     unsigned short pieceColor = ChessPiece::getPieceColor(selectedPieceCode);
     unsigned short newBoard[64];
-
     for (int j = 0; j < 64; j++) {
         newBoard[j] = squares[j];
     }
-
-    newBoard[hoveringSquare] = selectedPieceCode;
     newBoard[selectedSquareIndex] = 0;
-
+    newBoard[hoveringSquare] = selectedPieceCode;
     for (int i: possibilities) {
         if (i == hoveringSquare) {
             short hoveringSquarePieceCode = squares[hoveringSquare];
@@ -184,12 +180,16 @@ void ChessBoard::releasePiece(unsigned int mouseX, unsigned int mouseY) {
                     if (hoveringSquare >= 56 && hoveringSquare <= 63 && selectedPieceCode == 0b10000001) {
                         squares[hoveringSquare] = 0b10010000;
                     } else {
+                        unsigned short piece = squares[hoveringSquare];
                         squares[hoveringSquare] = selectedPieceCode;
+                        if (isChecked(pieceColor, squares)){
+                            squares[hoveringSquare] =piece;
+                            squares[selectedSquareIndex]=selectedPieceCode;
+                        }
                     }
                     selectedPieceCode = 0;
                     selectedSquareIndex = -1;
                     possibilities.clear();
-
                 } else if (
                         ChessPiece::getPieceColor(selectedPieceCode) == ChessPiece::PieceColor::WHITE &&
                         ChessPiece::getPieceColor(hoveringSquarePieceCode) == ChessPiece::PieceColor::BLACK) {
@@ -197,12 +197,16 @@ void ChessBoard::releasePiece(unsigned int mouseX, unsigned int mouseY) {
                     if (hoveringSquare >= 0 && hoveringSquare <= 7 && selectedPieceCode == 0b01000001) {
                         squares[hoveringSquare] = 0b01010000;
                     } else {
+                        unsigned short piece = squares[hoveringSquare];
                         squares[hoveringSquare] = selectedPieceCode;
+                        if (isChecked(pieceColor, squares)){
+                            squares[hoveringSquare] =piece;
+                            squares[selectedSquareIndex]=selectedPieceCode;
+                        }
                     }
                     selectedPieceCode = 0;
                     selectedSquareIndex = -1;
                     possibilities.clear();
-
                 }
             }
 
