@@ -3,6 +3,7 @@
 #include <set>
 #include <iostream>
 
+
 ChessBoard::ChessBoard(int width, int height, sf::Font font) {
 
     this->boardSize.x = width;
