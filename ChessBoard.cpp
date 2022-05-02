@@ -19,14 +19,15 @@ ChessBoard::ChessBoard(int width, int height, sf::Font font) {
 
     this->setBoardSize(sf::Vector2u(minSide, minSide));
 
-    darkSquare.setFillColor(sf::Color(81, 130, 171));
-    lightSquare.setFillColor(sf::Color(124, 163, 193));
-    selectedSquare.setFillColor(sf::Color(200, 50, 50));
+    darkRect.setFillColor(sf::Color(81, 130, 171));
+    lightRect.setFillColor(sf::Color(124, 163, 193));
+    selectedRect.setFillColor(sf::Color(50, 200, 50));
 
     targetCircleShape.setOutlineThickness(4);
     targetCircleShape.setOutlineColor(sf::Color(80, 80, 80));
 
-//    possibleSquare.setFillColor(sf::Color(2, 188, 0));
+    lightTargetedRect.setFillColor(sf::Color(220, 100, 100));
+    darkTargetedRect.setFillColor(sf::Color(170, 50, 50));
 
     initTextures();
 }
@@ -40,20 +41,24 @@ void ChessBoard::draw(sf::RenderWindow &window) {
     float boardEdge = (float) boardSize.x - 20;
     float squareEdge = boardEdge / 8.0f;
 
-    lightSquare.setSize(sf::Vector2f(squareEdge, squareEdge));
-    darkSquare.setSize(sf::Vector2f(squareEdge, squareEdge));
-    selectedSquare.setSize(sf::Vector2f(squareEdge, squareEdge));
+    lightRect.setSize(sf::Vector2f(squareEdge, squareEdge));
+    darkRect.setSize(sf::Vector2f(squareEdge, squareEdge));
+    selectedRect.setSize(sf::Vector2f(squareEdge, squareEdge));
 
-//    possibleSquare.setSize(sf::Vector2f(squareEdge, squareEdge));
+    lightTargetedRect.setSize(sf::Vector2f(squareEdge, squareEdge));
+    darkTargetedRect.setSize(sf::Vector2f(squareEdge, squareEdge));
 
     for (int i = 0; i < 64; ++i) {
         t.setString(std::to_string(i));
 
         float xPos = 10 + boardEdge / 8 * (float) (i % 8);
         float yPos = 10 + boardEdge / 8 * (float) (i / 8);
-        lightSquare.setPosition(sf::Vector2f(xPos, yPos));
-        darkSquare.setPosition(sf::Vector2f(xPos, yPos));
-        selectedSquare.setPosition(sf::Vector2f(xPos, yPos));
+        lightRect.setPosition(sf::Vector2f(xPos, yPos));
+        darkRect.setPosition(sf::Vector2f(xPos, yPos));
+        selectedRect.setPosition(sf::Vector2f(xPos, yPos));
+        lightTargetedRect.setPosition(sf::Vector2f(xPos, yPos));
+        darkTargetedRect.setPosition(sf::Vector2f(xPos, yPos));
+
         t.setPosition(xPos, yPos);
 
         if (squares[i] > 0) {
@@ -71,25 +76,26 @@ void ChessBoard::draw(sf::RenderWindow &window) {
                                     -squareEdge / 2 + targetCircleShape.getRadius());
 
 
-        //        possibleSquare.setPosition(sf::Vector2f(xPos, yPos));
-
         if ((i % 2 + (int) (i / 8)) % 2 == 0)
-            window.draw(lightSquare);
+            window.draw(lightRect);
         else
-            window.draw(darkSquare);
+            window.draw(darkRect);
 
         if (selectedSquareIndex == i)
-            window.draw(selectedSquare);
+            window.draw(selectedRect);
+
+        if (attackedSquaresDraw.contains(i)) {
+            if ((i % 2 + (int) (i / 8)) % 2 == 0)
+                window.draw(lightTargetedRect);
+            else
+                window.draw(darkTargetedRect);
+        }
 
         ChessBoard::drawPiece(squares[i], xPos, yPos, boardEdge, window);
 
-        if (possibilities.count(i)) {
+        if (possibilities.contains(i)) {
             window.draw(targetCircleShape);
         }
-        if (attackedSquares.count(i)) {
-            window.draw(targetCircleShape);
-        }
-
 
         window.draw(t);
     }
@@ -123,7 +129,6 @@ void ChessBoard::initTextures() {
 }
 
 void ChessBoard::grabPiece(unsigned int mouseX, unsigned int mouseY) {
-    mouseDragging = true;
 
     if (mouseX + 10 > boardSize.x || mouseY + 10 > boardSize.y || mouseX < 10 || mouseY < 10) {
         selectedSquareIndex = -1;
@@ -131,92 +136,60 @@ void ChessBoard::grabPiece(unsigned int mouseX, unsigned int mouseY) {
     }
 
     selectedSquareIndex = getSquareUnderMousePos(mouseX, mouseY);
-
     selectedPieceCode = squares[selectedSquareIndex];
-
-    possibleMoves(selectedSquareIndex);
-}
-
-bool ChessBoard::isChecked(unsigned short color, unsigned short board[64]) {
-    for (int i = 0; i < 64; i++) {
-        if (((board[i] & 0b11000000) != color) && board[i] != 0) {
-            possibleMoves(i);
-            for (int j: possibilities) {
-                attackedSquares.insert(j);
-            }
-
-            for (int x: attackedSquares) {
-                if ((board[x] & 0b00100000) == 0b00100000 && (board[x] & 0b11000000) == color) {
-                    attackedSquares.clear();
-                    return true;
-                }
-            }
-            attackedSquares.clear();
-        }
-    }
-    return false;
+    possibilities.clear();
+    attackedSquaresDraw.clear();
+    possibleMoves(selectedSquareIndex, false, possibilities);
 }
 
 void ChessBoard::releasePiece(unsigned int mouseX, unsigned int mouseY) {
     if (selectedPieceCode == 0) return;
-    mouseDragging = false;
-    int hoveringSquare = getSquareUnderMousePos(mouseX, mouseY);
-    unsigned short pieceColor = ChessPiece::getPieceColor(selectedPieceCode);
-    unsigned short newBoard[64];
-    for (int j = 0; j < 64; j++) {
-        newBoard[j] = squares[j];
-    }
-    newBoard[selectedSquareIndex] = 0;
-    newBoard[hoveringSquare] = selectedPieceCode;
-    for (int i: possibilities) {
-        if (i == hoveringSquare) {
-            short hoveringSquarePieceCode = squares[hoveringSquare];
-            if (!isChecked(pieceColor, newBoard)) {
-                if (
-                        ChessPiece::getPieceColor(selectedPieceCode) == ChessPiece::PieceColor::BLACK &&
-                        ChessPiece::getPieceColor(hoveringSquarePieceCode) == ChessPiece::PieceColor::WHITE ||
-                        squares[hoveringSquare] == 0) {
+    int targetSquareIndex = getSquareUnderMousePos(mouseX, mouseY);
+    if (targetSquareIndex == selectedSquareIndex) {
+        selectedPieceCode = 0;
+        return;
+    };
 
-                    squares[selectedSquareIndex] = 0;
-                    if (hoveringSquare >= 56 && hoveringSquare <= 63 && selectedPieceCode == 0b10000001) {
-                        squares[hoveringSquare] = 0b10010000;
-                    } else {
-                        unsigned short piece = squares[hoveringSquare];
-                        squares[hoveringSquare] = selectedPieceCode;
-                        if (isChecked(pieceColor, squares)) {
-                            squares[hoveringSquare] = piece;
-                            squares[selectedSquareIndex] = selectedPieceCode;
-                        }
-                    }
-                    selectedPieceCode = 0;
-                    selectedSquareIndex = -1;
-                    possibilities.clear();
-                } else if (
-                        ChessPiece::getPieceColor(selectedPieceCode) == ChessPiece::PieceColor::WHITE &&
-                        ChessPiece::getPieceColor(hoveringSquarePieceCode) == ChessPiece::PieceColor::BLACK) {
-                    squares[selectedSquareIndex] = 0;
-                    if (hoveringSquare >= 0 && hoveringSquare <= 7 && selectedPieceCode == 0b01000001) {
-                        squares[hoveringSquare] = 0b01010000;
-                    } else {
-                        unsigned short piece = squares[hoveringSquare];
-                        squares[hoveringSquare] = selectedPieceCode;
-                        if (isChecked(pieceColor, squares)) {
-                            squares[hoveringSquare] = piece;
-                            squares[selectedSquareIndex] = selectedPieceCode;
-                        }
-                    }
-                    selectedPieceCode = 0;
-                    selectedSquareIndex = -1;
-                    possibilities.clear();
-                }
-            }
+    ChessPiece::PieceColor selectedPieceColor = ChessPiece::getPieceColor(selectedPieceCode);
 
+    if (possibilities.contains(targetSquareIndex)) {
+        squares[selectedSquareIndex] = 0;
+        if ((targetSquareIndex / 8 == 7 || targetSquareIndex / 8 == 0) &&
+            (selectedPieceCode & 0b00000001) == 0b00000001) {
+            // promote
+            // promotionPrompt(targetSquareIndex);
+            squares[targetSquareIndex] = 0b00010000 | selectedPieceColor;
+        } else {
+            squares[targetSquareIndex] = selectedPieceCode;
         }
-
+        selectedSquareIndex = -1;
     }
 
     selectedPieceCode = 0;
     possibilities.clear();
+    attackedSquaresDraw.clear();
+
+}
+
+bool ChessBoard::isChecked() {
+    unsigned short selectedColor = getColorFromPieceCode(selectedPieceCode);
+    unsigned short selectedColorKingCode = selectedColor | 0b00100000;
+    unsigned short selectedColorKingSquare = 0;
+
+    for (int i = 0; i < 64; ++i) {
+        if (squares[i] == selectedColorKingCode) {
+            selectedColorKingSquare = i;
+            break;
+        }
+    }
+
+    if (getSquaresAttackedByOpponent().contains(selectedColorKingSquare)) return true;
+    return false;
+}
+
+inline unsigned int ChessBoard::getColorFromPieceCode(unsigned short selectedPieceCode) {
+    unsigned int selectedColor = selectedPieceCode & 0b11000000;
+    return selectedColor;
 }
 
 int ChessBoard::getSquareUnderMousePos(unsigned int mouseX, unsigned int mouseY) {
@@ -226,11 +199,10 @@ int ChessBoard::getSquareUnderMousePos(unsigned int mouseX, unsigned int mouseY)
     return squareY * 8 + squareX;
 }
 
-void ChessBoard::possibleMoves(int currentSquare) {
+void ChessBoard::possibleMoves(int currentSquare, bool checkingCheck, std::unordered_set<unsigned short> &targetSet) {
 
     int pieceCode = squares[currentSquare];
 
-    possibilities.clear();
     if (pieceCode == 0) return;
 
     int spacesAbove = currentSquare / 8;
@@ -246,48 +218,53 @@ void ChessBoard::possibleMoves(int currentSquare) {
     ChessPiece::PieceColor selectedPieceColor = ChessPiece::getPieceColor(pieceCode);
     ChessPiece::PieceColor oppositePieceColor = ChessPiece::getPieceColor(pieceCode ^ 0b11000000 << 6 >> 6);
 
-    int target;
+    int targetSquare;
 
     switch (pieceCode & 0b00111111) {
         case 0b1: {
             // pawn
             if ((pieceCode & 0b11000000) == 0b10000000) {
                 if (minBottomLeft && squares[currentSquare + 7] != 0) {
-                    target = currentSquare + 7;
-                    addTarget(target, selectedPieceColor, oppositePieceColor);
-//                    if (spacesBelow==0){
-//                        squares[currentSquare] = 0b01010000;
-//                    }
+                    targetSquare = currentSquare + 7;
+                    addTarget(currentSquare, targetSquare, selectedPieceColor, oppositePieceColor, checkingCheck,
+                              targetSet);
                 }
                 if (minBottomRight && squares[currentSquare + 9] != 0) {
-                    target = currentSquare + 9;
-                    addTarget(target, selectedPieceColor, oppositePieceColor);
+                    targetSquare = currentSquare + 9;
+                    addTarget(currentSquare, targetSquare, selectedPieceColor, oppositePieceColor, checkingCheck,
+                              targetSet);
                 }
                 if (spacesBelow && squares[currentSquare + 8] == 0) {
-                    target = currentSquare + 8;
-                    addTarget(target, selectedPieceColor, oppositePieceColor);
+                    targetSquare = currentSquare + 8;
+                    addTarget(currentSquare, targetSquare, selectedPieceColor, oppositePieceColor, checkingCheck,
+                              targetSet);
                 }
                 if (spacesBelow == 6 && squares[currentSquare + 8] == 0 && squares[currentSquare + 16] == 0) {
-                    target = currentSquare + 16;
-                    addTarget(target, selectedPieceColor, oppositePieceColor);
+                    targetSquare = currentSquare + 16;
+                    addTarget(currentSquare, targetSquare, selectedPieceColor, oppositePieceColor, checkingCheck,
+                              targetSet);
                 }
 
             } else {
                 if (minTopLeft && squares[currentSquare - 9] != 0) {
-                    target = currentSquare - 9;
-                    addTarget(target, selectedPieceColor, oppositePieceColor);
+                    targetSquare = currentSquare - 9;
+                    addTarget(currentSquare, targetSquare, selectedPieceColor, oppositePieceColor, checkingCheck,
+                              targetSet);
                 }
                 if (minTopRight && squares[currentSquare - 7] != 0) {
-                    target = currentSquare - 7;
-                    addTarget(target, selectedPieceColor, oppositePieceColor);
+                    targetSquare = currentSquare - 7;
+                    addTarget(currentSquare, targetSquare, selectedPieceColor, oppositePieceColor, checkingCheck,
+                              targetSet);
                 }
                 if (spacesAbove && squares[currentSquare - 8] == 0) {
-                    target = currentSquare - 8;
-                    addTarget(target, selectedPieceColor, oppositePieceColor);
+                    targetSquare = currentSquare - 8;
+                    addTarget(currentSquare, targetSquare, selectedPieceColor, oppositePieceColor, checkingCheck,
+                              targetSet);
                 }
                 if (spacesAbove == 6 && squares[currentSquare - 8] == 0 && squares[currentSquare - 16] == 0) {
-                    target = currentSquare - 16;
-                    addTarget(target, selectedPieceColor, oppositePieceColor);
+                    targetSquare = currentSquare - 16;
+                    addTarget(currentSquare, targetSquare, selectedPieceColor, oppositePieceColor, checkingCheck,
+                              targetSet);
                 }
             }
             break;
@@ -296,57 +273,69 @@ void ChessBoard::possibleMoves(int currentSquare) {
             // knight
             if (spacesAbove > 1) {
                 if (spacesLeft > 1) {
-                    target = currentSquare - 10;
-                    addTarget(target, selectedPieceColor, oppositePieceColor);
+                    targetSquare = currentSquare - 10;
+                    addTarget(currentSquare, targetSquare, selectedPieceColor, oppositePieceColor, checkingCheck,
+                              targetSet);
                 }
                 if (spacesRight > 1) {
-                    target = currentSquare - 6;
-                    addTarget(target, selectedPieceColor, oppositePieceColor);
+                    targetSquare = currentSquare - 6;
+                    addTarget(currentSquare, targetSquare, selectedPieceColor, oppositePieceColor, checkingCheck,
+                              targetSet);
                 }
                 if (spacesLeft > 0) {
-                    target = currentSquare - 17;
-                    addTarget(target, selectedPieceColor, oppositePieceColor);
+                    targetSquare = currentSquare - 17;
+                    addTarget(currentSquare, targetSquare, selectedPieceColor, oppositePieceColor, checkingCheck,
+                              targetSet);
                 }
                 if (spacesRight > 0) {
-                    target = currentSquare - 15;
-                    addTarget(target, selectedPieceColor, oppositePieceColor);
+                    targetSquare = currentSquare - 15;
+                    addTarget(currentSquare, targetSquare, selectedPieceColor, oppositePieceColor, checkingCheck,
+                              targetSet);
                 }
             } else if (spacesAbove > 0) {
                 if (spacesLeft > 1) {
-                    target = currentSquare - 10;
-                    addTarget(target, selectedPieceColor, oppositePieceColor);
+                    targetSquare = currentSquare - 10;
+                    addTarget(currentSquare, targetSquare, selectedPieceColor, oppositePieceColor, checkingCheck,
+                              targetSet);
                 }
                 if (spacesRight > 1) {
-                    target = currentSquare - 6;
-                    addTarget(target, selectedPieceColor, oppositePieceColor);
+                    targetSquare = currentSquare - 6;
+                    addTarget(currentSquare, targetSquare, selectedPieceColor, oppositePieceColor, checkingCheck,
+                              targetSet);
                 }
             }
 
             if (spacesBelow > 1) {
                 if (spacesLeft > 1) {
-                    target = currentSquare + 6;
-                    addTarget(target, selectedPieceColor, oppositePieceColor);
+                    targetSquare = currentSquare + 6;
+                    addTarget(currentSquare, targetSquare, selectedPieceColor, oppositePieceColor, checkingCheck,
+                              targetSet);
                 }
                 if (spacesRight > 1) {
-                    target = currentSquare + 10;
-                    addTarget(target, selectedPieceColor, oppositePieceColor);
+                    targetSquare = currentSquare + 10;
+                    addTarget(currentSquare, targetSquare, selectedPieceColor, oppositePieceColor, checkingCheck,
+                              targetSet);
                 }
                 if (spacesLeft > 0) {
-                    target = currentSquare + 15;
-                    addTarget(target, selectedPieceColor, oppositePieceColor);
+                    targetSquare = currentSquare + 15;
+                    addTarget(currentSquare, targetSquare, selectedPieceColor, oppositePieceColor, checkingCheck,
+                              targetSet);
                 }
                 if (spacesRight > 0) {
-                    target = currentSquare + 17;
-                    addTarget(target, selectedPieceColor, oppositePieceColor);
+                    targetSquare = currentSquare + 17;
+                    addTarget(currentSquare, targetSquare, selectedPieceColor, oppositePieceColor, checkingCheck,
+                              targetSet);
                 }
             } else if (spacesBelow > 0) {
                 if (spacesLeft > 1) {
-                    target = currentSquare + 6;
-                    addTarget(target, selectedPieceColor, oppositePieceColor);
+                    targetSquare = currentSquare + 6;
+                    addTarget(currentSquare, targetSquare, selectedPieceColor, oppositePieceColor, checkingCheck,
+                              targetSet);
                 }
                 if (spacesRight > 1) {
-                    target = currentSquare + 10;
-                    addTarget(target, selectedPieceColor, oppositePieceColor);
+                    targetSquare = currentSquare + 10;
+                    addTarget(currentSquare, targetSquare, selectedPieceColor, oppositePieceColor, checkingCheck,
+                              targetSet);
                 }
             }
             break;
@@ -354,23 +343,27 @@ void ChessBoard::possibleMoves(int currentSquare) {
         case 0b100: {
             // bishop
             for (int i = 1; i <= minTopLeft; ++i) {
-                target = currentSquare - i * 9;
-                if (!addTarget(target, selectedPieceColor, oppositePieceColor))
+                targetSquare = currentSquare - i * 9;
+                if (!addTarget(currentSquare, targetSquare, selectedPieceColor, oppositePieceColor, checkingCheck,
+                               targetSet))
                     break;
             }
             for (int i = 1; i <= minTopRight; ++i) {
-                target = currentSquare - i * 7;
-                if (!addTarget(target, selectedPieceColor, oppositePieceColor))
+                targetSquare = currentSquare - i * 7;
+                if (!addTarget(currentSquare, targetSquare, selectedPieceColor, oppositePieceColor, checkingCheck,
+                               targetSet))
                     break;
             }
             for (int i = 1; i <= minBottomLeft; ++i) {
-                target = currentSquare + i * 7;
-                if (!addTarget(target, selectedPieceColor, oppositePieceColor))
+                targetSquare = currentSquare + i * 7;
+                if (!addTarget(currentSquare, targetSquare, selectedPieceColor, oppositePieceColor, checkingCheck,
+                               targetSet))
                     break;
             }
             for (int i = 1; i <= minBottomRight; ++i) {
-                target = currentSquare + i * 9;
-                if (!addTarget(target, selectedPieceColor, oppositePieceColor))
+                targetSquare = currentSquare + i * 9;
+                if (!addTarget(currentSquare, targetSquare, selectedPieceColor, oppositePieceColor, checkingCheck,
+                               targetSet))
                     break;
             }
             break;
@@ -378,23 +371,27 @@ void ChessBoard::possibleMoves(int currentSquare) {
         case 0b1000: {
             // rook
             for (int i = 1; i <= spacesAbove; ++i) {
-                target = currentSquare - i * 8;
-                if (!addTarget(target, selectedPieceColor, oppositePieceColor))
+                targetSquare = currentSquare - i * 8;
+                if (!addTarget(currentSquare, targetSquare, selectedPieceColor, oppositePieceColor, checkingCheck,
+                               targetSet))
                     break;
             }
             for (int i = 1; i <= spacesBelow; ++i) {
-                target = currentSquare + i * 8;
-                if (!addTarget(target, selectedPieceColor, oppositePieceColor))
+                targetSquare = currentSquare + i * 8;
+                if (!addTarget(currentSquare, targetSquare, selectedPieceColor, oppositePieceColor, checkingCheck,
+                               targetSet))
                     break;
             }
             for (int i = 1; i <= spacesLeft; ++i) {
-                target = currentSquare - i;
-                if (!addTarget(target, selectedPieceColor, oppositePieceColor))
+                targetSquare = currentSquare - i;
+                if (!addTarget(currentSquare, targetSquare, selectedPieceColor, oppositePieceColor, checkingCheck,
+                               targetSet))
                     break;
             }
             for (int i = 1; i <= spacesRight; ++i) {
-                target = currentSquare + i;
-                if (!addTarget(target, selectedPieceColor, oppositePieceColor))
+                targetSquare = currentSquare + i;
+                if (!addTarget(currentSquare, targetSquare, selectedPieceColor, oppositePieceColor, checkingCheck,
+                               targetSet))
                     break;
             }
             break;
@@ -402,43 +399,51 @@ void ChessBoard::possibleMoves(int currentSquare) {
         case 0b10000: {
             // queen
             for (int i = 1; i <= minTopLeft; ++i) {
-                target = currentSquare - i * 9;
-                if (!addTarget(target, selectedPieceColor, oppositePieceColor))
+                targetSquare = currentSquare - i * 9;
+                if (!addTarget(currentSquare, targetSquare, selectedPieceColor, oppositePieceColor, checkingCheck,
+                               targetSet))
                     break;
             }
             for (int i = 1; i <= minTopRight; ++i) {
-                target = currentSquare - i * 7;
-                if (!addTarget(target, selectedPieceColor, oppositePieceColor))
+                targetSquare = currentSquare - i * 7;
+                if (!addTarget(currentSquare, targetSquare, selectedPieceColor, oppositePieceColor, checkingCheck,
+                               targetSet))
                     break;
             }
             for (int i = 1; i <= minBottomLeft; ++i) {
-                target = currentSquare + i * 7;
-                if (!addTarget(target, selectedPieceColor, oppositePieceColor))
+                targetSquare = currentSquare + i * 7;
+                if (!addTarget(currentSquare, targetSquare, selectedPieceColor, oppositePieceColor, checkingCheck,
+                               targetSet))
                     break;
             }
             for (int i = 1; i <= minBottomRight; ++i) {
-                target = currentSquare + i * 9;
-                if (!addTarget(target, selectedPieceColor, oppositePieceColor))
+                targetSquare = currentSquare + i * 9;
+                if (!addTarget(currentSquare, targetSquare, selectedPieceColor, oppositePieceColor, checkingCheck,
+                               targetSet))
                     break;
             }
             for (int i = 1; i <= spacesAbove; ++i) {
-                target = currentSquare - i * 8;
-                if (!addTarget(target, selectedPieceColor, oppositePieceColor))
+                targetSquare = currentSquare - i * 8;
+                if (!addTarget(currentSquare, targetSquare, selectedPieceColor, oppositePieceColor, checkingCheck,
+                               targetSet))
                     break;
             }
             for (int i = 1; i <= spacesBelow; ++i) {
-                target = currentSquare + i * 8;
-                if (!addTarget(target, selectedPieceColor, oppositePieceColor))
+                targetSquare = currentSquare + i * 8;
+                if (!addTarget(currentSquare, targetSquare, selectedPieceColor, oppositePieceColor, checkingCheck,
+                               targetSet))
                     break;
             }
             for (int i = 1; i <= spacesLeft; ++i) {
-                target = currentSquare - i;
-                if (!addTarget(target, selectedPieceColor, oppositePieceColor))
+                targetSquare = currentSquare - i;
+                if (!addTarget(currentSquare, targetSquare, selectedPieceColor, oppositePieceColor, checkingCheck,
+                               targetSet))
                     break;
             }
             for (int i = 1; i <= spacesRight; ++i) {
-                target = currentSquare + i;
-                if (!addTarget(target, selectedPieceColor, oppositePieceColor))
+                targetSquare = currentSquare + i;
+                if (!addTarget(currentSquare, targetSquare, selectedPieceColor, oppositePieceColor, checkingCheck,
+                               targetSet))
                     break;
             }
             break;
@@ -446,37 +451,45 @@ void ChessBoard::possibleMoves(int currentSquare) {
         case 0b100000: {
             // king
             if (minBottomLeft) {
-                target = currentSquare + 7;
-                addTarget(target, selectedPieceColor, oppositePieceColor);
+                targetSquare = currentSquare + 7;
+                addTarget(currentSquare, targetSquare, selectedPieceColor, oppositePieceColor, checkingCheck,
+                          targetSet);
 
             }
             if (minBottomRight) {
-                target = currentSquare + 9;
-                addTarget(target, selectedPieceColor, oppositePieceColor);
+                targetSquare = currentSquare + 9;
+                addTarget(currentSquare, targetSquare, selectedPieceColor, oppositePieceColor, checkingCheck,
+                          targetSet);
             }
             if (minTopLeft) {
-                target = currentSquare - 9;
-                addTarget(target, selectedPieceColor, oppositePieceColor);
+                targetSquare = currentSquare - 9;
+                addTarget(currentSquare, targetSquare, selectedPieceColor, oppositePieceColor, checkingCheck,
+                          targetSet);
             }
             if (minTopRight) {
-                target = currentSquare - 7;
-                addTarget(target, selectedPieceColor, oppositePieceColor);
+                targetSquare = currentSquare - 7;
+                addTarget(currentSquare, targetSquare, selectedPieceColor, oppositePieceColor, checkingCheck,
+                          targetSet);
             }
             if (spacesAbove) {
-                target = currentSquare - 8;
-                addTarget(target, selectedPieceColor, oppositePieceColor);
+                targetSquare = currentSquare - 8;
+                addTarget(currentSquare, targetSquare, selectedPieceColor, oppositePieceColor, checkingCheck,
+                          targetSet);
             }
             if (spacesBelow) {
-                target = currentSquare + 8;
-                addTarget(target, selectedPieceColor, oppositePieceColor);
+                targetSquare = currentSquare + 8;
+                addTarget(currentSquare, targetSquare, selectedPieceColor, oppositePieceColor, checkingCheck,
+                          targetSet);
             }
             if (spacesLeft) {
-                target = currentSquare - 1;
-                addTarget(target, selectedPieceColor, oppositePieceColor);
+                targetSquare = currentSquare - 1;
+                addTarget(currentSquare, targetSquare, selectedPieceColor, oppositePieceColor, checkingCheck,
+                          targetSet);
             }
             if (spacesRight) {
-                target = currentSquare + 1;
-                addTarget(target, selectedPieceColor, oppositePieceColor);
+                targetSquare = currentSquare + 1;
+                addTarget(currentSquare, targetSquare, selectedPieceColor, oppositePieceColor, checkingCheck,
+                          targetSet);
             }
             break;
         }
@@ -532,19 +545,53 @@ void ChessBoard::setMousePos(int mouseX, int mouseY) {
     this->mouseYpos = mouseY;
 }
 
-bool ChessBoard::addTarget(unsigned short target, ChessPiece::PieceColor selectedPieceColor,
-                           ChessPiece::PieceColor oppositePieceColor) {
-    ChessPiece::PieceColor targetPieceColor = ChessPiece::getPieceColor(squares[target]);
+bool ChessBoard::addTarget(unsigned short originSquare, unsigned short targetSquare,
+                           ChessPiece::PieceColor selectedPieceColor,
+                           ChessPiece::PieceColor oppositePieceColor, bool checkingCheck,
+                           std::unordered_set<unsigned short> &set) {
+
+    ChessPiece::PieceColor targetPieceColor = ChessPiece::getPieceColor(squares[targetSquare]);
     if (targetPieceColor == selectedPieceColor)
         return false;
-    else if (targetPieceColor == oppositePieceColor) {
-        possibilities.insert(target);
-        return false;
-    } else
-        possibilities.insert(target);
+
+    if (!checkingCheck) {
+        unsigned short originalPieceCode = makeMove(originSquare, targetSquare);
+        if (!isChecked())
+            set.insert(targetSquare);
+        undoMove(originSquare, targetSquare, originalPieceCode);
+    } else {
+        set.insert(targetSquare);
+    }
+
+    if (targetPieceColor == oppositePieceColor) return false;
     return true;
 }
 
 const unsigned short *ChessBoard::getSquares() const {
     return squares;
+}
+
+unsigned short ChessBoard::makeMove(unsigned short originSquare, unsigned short targetSquare) {
+    unsigned short targetPiece = squares[targetSquare];
+    squares[targetSquare] = selectedPieceCode;
+    squares[originSquare] = 0;
+    return targetPiece;
+}
+
+void ChessBoard::undoMove(unsigned short originSquare, unsigned short targetSquare, unsigned short originalPieceCode) {
+    squares[originSquare] = squares[targetSquare];
+    squares[targetSquare] = originalPieceCode;
+    for (unsigned short sq : attackedSquares) {
+        attackedSquaresDraw.insert(sq);
+    }
+    attackedSquares.clear();
+}
+
+std::unordered_set<unsigned short> ChessBoard::getSquaresAttackedByOpponent() {
+    for (int i = 0; i < 64; ++i) {
+        if (squares[i] != 0 && getColorFromPieceCode(squares[i]) != getColorFromPieceCode(selectedPieceCode)) {
+            possibleMoves(i, true, attackedSquares);
+        }
+    }
+    return attackedSquares;
 }

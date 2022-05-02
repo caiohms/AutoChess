@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.21)
 project(AutoChess)
 
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 20)
 
 add_executable(AutoChess main.cpp ChessPiece.cpp ChessPiece.h ChessBoard.cpp ChessBoard.h ChessGame.cpp ChessGame.h AI.cpp AI.h)
 
