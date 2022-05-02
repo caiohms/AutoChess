@@ -1,10 +1,10 @@
-
 #include "ChessBoard.h"
 #include "ChessPiece.h"
 #include <set>
 #include <iostream>
 
 ChessBoard::ChessBoard(int width, int height, sf::Font font) {
+
     this->boardSize.x = width;
     this->boardSize.y = height;
     this->font = font;
@@ -85,6 +85,11 @@ void ChessBoard::draw(sf::RenderWindow &window) {
         if (possibilities.count(i)) {
             window.draw(targetCircleShape);
         }
+        if (attackedSquares.count(i)) {
+            window.draw(targetCircleShape);
+        }
+
+
         window.draw(t);
     }
 
@@ -128,50 +133,81 @@ void ChessBoard::grabPiece(unsigned int mouseX, unsigned int mouseY) {
 
     selectedPieceCode = squares[selectedSquareIndex];
 
-    possibleMoves(selectedSquareIndex, selectedPieceCode);
+    possibleMoves(selectedSquareIndex);
+}
+
+bool ChessBoard::isChecked(unsigned short color, unsigned short board[64]) {
+    for (int i = 0; i < 64; i++) {
+        if (((board[i] & 0b11000000) != color) && board[i] != 0) {
+            possibleMoves(i);
+            for (int j: possibilities) {
+                attackedSquares.insert(j);
+            }
+
+            for (int x: attackedSquares) {
+                if ((board[x] & 0b00100000) == 0b00100000 && (board[x] & 0b11000000) == color) {
+                    attackedSquares.clear();
+                    return true;
+                }
+            }
+            attackedSquares.clear();
+        }
+    }
+    return false;
 }
 
 void ChessBoard::releasePiece(unsigned int mouseX, unsigned int mouseY) {
     if (selectedPieceCode == 0) return;
-
-
     mouseDragging = false;
 
     int hoveringSquare = getSquareUnderMousePos(mouseX, mouseY);
+    unsigned short pieceColor = ChessPiece::getPieceColor(selectedPieceCode);
+    unsigned short newBoard[64];
+
+    for (int j = 0; j < 64; j++) {
+        newBoard[j] = squares[j];
+    }
+
+    newBoard[hoveringSquare] = selectedPieceCode;
+    newBoard[selectedSquareIndex] = 0;
 
     for (int i: possibilities) {
         if (i == hoveringSquare) {
             short hoveringSquarePieceCode = squares[hoveringSquare];
-            if (
-                    ChessPiece::getPieceColor(selectedPieceCode) == ChessPiece::PieceColor::BLACK &&
-                    ChessPiece::getPieceColor(hoveringSquarePieceCode) == ChessPiece::PieceColor::WHITE ||
-                    squares[hoveringSquare] == 0) {
+            if (!isChecked(pieceColor, newBoard)) {
+                if (
+                        ChessPiece::getPieceColor(selectedPieceCode) == ChessPiece::PieceColor::BLACK &&
+                        ChessPiece::getPieceColor(hoveringSquarePieceCode) == ChessPiece::PieceColor::WHITE ||
+                        squares[hoveringSquare] == 0) {
 
-                squares[selectedSquareIndex] = 0;
-                if(hoveringSquare>=56 && hoveringSquare<=63 && selectedPieceCode == 0b10000001){
-                    squares[hoveringSquare] =0b10010000;
+                    squares[selectedSquareIndex] = 0;
+                    if (hoveringSquare >= 56 && hoveringSquare <= 63 && selectedPieceCode == 0b10000001) {
+                        squares[hoveringSquare] = 0b10010000;
+                    } else {
+                        squares[hoveringSquare] = selectedPieceCode;
+                    }
+                    selectedPieceCode = 0;
+                    selectedSquareIndex = -1;
+                    possibilities.clear();
+
+                } else if (
+                        ChessPiece::getPieceColor(selectedPieceCode) == ChessPiece::PieceColor::WHITE &&
+                        ChessPiece::getPieceColor(hoveringSquarePieceCode) == ChessPiece::PieceColor::BLACK) {
+                    squares[selectedSquareIndex] = 0;
+                    if (hoveringSquare >= 0 && hoveringSquare <= 7 && selectedPieceCode == 0b01000001) {
+                        squares[hoveringSquare] = 0b01010000;
+                    } else {
+                        squares[hoveringSquare] = selectedPieceCode;
+                    }
+                    selectedPieceCode = 0;
+                    selectedSquareIndex = -1;
+                    possibilities.clear();
+
                 }
-                else{
-                    squares[hoveringSquare] = selectedPieceCode;
-                }
-                selectedPieceCode = 0;
-                selectedSquareIndex = -1;
-                possibilities.clear();
-            } else if (
-                    ChessPiece::getPieceColor(selectedPieceCode) == ChessPiece::PieceColor::WHITE &&
-                    ChessPiece::getPieceColor(hoveringSquarePieceCode) == ChessPiece::PieceColor::BLACK) {
-                squares[selectedSquareIndex] = 0;
-                if(hoveringSquare>=56 && hoveringSquare<=63 && selectedPieceCode == 0b01000001){
-                    squares[hoveringSquare] = 0b01010000;
-                }
-                else{
-                    squares[hoveringSquare] = selectedPieceCode;
-                }
-                selectedPieceCode = 0;
-                selectedSquareIndex = -1;
-                possibilities.clear();
             }
+
         }
+
     }
 
     selectedPieceCode = 0;
@@ -185,7 +221,10 @@ int ChessBoard::getSquareUnderMousePos(unsigned int mouseX, unsigned int mouseY)
     return squareY * 8 + squareX;
 }
 
-void ChessBoard::possibleMoves(int currentSquare, int pieceCode) {
+void ChessBoard::possibleMoves(int currentSquare) {
+
+    int pieceCode = squares[currentSquare];
+
     possibilities.clear();
     if (pieceCode == 0) return;
 
@@ -208,40 +247,40 @@ void ChessBoard::possibleMoves(int currentSquare, int pieceCode) {
         case 0b1: {
             // pawn
             if ((pieceCode & 0b11000000) == 0b10000000) {
-                if (minBottomLeft && squares[currentSquare+7]!=0) {
+                if (minBottomLeft && squares[currentSquare + 7] != 0) {
                     target = currentSquare + 7;
                     addTarget(target, selectedPieceColor, oppositePieceColor);
 //                    if (spacesBelow==0){
 //                        squares[currentSquare] = 0b01010000;
 //                    }
                 }
-                if (minBottomRight && squares[currentSquare+9]!=0) {
+                if (minBottomRight && squares[currentSquare + 9] != 0) {
                     target = currentSquare + 9;
                     addTarget(target, selectedPieceColor, oppositePieceColor);
                 }
-                if (spacesBelow && squares[currentSquare+8]==0) {
+                if (spacesBelow && squares[currentSquare + 8] == 0) {
                     target = currentSquare + 8;
                     addTarget(target, selectedPieceColor, oppositePieceColor);
                 }
-                if (spacesBelow == 6 && squares[currentSquare+16]==0) {
+                if (spacesBelow == 6 && squares[currentSquare + 8] == 0 && squares[currentSquare + 16] == 0) {
                     target = currentSquare + 16;
                     addTarget(target, selectedPieceColor, oppositePieceColor);
                 }
 
             } else {
-                if (minTopLeft && squares[currentSquare-9]!=0) {
+                if (minTopLeft && squares[currentSquare - 9] != 0) {
                     target = currentSquare - 9;
                     addTarget(target, selectedPieceColor, oppositePieceColor);
                 }
-                if (minTopRight && squares[currentSquare-7]!=0) {
+                if (minTopRight && squares[currentSquare - 7] != 0) {
                     target = currentSquare - 7;
                     addTarget(target, selectedPieceColor, oppositePieceColor);
                 }
-                if (spacesAbove && squares[currentSquare-8]==0) {
+                if (spacesAbove && squares[currentSquare - 8] == 0) {
                     target = currentSquare - 8;
                     addTarget(target, selectedPieceColor, oppositePieceColor);
                 }
-                if (spacesAbove == 6 && squares[currentSquare-16]==0) {
+                if (spacesAbove == 6 && squares[currentSquare - 8] == 0 && squares[currentSquare - 16] == 0) {
                     target = currentSquare - 16;
                     addTarget(target, selectedPieceColor, oppositePieceColor);
                 }

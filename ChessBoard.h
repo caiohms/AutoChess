@@ -1,8 +1,8 @@
-
 #ifndef AUTOCHESS_CHESSBOARD_H
 #define AUTOCHESS_CHESSBOARD_H
 
 #include <SFML/Graphics.hpp>
+#include <unordered_set>
 #include "ChessPiece.h"
 
 class ChessBoard {
@@ -19,6 +19,7 @@ private:
     bool mouseDragging = false;
 
     std::set<int> possibilities = {};
+    std::unordered_set < unsigned short > attackedSquares = {};
 
     sf::Vector2u boardSize;
     sf::RectangleShape boardOutline;
@@ -48,6 +49,23 @@ private:
             0b10000001, 0b01001000, 0b10000001, 0b10000001, 0b10000001, 0b10000001, 0b10000001,
             0b10000001,
             0b10000001, 0, 0, 0b01001000, 0, 0, 0, 0,
+            0, 0, 0, 0b01000100, 0, 0, 0b10000010, 0b10000010,
+            0b10001000, 0b10001000, 0b10001000, 0b10001000, 0b01001000, 0b10001000, 0b10001000,
+            0b10001000,
+            0, 0, 0b10000001, 0, 0b10000100, 0b01001000, 0, 0,
+            0b01000001, 0b01000001, 0b01000001, 0b01000001, 0b01000001, 0b01000001, 0b01001000,
+            0b01000001,
+            0b01001000, 0b01000010, 0b01000100, 0b01010000, 0b01100000, 0b01000100, 0b01000010,
+            0b01001000};
+
+
+    /*
+     * unsigned short squares[64] = {
+            0b01001000, 0b10000010, 0b10001000, 0b10010000, 0b10100000, 0b10000010, 0b10000010,
+            0b10001000,
+            0b10000001, 0b01001000, 0b10000001, 0b10000001, 0b10000001, 0b10000001, 0b10000001,
+            0b10000001,
+            0b10000001, 0, 0, 0b01001000, 0, 0, 0, 0,
             0, 0, 0, 0b01000100, 0b10100000, 0, 0b10000010, 0b10000010,
             0b10001000, 0b10001000, 0b10001000, 0b10001000, 0b01001000, 0b10001000, 0b10001000,
             0b10001000,
@@ -55,8 +73,7 @@ private:
             0b01000001, 0b01000001, 0b01000001, 0b01000001, 0b01000001, 0b01000001, 0b01001000,
             0b01000001,
             0b01001000, 0b01000010, 0b01000100, 0b01010000, 0b01100000, 0b01000100, 0b01000010,
-            0b01001000};
-
+            0b01001000};*/
 public:
 
     void initTextures();
@@ -75,12 +92,14 @@ public:
 
     void setMousePos(int mouseX, int mouseY);
 
-    void possibleMoves(int currentSquare, int pieceCode);
+    void possibleMoves(int currentSquare);
 
     int getSquareUnderMousePos(unsigned int mouseX, unsigned int mouseY);
 
     bool addTarget(unsigned short target, ChessPiece::PieceColor selectedPieceColor,
                    ChessPiece::PieceColor oppositePieceColor);
+
+    bool isChecked(unsigned short color, unsigned short board[64]);
 };
 
 
