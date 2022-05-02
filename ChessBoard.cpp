@@ -1,11 +1,11 @@
 #include "ChessBoard.h"
 #include "ChessPiece.h"
+#include "ChessGame.h"
 #include <set>
 #include <iostream>
 
-
-ChessBoard::ChessBoard(int width, int height, sf::Font font) {
-
+ChessBoard::ChessBoard(int width, int height, sf::Font font,bool turn) {
+    this->turn=false;
     this->boardSize.x = width;
     this->boardSize.y = height;
     this->font = font;
@@ -81,10 +81,10 @@ void ChessBoard::draw(sf::RenderWindow &window) {
         else
             window.draw(darkRect);
 
-        if (selectedSquareIndex == i)
+        if (selectedSquareIndex == i && selectedPieceCode!=0)
             window.draw(selectedRect);
 
-        if (attackedSquaresDraw.contains(i)) {
+        if (attackedSquaresDraw.contains(i) && selectedPieceCode!=0) {
             if ((i % 2 + (int) (i / 8)) % 2 == 0)
                 window.draw(lightTargetedRect);
             else
@@ -93,7 +93,7 @@ void ChessBoard::draw(sf::RenderWindow &window) {
 
         ChessBoard::drawPiece(squares[i], xPos, yPos, boardEdge, window);
 
-        if (possibilities.contains(i)) {
+        if (possibilities.contains(i) && selectedPieceCode!=0) {
             window.draw(targetCircleShape);
         }
 
@@ -136,10 +136,27 @@ void ChessBoard::grabPiece(unsigned int mouseX, unsigned int mouseY) {
     }
 
     selectedSquareIndex = getSquareUnderMousePos(mouseX, mouseY);
-    selectedPieceCode = squares[selectedSquareIndex];
-    possibilities.clear();
-    attackedSquaresDraw.clear();
-    possibleMoves(selectedSquareIndex, false, possibilities);
+    if((getColorFromPieceCode(squares[selectedSquareIndex])==ChessPiece::PieceColor::WHITE && !turn)
+    ||(getColorFromPieceCode(squares[selectedSquareIndex])==ChessPiece::PieceColor::BLACK && turn) ){
+        selectedPieceCode = squares[selectedSquareIndex];
+        possibilities.clear();
+        attackedSquaresDraw.clear();
+        possibleMoves(selectedSquareIndex, false, possibilities);
+    }
+    else{
+        switch(turn){
+            case false:{
+                std::cout << "Vez das brancas";
+            }
+
+            case true:{
+                std::cout << "vez das pretas";
+            }
+
+        }
+
+    }
+
 }
 
 void ChessBoard::releasePiece(unsigned int mouseX, unsigned int mouseY) {
@@ -159,8 +176,10 @@ void ChessBoard::releasePiece(unsigned int mouseX, unsigned int mouseY) {
             // promote
             // promotionPrompt(targetSquareIndex);
             squares[targetSquareIndex] = 0b00010000 | selectedPieceColor;
+            turn = !turn;
         } else {
             squares[targetSquareIndex] = selectedPieceCode;
+            turn = !turn;
         }
         selectedSquareIndex = -1;
     }
@@ -575,6 +594,7 @@ unsigned short ChessBoard::makeMove(unsigned short originSquare, unsigned short 
     unsigned short targetPiece = squares[targetSquare];
     squares[targetSquare] = selectedPieceCode;
     squares[originSquare] = 0;
+
     return targetPiece;
 }
 
@@ -595,3 +615,4 @@ std::unordered_set<unsigned short> ChessBoard::getSquaresAttackedByOpponent() {
     }
     return attackedSquares;
 }
+

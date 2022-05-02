@@ -67,7 +67,7 @@ public:
 
     void initTextures();
 
-    ChessBoard(int width, int height, sf::Font font);
+    ChessBoard(int width, int height, sf::Font font, bool turn);
 
     void draw(sf::RenderWindow &window);
 
@@ -100,6 +100,8 @@ public:
     static unsigned int getColorFromPieceCode(unsigned short selectedPieceCode) ;
 
     std::unordered_set<unsigned short> getSquaresAttackedByOpponent();
+
+    bool turn;
 };
 
 
