@@ -2,9 +2,7 @@
 #include "ChessGame.h"
 #include "ChessBoard.h"
 
-ChessGame::ChessGame(ChessBoard &chessBoard) : board(chessBoard) {
-
-}
+ChessGame::ChessGame(ChessBoard &chessBoard) : board(chessBoard) {}
 
 void ChessGame::setMousePos(int x, int y) {
     board.setMousePos(x, y);
@@ -23,8 +21,7 @@ void ChessGame::draw(sf::RenderWindow &window) {
 }
 
 const unsigned short *ChessGame::getBoardSquares() {
-//    return board.getSquares();
-//return
+    return board.getSquares();
 }
 
 void ChessGame::setBoardSize(sf::Vector2<unsigned int> vector2) {

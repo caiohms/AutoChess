@@ -27,7 +27,6 @@ private:
 
     double evalValue = 0.0;
 
-
 public:
     explicit ChessGame(ChessBoard &chessBoard);
 

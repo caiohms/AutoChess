@@ -3,7 +3,7 @@ project(AutoChess)
 
 set(CMAKE_CXX_STANDARD 14)
 
-add_executable(AutoChess main.cpp ChessPiece.cpp ChessPiece.h ChessBoard.cpp ChessBoard.h ChessGame.cpp ChessGame.h)
+add_executable(AutoChess main.cpp ChessPiece.cpp ChessPiece.h ChessBoard.cpp ChessBoard.h ChessGame.cpp ChessGame.h AI.cpp AI.h)
 
 set(SFML_STATIC_LIBRARIES TRUE)
 set(SFML_DIR C:/SFML-2.5.1/lib/cmake/SFML)

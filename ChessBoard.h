@@ -19,7 +19,7 @@ private:
     bool mouseDragging = false;
 
     std::set<int> possibilities = {};
-    std::unordered_set < unsigned short > attackedSquares = {};
+    std::unordered_set<unsigned short> attackedSquares = {};
 
     sf::Vector2u boardSize;
     sf::RectangleShape boardOutline;
@@ -100,6 +100,8 @@ public:
                    ChessPiece::PieceColor oppositePieceColor);
 
     bool isChecked(unsigned short color, unsigned short board[64]);
+
+    const unsigned short *getSquares() const;
 };
 
 

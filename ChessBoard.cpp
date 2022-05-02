@@ -183,9 +183,9 @@ void ChessBoard::releasePiece(unsigned int mouseX, unsigned int mouseY) {
                     } else {
                         unsigned short piece = squares[hoveringSquare];
                         squares[hoveringSquare] = selectedPieceCode;
-                        if (isChecked(pieceColor, squares)){
-                            squares[hoveringSquare] =piece;
-                            squares[selectedSquareIndex]=selectedPieceCode;
+                        if (isChecked(pieceColor, squares)) {
+                            squares[hoveringSquare] = piece;
+                            squares[selectedSquareIndex] = selectedPieceCode;
                         }
                     }
                     selectedPieceCode = 0;
@@ -200,9 +200,9 @@ void ChessBoard::releasePiece(unsigned int mouseX, unsigned int mouseY) {
                     } else {
                         unsigned short piece = squares[hoveringSquare];
                         squares[hoveringSquare] = selectedPieceCode;
-                        if (isChecked(pieceColor, squares)){
-                            squares[hoveringSquare] =piece;
-                            squares[selectedSquareIndex]=selectedPieceCode;
+                        if (isChecked(pieceColor, squares)) {
+                            squares[hoveringSquare] = piece;
+                            squares[selectedSquareIndex] = selectedPieceCode;
                         }
                     }
                     selectedPieceCode = 0;
@@ -543,4 +543,8 @@ bool ChessBoard::addTarget(unsigned short target, ChessPiece::PieceColor selecte
     } else
         possibilities.insert(target);
     return true;
+}
+
+const unsigned short *ChessBoard::getSquares() const {
+    return squares;
 }

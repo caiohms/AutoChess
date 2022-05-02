@@ -16,7 +16,7 @@ int main() {
     sf::RenderWindow window(sf::VideoMode(INIT_WINDOW_WIDTH, INIT_WINDOW_HEIGHT), "O Xadrez da vez");
     sf::Font font;
 
-    if (!font.loadFromFile("resources\\fonts\\Roboto-Regular.ttf")){
+    if (!font.loadFromFile("resources\\fonts\\Roboto-Regular.ttf")) {
         std::cout << "Failed to load font" << std::endl;
         system("pause");
     }
@@ -33,16 +33,16 @@ int main() {
 
             switch (event.type) {
                 case sf::Event::Resized: {
-                    int w = event.size.width;
-                    int h = event.size.height;
+                    unsigned int w = event.size.width;
+                    unsigned int h = event.size.height;
 
                     if (w < MIN_WINDOW_WIDTH) w = MIN_WINDOW_WIDTH;
                     if (h < MIN_WINDOW_HEIGHT) h = MIN_WINDOW_HEIGHT;
 
-                    int minSide = std::min(w, h);
+                    unsigned int minSide = std::min(w, h);
 
                     window.setSize(sf::Vector2u(w, h));
-                    window.setView(sf::View(sf::FloatRect(0, 0, w, h)));
+                    window.setView(sf::View(sf::FloatRect(0, 0, (float) w, (float) h)));
                     game.setBoardSize(sf::Vector2u(minSide, minSide));
                     break;
                 }
