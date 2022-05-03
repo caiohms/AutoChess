@@ -9,13 +9,9 @@
 
 class ChessGame {
 private:
-    enum PlayerTurn {
-        WHITE, BLACK
-    };
-
     ChessBoard board;
 
-    PlayerTurn playerTurn = WHITE;
+    PlayerTurn &playerTurn;
 
     bool bCastleKingSide = true;
     bool bCastleQueenSide = true;
@@ -28,7 +24,7 @@ private:
     double evalValue = 0.0;
 
 public:
-    explicit ChessGame(ChessBoard &chessBoard);
+    explicit ChessGame(ChessBoard &chessBoard, PlayerTurn &turn);
 
     void setMousePos(int x, int y);
 

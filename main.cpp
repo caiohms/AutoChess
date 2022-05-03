@@ -15,14 +15,17 @@ int main() {
 
     sf::RenderWindow window(sf::VideoMode(INIT_WINDOW_WIDTH, INIT_WINDOW_HEIGHT), "O Xadrez da vez");
     sf::Font font;
-    bool turn;
+
     if (!font.loadFromFile("resources\\fonts\\Roboto-Regular.ttf")) {
         std::cout << "Failed to load font" << std::endl;
         system("pause");
     }
 
+    PlayerTurn turn = WHITE;
     ChessBoard board(INIT_WINDOW_WIDTH, INIT_WINDOW_HEIGHT, font, turn);
-    ChessGame game(board);
+    ChessGame game(board, turn);
+
+    window.setFramerateLimit(60);
 
     while (window.isOpen()) {
         sf::Event event;

@@ -1,11 +1,18 @@
 #include "ChessBoard.h"
 #include "ChessPiece.h"
-#include "ChessGame.h"
 #include <set>
 #include <iostream>
 
-ChessBoard::ChessBoard(int width, int height, sf::Font font,bool turn) {
-    this->turn=false;
+enum PieceFromCode {
+    Pawn = 0b1,
+    Knight = 0b10,
+    Bishop = 0b100,
+    Rook = 0b1000,
+    Queen = 0b10000,
+    King = 0b100000,
+};
+
+ChessBoard::ChessBoard(int width, int height, const sf::Font &font, PlayerTurn &turn) : turn(turn) {
     this->boardSize.x = width;
     this->boardSize.y = height;
     this->font = font;
@@ -81,10 +88,10 @@ void ChessBoard::draw(sf::RenderWindow &window) {
         else
             window.draw(darkRect);
 
-        if (selectedSquareIndex == i && selectedPieceCode!=0)
+        if (selectedSquareIndex == i && selectedPieceCode != 0)
             window.draw(selectedRect);
 
-        if (attackedSquaresDraw.contains(i) && selectedPieceCode!=0) {
+        if (attackedSquaresDraw.contains(i) && selectedPieceCode != 0) {
             if ((i % 2 + (int) (i / 8)) % 2 == 0)
                 window.draw(lightTargetedRect);
             else
@@ -93,7 +100,7 @@ void ChessBoard::draw(sf::RenderWindow &window) {
 
         ChessBoard::drawPiece(squares[i], xPos, yPos, boardEdge, window);
 
-        if (possibilities.contains(i) && selectedPieceCode!=0) {
+        if (possibilities.contains(i) && selectedPieceCode != 0) {
             window.draw(targetCircleShape);
         }
 
@@ -136,32 +143,26 @@ void ChessBoard::grabPiece(unsigned int mouseX, unsigned int mouseY) {
     }
 
     selectedSquareIndex = getSquareUnderMousePos(mouseX, mouseY);
-    if((getColorFromPieceCode(squares[selectedSquareIndex])==ChessPiece::PieceColor::WHITE && !turn)
-    ||(getColorFromPieceCode(squares[selectedSquareIndex])==ChessPiece::PieceColor::BLACK && turn) ){
+    if ((getColorFromPieceCode(squares[selectedSquareIndex]) == ChessPiece::PieceColor::WHITE && turn)
+        || (getColorFromPieceCode(squares[selectedSquareIndex]) == ChessPiece::PieceColor::BLACK && !turn)) {
         selectedPieceCode = squares[selectedSquareIndex];
         possibilities.clear();
         attackedSquaresDraw.clear();
         possibleMoves(selectedSquareIndex, false, possibilities);
+    } else {
+        if (turn)
+            std::cout << "White's turn" << std::endl;
+        else
+            std::cout << "Black's turn" << std::endl;
     }
-    else{
-        switch(turn){
-            case false:{
-                std::cout << "Vez das brancas";
-            }
-
-            case true:{
-                std::cout << "vez das pretas";
-            }
-
-        }
-
-    }
-
 }
+
 
 void ChessBoard::releasePiece(unsigned int mouseX, unsigned int mouseY) {
     if (selectedPieceCode == 0) return;
+
     int targetSquareIndex = getSquareUnderMousePos(mouseX, mouseY);
+
     if (targetSquareIndex == selectedSquareIndex) {
         selectedPieceCode = 0;
         return;
@@ -176,11 +177,24 @@ void ChessBoard::releasePiece(unsigned int mouseX, unsigned int mouseY) {
             // promote
             // promotionPrompt(targetSquareIndex);
             squares[targetSquareIndex] = 0b00010000 | selectedPieceColor;
-            turn = !turn;
         } else {
             squares[targetSquareIndex] = selectedPieceCode;
-            turn = !turn;
+
+            if (abs(selectedSquareIndex - targetSquareIndex) == 16 && (selectedPieceCode & 0b00000001) == Pawn) {
+                // if pawn moved two squares
+                // mark middle square as potential target
+                unsigned short row = selectedSquareIndex / 8;
+                enPassantEnabledSquare = (row == 1) ? selectedSquareIndex + 8 : selectedSquareIndex - 8;
+
+            } else if (targetSquareIndex == enPassantEnabledSquare && (selectedPieceCode & 0b00000001) == Pawn) {
+                // if a pawn attacks an enPassantEnabledSquare, an en passant occurred. Opponent pawn must be removed.
+                unsigned short row = targetSquareIndex / 8;
+                squares[targetSquareIndex + ((row == 2) ? 8 : -8)] = 0;
+            }
+            std::cout << enPassantEnabledSquare << std::endl;
+            turn = (turn == WHITE) ? BLACK : WHITE;
         }
+
         selectedSquareIndex = -1;
     }
 
@@ -242,13 +256,15 @@ void ChessBoard::possibleMoves(int currentSquare, bool checkingCheck, std::unord
     switch (pieceCode & 0b00111111) {
         case 0b1: {
             // pawn
-            if ((pieceCode & 0b11000000) == 0b10000000) {
-                if (minBottomLeft && squares[currentSquare + 7] != 0) {
+            if (selectedPieceColor == ChessPiece::PieceColor::BLACK) {
+                if (minBottomLeft && squares[currentSquare + 7] != 0 ||
+                    currentSquare + 7 == enPassantEnabledSquare) {
                     targetSquare = currentSquare + 7;
                     addTarget(currentSquare, targetSquare, selectedPieceColor, oppositePieceColor, checkingCheck,
                               targetSet);
                 }
-                if (minBottomRight && squares[currentSquare + 9] != 0) {
+                if (minBottomRight && squares[currentSquare + 9] != 0 ||
+                    currentSquare + 9 == enPassantEnabledSquare) {
                     targetSquare = currentSquare + 9;
                     addTarget(currentSquare, targetSquare, selectedPieceColor, oppositePieceColor, checkingCheck,
                               targetSet);
@@ -265,12 +281,17 @@ void ChessBoard::possibleMoves(int currentSquare, bool checkingCheck, std::unord
                 }
 
             } else {
-                if (minTopLeft && squares[currentSquare - 9] != 0) {
+                // white pawn
+                if ((minTopLeft && squares[currentSquare - 9] != 0) ||
+                    currentSquare - 9 == enPassantEnabledSquare) {
+
                     targetSquare = currentSquare - 9;
                     addTarget(currentSquare, targetSquare, selectedPieceColor, oppositePieceColor, checkingCheck,
                               targetSet);
                 }
-                if (minTopRight && squares[currentSquare - 7] != 0) {
+                if (minTopRight && squares[currentSquare - 7] != 0 ||
+                    currentSquare - 7 == enPassantEnabledSquare) {
+
                     targetSquare = currentSquare - 7;
                     addTarget(currentSquare, targetSquare, selectedPieceColor, oppositePieceColor, checkingCheck,
                               targetSet);
@@ -601,7 +622,7 @@ unsigned short ChessBoard::makeMove(unsigned short originSquare, unsigned short 
 void ChessBoard::undoMove(unsigned short originSquare, unsigned short targetSquare, unsigned short originalPieceCode) {
     squares[originSquare] = squares[targetSquare];
     squares[targetSquare] = originalPieceCode;
-    for (unsigned short sq : attackedSquares) {
+    for (unsigned short sq: attackedSquares) {
         attackedSquaresDraw.insert(sq);
     }
     attackedSquares.clear();

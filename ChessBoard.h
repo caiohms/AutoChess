@@ -5,10 +5,18 @@
 #include <unordered_set>
 #include "ChessPiece.h"
 
+enum PlayerTurn {
+    WHITE = true, BLACK = false
+};
+
 class ChessBoard {
 
 private:
     sf::Font font;
+
+    PlayerTurn & turn;
+
+    unsigned int enPassantEnabledSquare = 0b11111111;
 
     int selectedSquareIndex = -1;
     unsigned short selectedPieceCode = -1;
@@ -67,7 +75,7 @@ public:
 
     void initTextures();
 
-    ChessBoard(int width, int height, sf::Font font, bool turn);
+    ChessBoard(int width, int height, const sf::Font& font, PlayerTurn &turn);
 
     void draw(sf::RenderWindow &window);
 
@@ -100,8 +108,6 @@ public:
     static unsigned int getColorFromPieceCode(unsigned short selectedPieceCode) ;
 
     std::unordered_set<unsigned short> getSquaresAttackedByOpponent();
-
-    bool turn;
 };
 
 

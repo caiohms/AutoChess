@@ -2,7 +2,7 @@
 #include "ChessGame.h"
 #include "ChessBoard.h"
 
-ChessGame::ChessGame(ChessBoard &chessBoard) : board(chessBoard) {}
+ChessGame::ChessGame(ChessBoard &chessBoard, PlayerTurn &turn) : board(chessBoard), playerTurn(turn) {}
 
 void ChessGame::setMousePos(int x, int y) {
     board.setMousePos(x, y);
