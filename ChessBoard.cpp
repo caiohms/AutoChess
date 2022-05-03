@@ -179,6 +179,12 @@ void ChessBoard::releasePiece(unsigned int mouseX, unsigned int mouseY) {
         } else {
             squares[targetSquareIndex] = selectedPieceCode;
 
+            if (selectedPieceCode == 0b10100000){
+                bKingSquare = targetSquareIndex;
+            } else if (selectedPieceCode == 0b01100000){
+                wKingSquare = targetSquareIndex;
+            }
+
             // send tower back if castling
             if (wCastleKingSide && selectedSquareIndex == 60 && targetSquareIndex == 62){
                 //do castle white king, king side
@@ -205,9 +211,9 @@ void ChessBoard::releasePiece(unsigned int mouseX, unsigned int mouseY) {
                 wCastleKingSide = false;
             if (selectedSquareIndex == 56 || selectedSquareIndex == 60 || targetSquareIndex == 56)
                 wCastleQueenSide = false;
-            if (selectedSquareIndex == 0 || selectedSquareIndex == 3 || targetSquareIndex == 0)
+            if (selectedSquareIndex == 0 || selectedSquareIndex == 4 || targetSquareIndex == 0)
                 bCastleKingSide = false;
-            if (selectedSquareIndex == 7 || selectedSquareIndex == 3 || targetSquareIndex == 7)
+            if (selectedSquareIndex == 7 || selectedSquareIndex == 4 || targetSquareIndex == 7)
                 bCastleQueenSide = false;
 
             if (abs(selectedSquareIndex - targetSquareIndex) == 16 && (selectedPieceCode & 0b00000001) == Pawn) {
@@ -221,10 +227,9 @@ void ChessBoard::releasePiece(unsigned int mouseX, unsigned int mouseY) {
                 unsigned short row = targetSquareIndex / 8;
                 squares[targetSquareIndex + ((row == 2) ? 8 : -8)] = 0;
             }
-
-            turn = (turn == WHITE) ? BLACK : WHITE;
+            //turn = (turn == WHITE) ? BLACK : WHITE;
         }
-
+        turn = (turn == WHITE) ? BLACK : WHITE;
         selectedSquareIndex = -1;
     }
 
@@ -626,32 +631,32 @@ bool ChessBoard::addTarget(unsigned short originSquare, unsigned short targetSqu
                            ChessPiece::PieceColor oppositePieceColor, bool checkingCheck,
                            std::unordered_set<unsigned short> &set) {
 
-    if (targetSquare == 62 && selectedSquareIndex == 60) {
-        // white wants to castle king side
-        if (squares[61] != 0 || squares[62] != 0 || isChecked(60) || isChecked(61) || isChecked(62))
-            return false;
-    }
-    if (targetSquare == 58 && selectedSquareIndex == 60) {
-        // white wants to castle queen side
-        if (squares[57] != 0 || squares[58] != 0 || squares[59] != 0 || isChecked(60) || isChecked(58) || isChecked(59))
-            return false;
-    }
-    if (targetSquare == 6 && selectedSquareIndex == 4) {
-        // black wants to castle king side
-        if (squares[5] != 0 || squares[6] != 0 || isChecked(4) || isChecked(5) || isChecked(6))
-            return false;
-    }
-    if (targetSquare == 2 && selectedSquareIndex == 4) {
-        // black wants to castle queen side
-        if (squares[1] != 0 || squares[2] != 0 || squares[3] != 0 || isChecked(4) || isChecked(2) || isChecked(3))
-            return false;
-    }
-
     ChessPiece::PieceColor targetPieceColor = ChessPiece::getPieceColor(squares[targetSquare]);
     if (targetPieceColor == selectedPieceColor)
         return false;
 
     if (!checkingCheck) {
+        if (targetSquare == 62 && selectedSquareIndex == 60) {
+            // white wants to castle king side
+            if (squares[61] != 0 || squares[62] != 0 || isChecked(60) || isChecked(61) || isChecked(62))
+                return false;
+        }
+        if (targetSquare == 58 && selectedSquareIndex == 60) {
+            // white wants to castle queen side
+            if (squares[57] != 0 || squares[58] != 0 || squares[59] != 0 || isChecked(60) || isChecked(58) || isChecked(59))
+                return false;
+        }
+        if (targetSquare == 6 && selectedSquareIndex == 4) {
+            // black wants to castle king side
+            if (squares[5] != 0 || squares[6] != 0 || isChecked(4) || isChecked(5) || isChecked(6))
+                return false;
+        }
+        if (targetSquare == 2 && selectedSquareIndex == 4) {
+            // black wants to castle queen side
+            if (squares[1] != 0 || squares[2] != 0 || squares[3] != 0 || isChecked(4) || isChecked(2) || isChecked(3))
+                return false;
+        }
+
         bool wCastleKingSideOld = wCastleKingSide;
         bool wCastleQueenSideOld = wCastleQueenSide;
         bool bCastleKingSideOld = bCastleKingSide;

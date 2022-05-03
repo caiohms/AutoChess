@@ -19,7 +19,7 @@ private:
     unsigned int enPassantEnabledSquare = 0b11111111;
 
     unsigned short wKingSquare = 60;
-    unsigned short bKingSquare = 3;
+    unsigned short bKingSquare = 4;
 
     bool bCastleKingSide = true;
     bool bCastleQueenSide = true;
