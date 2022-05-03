@@ -13,14 +13,6 @@ private:
 
     PlayerTurn &playerTurn;
 
-    bool bCastleKingSide = true;
-    bool bCastleQueenSide = true;
-    bool wCastleKingSide = true;
-    bool wCastleQueenSide = true;
-
-    std::vector<ChessPiece> bCapturedPieces = {};
-    std::vector<ChessPiece> wCapturedPieces = {};
-
     double evalValue = 0.0;
 
 public:

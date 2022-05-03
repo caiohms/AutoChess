@@ -14,9 +14,20 @@ class ChessBoard {
 private:
     sf::Font font;
 
-    PlayerTurn & turn;
+    PlayerTurn &turn;
 
     unsigned int enPassantEnabledSquare = 0b11111111;
+
+    unsigned short wKingSquare = 60;
+    unsigned short bKingSquare = 3;
+
+    bool bCastleKingSide = true;
+    bool bCastleQueenSide = true;
+    bool wCastleKingSide = true;
+    bool wCastleQueenSide = true;
+
+    std::vector<ChessPiece> bCapturedPieces = {};
+    std::vector<ChessPiece> wCapturedPieces = {};
 
     int selectedSquareIndex = -1;
     unsigned short selectedPieceCode = -1;
@@ -53,16 +64,17 @@ private:
 
 
 //    unsigned short squares[64] = {
-//            0, 0, 0, 0, 0b10100000, 0, 0, 0,
+//            0b10001000, 0b10000010, 0b10000100, 0b10010000, 0b10100000, 0b10000100, 0b10000010, 0b10001000,
+//            0b10000001, 0b10000001, 0b10000001, 0b10000001, 0b10000001, 0b10000001, 0b10000001, 0b10000001,
 //            0, 0, 0, 0, 0, 0, 0, 0,
 //            0, 0, 0, 0, 0, 0, 0, 0,
+//            0, 0, 0, 0, 0b10001000, 0, 0, 0,
+//            0, 0, 0, 0, 0, 0, 0, 0b01000001,
 //            0, 0, 0, 0, 0, 0, 0, 0,
-//            0, 0, 0, 0, 0, 0, 0, 0b10000100,
-//            0, 0, 0, 0, 0, 0, 0, 0,
-//            0b01001000, 0b01000010, 0b01000100, 0b01010000, 0b01100000, 0, 0, 0};
+//            0b01001000, 0, 0, 0, 0b01100000, 0b01000100, 0b01000010, 0b01001000};
 
     unsigned short squares[64] = {
-            0b10001000, 0b10000010, 0b10000100, 0b10100000, 0b10010000, 0b10000100, 0b10000010, 0b10001000,
+            0b10001000, 0b10000010, 0b10000100, 0b10010000, 0b10100000, 0b10000100, 0b10000010, 0b10001000,
             0b10000001, 0b10000001, 0b10000001, 0b10000001, 0b10000001, 0b10000001, 0b10000001, 0b10000001,
             0, 0, 0, 0, 0, 0, 0, 0,
             0, 0, 0, 0, 0, 0, 0, 0,
@@ -75,7 +87,7 @@ public:
 
     void initTextures();
 
-    ChessBoard(int width, int height, const sf::Font& font, PlayerTurn &turn);
+    ChessBoard(int width, int height, const sf::Font &font, PlayerTurn &turn);
 
     void draw(sf::RenderWindow &window);
 
@@ -89,7 +101,7 @@ public:
 
     void setMousePos(int mouseX, int mouseY);
 
-    void possibleMoves(int currentSquare, bool checkingCheck, std::unordered_set<unsigned short>& targetSet);
+    void possibleMoves(int currentSquare, bool checkingCheck, std::unordered_set<unsigned short> &targetSet);
 
     int getSquareUnderMousePos(unsigned int mouseX, unsigned int mouseY);
 
@@ -97,15 +109,16 @@ public:
                    ChessPiece::PieceColor oppositePieceColor, bool checkingCheck,
                    std::unordered_set<unsigned short> &set);
 
-    bool isChecked();
+    bool isChecked(unsigned int kingSquare);
 
     const unsigned short *getSquares() const;
 
     unsigned short makeMove(unsigned short origin, unsigned short targetSquare);
 
-    void undoMove(unsigned short originSquare, unsigned short targetSquare, unsigned short originalPieceCode);
+    void undoMove(unsigned short originSquare, unsigned short targetSquare, unsigned short originalPieceCode,
+                  bool wCastleKingSide, bool wCastleQueenSide, bool bCastleKingSide, bool bCastleQueenSide);
 
-    static unsigned int getColorFromPieceCode(unsigned short selectedPieceCode) ;
+    static unsigned int getColorFromPieceCode(unsigned short selectedPieceCode);
 
     std::unordered_set<unsigned short> getSquaresAttackedByOpponent();
 };
