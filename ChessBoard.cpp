@@ -226,8 +226,11 @@ void ChessBoard::releasePiece(unsigned int mouseX, unsigned int mouseY) {
                 // if a pawn attacks an enPassantEnabledSquare, an en passant occurred. Opponent pawn must be removed.
                 unsigned short row = targetSquareIndex / 8;
                 squares[targetSquareIndex + ((row == 2) ? 8 : -8)] = 0;
+                enPassantEnabledSquare = 0b11111111;
+            } else {
+                enPassantEnabledSquare = 0b11111111;
             }
-            //turn = (turn == WHITE) ? BLACK : WHITE;
+
         }
         turn = (turn == WHITE) ? BLACK : WHITE;
         selectedSquareIndex = -1;

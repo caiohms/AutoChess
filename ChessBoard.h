@@ -5,6 +5,20 @@
 #include <unordered_set>
 #include "ChessPiece.h"
 
+#define W_PAWN 0b01000001
+#define W_KNIGHT 0b01000010
+#define W_BISHOP 0b01000100
+#define W_ROOK 0b01001000
+#define W_QUEEN 0b01010000
+#define W_KING 0b01100000
+
+#define B_PAWN 0b10000001
+#define B_KNIGHT 0b10000010
+#define B_BISHOP 0b10000100
+#define B_ROOK 0b10001000
+#define B_QUEEN 0b10010000
+#define B_KING 0b10100000
+
 enum PlayerTurn {
     WHITE = true, BLACK = false
 };
@@ -69,19 +83,19 @@ private:
 //            0, 0, 0, 0, 0, 0, 0, 0,
 //            0, 0, 0, 0, 0, 0, 0, 0,
 //            0, 0, 0, 0, 0b10001000, 0, 0, 0,
-//            0, 0, 0, 0, 0, 0, 0, 0b01000001,
+//            0, 0, 0, 0, 0, 0, 0, W_PAWN,
 //            0, 0, 0, 0, 0, 0, 0, 0,
 //            0b01001000, 0, 0, 0, 0b01100000, 0b01000100, 0b01000010, 0b01001000};
 
     unsigned short squares[64] = {
-            0b10001000, 0b10000010, 0b10000100, 0b10010000, 0b10100000, 0b10000100, 0b10000010, 0b10001000,
-            0b10000001, 0b10000001, 0b10000001, 0b10000001, 0b10000001, 0b10000001, 0b10000001, 0b10000001,
+            B_ROOK, B_KNIGHT, B_BISHOP, B_QUEEN, B_KING, B_ROOK, B_KNIGHT, B_ROOK,
+            B_PAWN, B_PAWN, B_PAWN, B_PAWN, B_PAWN, B_PAWN, B_PAWN, B_PAWN,
             0, 0, 0, 0, 0, 0, 0, 0,
             0, 0, 0, 0, 0, 0, 0, 0,
             0, 0, 0, 0, 0, 0, 0, 0,
             0, 0, 0, 0, 0, 0, 0, 0,
-            0b01000001, 0b01000001, 0b01000001, 0b01000001, 0b01000001, 0b01000001, 0b01000001, 0b01000001,
-            0b01001000, 0b01000010, 0b01000100, 0b01010000, 0b01100000, 0b01000100, 0b01000010, 0b01001000};
+            W_PAWN, W_PAWN, W_PAWN, W_PAWN, W_PAWN, W_PAWN, W_PAWN, W_PAWN,
+            W_ROOK, W_KNIGHT, W_BISHOP, W_QUEEN, W_KING, W_BISHOP, W_KNIGHT, W_ROOK};
 
 public:
 
