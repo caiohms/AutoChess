@@ -138,12 +138,12 @@ void ChessBoard::initTextures() {
 }
 
 
-long ChessBoard::moveMaker(int depth, sf::RenderWindow & window) {
+long ChessBoard::moveMaker(int depth, sf::RenderWindow &window) {
     window.clear(sf::Color(35, 57, 76));
     draw(window);
     window.display();
 
-    if (depth==0) return 1;
+    if (depth == 0) return 1;
 
     long a = 0;
 
@@ -152,8 +152,8 @@ long ChessBoard::moveMaker(int depth, sf::RenderWindow & window) {
         int selectedSquareIndex = i;
         std::unordered_set<unsigned short> set = grabPiece(i);
         size_t s = set.size();
-        std::cout << "Square- " << i << " - possibilities - "  << s << std::endl;
-        if (s>0)
+        std::cout << "Square- " << i << " - possibilities - " << s << std::endl;
+        if (s > 0)
             for (unsigned short target: set) {
                 bool wCastleKingSideOld = wCastleKingSide;
                 bool wCastleQueenSideOld = wCastleQueenSide;
@@ -189,14 +189,14 @@ void ChessBoard::mouseGrabPiece(unsigned int mouseX, unsigned int mouseY) {
 
 
 std::unordered_set<unsigned short> ChessBoard::grabPiece(int i) {
-    selectedSquareIndex=i;
+    selectedSquareIndex = i;
     mouseSelectedSquare = selectedSquareIndex;
 
 //    if ((getColorFromPieceCode(squares[selectedSquareIndex]) == ChessPiece::PieceColor::WHITE && turn)
 //        || (getColorFromPieceCode(squares[selectedSquareIndex]) == ChessPiece::PieceColor::BLACK && !turn)) {
-        possibilities.clear();
+    possibilities.clear();
 //        attackedSquaresDraw.clear();
-        return possibleMoves(i, false, possibilities);
+    return possibleMoves(i, false, possibilities);
 //    } else {
 //        if (turn)
 //            std::cout << "It is white's turn" << std::endl;
@@ -241,7 +241,8 @@ int ChessBoard::getSquareUnderMousePos(unsigned int mouseX, unsigned int mouseY)
     return squareY * 8 + squareX;
 }
 
-std::unordered_set<unsigned short> ChessBoard::possibleMoves(int currentSquare, bool checkingCheck, std::unordered_set<unsigned short> &targetSet) {
+std::unordered_set<unsigned short>
+ChessBoard::possibleMoves(int currentSquare, bool checkingCheck, std::unordered_set<unsigned short> &targetSet) {
 
     int pieceCode = squares[currentSquare];
 
@@ -742,6 +743,10 @@ unsigned short ChessBoard::makeMove(unsigned short origin, unsigned short target
         // if pawn moved two squares, mark middle square as potential target
         unsigned short row = selectedSquareIndex / 8;
         enPassantEnabledSquare = (row == 1) ? selectedSquareIndex + 8 : selectedSquareIndex - 8;
+        if (enPassantEnabledSquare / 8 == 2 &&
+            getColorFromPieceCode(selectedPieceCode) == getColorFromPieceCode(squares[enPassantEnabledSquare + 8]) ||
+            enPassantEnabledSquare / 8 == 5 &&
+            getColorFromPieceCode(selectedPieceCode) == getColorFromPieceCode(squares[enPassantEnabledSquare - 8])) { enPassantEnabledSquare = 0b11111111; }
 
     } else if (targetSquare == enPassantEnabledSquare && (selectedPieceCode & 0b00000001) == Pawn) {
         // if a pawn attacks an enPassantEnabledSquare, an en passant occurred. Opponent pawn must be removed.
