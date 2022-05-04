@@ -674,7 +674,10 @@ const unsigned short *ChessBoard::getSquares() const {
 
 unsigned short ChessBoard::takePiece(unsigned short origin, unsigned short targetSquare) {
     unsigned short targetPiece = squares[targetSquare];
-    squares[targetSquare] = selectedPieceCode;
+    unsigned short originPiece = squares[origin];
+    //squares[targetSquare] = selectedPieceCode;
+    squares[targetSquare] = originPiece;
+
     squares[origin] = 0;
 
     return targetPiece;
@@ -685,6 +688,7 @@ unsigned short ChessBoard::makeMove(unsigned short origin, unsigned short target
     selectedPieceCode = squares[origin];
     squares[targetSquare] = selectedPieceCode;
     squares[origin] = 0;
+
 
     ChessPiece::PieceColor selectedPieceColor = ChessPiece::getPieceColor(selectedPieceCode);
 
