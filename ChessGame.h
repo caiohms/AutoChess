@@ -29,6 +29,8 @@ public:
     const unsigned short *getBoardSquares();
 
     void setBoardSize(sf::Vector2<unsigned int> vector2);
+
+    long moveMaker(int i, sf::RenderWindow &window);
 };
 
 

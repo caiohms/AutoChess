@@ -60,7 +60,9 @@ int main() {
                         case sf::Mouse::Button::Left: {
                             int x = event.mouseButton.x;
                             int y = event.mouseButton.y;
-                            game.grabPiece(x, y);
+//                            game.grabPiece(x, y);
+                            long a = game.moveMaker(2, window);
+                            std::cout << a << std::endl;
                             break;
                         }
                         default:

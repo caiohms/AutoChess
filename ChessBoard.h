@@ -44,7 +44,8 @@ private:
     std::vector<ChessPiece> wCapturedPieces = {};
 
     int selectedSquareIndex = -1;
-    unsigned short selectedPieceCode = -1;
+    int mouseSelectedSquare = -1;
+    unsigned short selectedPieceCode = 0b11111111;
 
     int mouseXpos = -1;
     int mouseYpos = -1;
@@ -52,7 +53,7 @@ private:
     std::unordered_set<unsigned short> possibilities = {};
     std::unordered_set<unsigned short> attackedSquares = {};
 
-    std::unordered_set<unsigned short> attackedSquaresDraw = {};
+//    std::unordered_set<unsigned short> attackedSquaresDraw = {};
 
     sf::Vector2u boardSize;
     sf::RectangleShape boardOutline;
@@ -78,17 +79,18 @@ private:
 
 
 //    unsigned short squares[64] = {
-//            0b10001000, 0b10000010, 0b10000100, 0b10010000, 0b10100000, 0b10000100, 0b10000010, 0b10001000,
-//            0b10000001, 0b10000001, 0b10000001, 0b10000001, 0b10000001, 0b10000001, 0b10000001, 0b10000001,
 //            0, 0, 0, 0, 0, 0, 0, 0,
+//            0, 0, B_PAWN, 0, 0, 0, 0, 0,
+//            0, 0, 0, B_PAWN, 0, 0, 0, 0,
+//            W_KING, W_PAWN, 0, 0, 0, 0, 0, B_ROOK,
+//            0, 0, 0, 0, 0, 0, 0, B_KING,
 //            0, 0, 0, 0, 0, 0, 0, 0,
-//            0, 0, 0, 0, 0b10001000, 0, 0, 0,
-//            0, 0, 0, 0, 0, 0, 0, W_PAWN,
-//            0, 0, 0, 0, 0, 0, 0, 0,
-//            0b01001000, 0, 0, 0, 0b01100000, 0b01000100, 0b01000010, 0b01001000};
+//            0, 0, W_PAWN, 0, 0, 0, 0, 0,
+//            0, 0, 0, 0, 0, 0, 0, 0};
+
 
     unsigned short squares[64] = {
-            B_ROOK, B_KNIGHT, B_BISHOP, B_QUEEN, B_KING, B_ROOK, B_KNIGHT, B_ROOK,
+            B_ROOK, B_KNIGHT, B_BISHOP, B_QUEEN, B_KING, B_BISHOP, B_KNIGHT, B_ROOK,
             B_PAWN, B_PAWN, B_PAWN, B_PAWN, B_PAWN, B_PAWN, B_PAWN, B_PAWN,
             0, 0, 0, 0, 0, 0, 0, 0,
             0, 0, 0, 0, 0, 0, 0, 0,
@@ -107,7 +109,7 @@ public:
 
     void setBoardSize(const sf::Vector2u &size);
 
-    void grabPiece(unsigned int mouseX, unsigned int mouseY);
+    std::unordered_set<unsigned short> grabPiece(int i);
 
     void releasePiece(unsigned int mouseX, unsigned int mouseY);
 
@@ -115,7 +117,7 @@ public:
 
     void setMousePos(int mouseX, int mouseY);
 
-    void possibleMoves(int currentSquare, bool checkingCheck, std::unordered_set<unsigned short> &targetSet);
+    std::unordered_set<unsigned short> possibleMoves(int currentSquare, bool checkingCheck, std::unordered_set<unsigned short> &targetSet);
 
     int getSquareUnderMousePos(unsigned int mouseX, unsigned int mouseY);
 
@@ -130,11 +132,18 @@ public:
     unsigned short makeMove(unsigned short origin, unsigned short targetSquare);
 
     void undoMove(unsigned short originSquare, unsigned short targetSquare, unsigned short originalPieceCode,
-                  bool wCastleKingSide, bool wCastleQueenSide, bool bCastleKingSide, bool bCastleQueenSide);
+                  bool wCastleKingSideOld, bool wCastleQueenSideOld, bool bCastleKingSideOld, bool bCastleQueenSideOld,
+                  unsigned short enPassantEnabledSquareOld, int selectedSquareIndexOld, bool &leCrossaint);
 
     static unsigned int getColorFromPieceCode(unsigned short selectedPieceCode);
 
     std::unordered_set<unsigned short> getSquaresAttackedByOpponent();
+
+    unsigned short takePiece(unsigned short origin, unsigned short targetSquare);
+
+    void mouseGrabPiece(unsigned int mouseX, unsigned int mouseY);
+
+    long moveMaker(int depth, sf::RenderWindow &window);
 };
 
 

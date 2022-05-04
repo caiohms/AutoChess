@@ -2,6 +2,8 @@
 #include "ChessPiece.h"
 #include <set>
 #include <iostream>
+#include <zconf.h>
+#include <unistd.h>
 
 enum PieceFromCode {
     Pawn = 0b1,
@@ -100,7 +102,7 @@ void ChessBoard::draw(sf::RenderWindow &window) {
 
         ChessBoard::drawPiece(squares[i], xPos, yPos, boardEdge, window);
 
-        if (possibilities.contains(i) && selectedPieceCode != 0) {
+        if (possibilities.contains(i)) {
             window.draw(targetCircleShape);
         }
 
@@ -135,26 +137,72 @@ void ChessBoard::initTextures() {
     wKing.Init("resources\\sprites\\white-king.png");
 }
 
-void ChessBoard::grabPiece(unsigned int mouseX, unsigned int mouseY) {
 
+long ChessBoard::moveMaker(int depth, sf::RenderWindow & window) {
+    window.clear(sf::Color(35, 57, 76));
+    draw(window);
+    window.display();
+
+    if (depth==0) return 1;
+
+    long a = 0;
+
+    for (int i = 0; i < 64; ++i) {
+        if (squares[i] == 0) continue;
+        int selectedSquareIndex = i;
+        std::unordered_set<unsigned short> set = grabPiece(i);
+        size_t s = set.size();
+        std::cout << "Square- " << i << " - possibilities - "  << s << std::endl;
+        if (s>0)
+            for (unsigned short target: set) {
+                bool wCastleKingSideOld = wCastleKingSide;
+                bool wCastleQueenSideOld = wCastleQueenSide;
+                bool bCastleKingSideOld = bCastleKingSide;
+                bool bCastleQueenSideOld = bCastleQueenSide;
+                unsigned short enPassantEnabledSquareOld = enPassantEnabledSquare;
+                int selectedSquareIndexOld = selectedSquareIndex;
+                bool leCrossaint = false;
+
+                unsigned int opc = makeMove(i, target);
+
+                a += moveMaker(depth - 1, window);
+
+                undoMove(i, target, opc, wCastleKingSideOld, wCastleQueenSideOld,
+                         bCastleKingSideOld, bCastleQueenSideOld, enPassantEnabledSquareOld, selectedSquareIndexOld,
+                         leCrossaint);
+            }
+    }
+
+    return a;
+}
+
+void ChessBoard::mouseGrabPiece(unsigned int mouseX, unsigned int mouseY) {
     if (mouseX + 10 > boardSize.x || mouseY + 10 > boardSize.y || mouseX < 10 || mouseY < 10) {
         selectedSquareIndex = -1;
         return;
     }
 
     selectedSquareIndex = getSquareUnderMousePos(mouseX, mouseY);
-    if ((getColorFromPieceCode(squares[selectedSquareIndex]) == ChessPiece::PieceColor::WHITE && turn)
-        || (getColorFromPieceCode(squares[selectedSquareIndex]) == ChessPiece::PieceColor::BLACK && !turn)) {
-        selectedPieceCode = squares[selectedSquareIndex];
+
+    grabPiece(0);
+}
+
+
+std::unordered_set<unsigned short> ChessBoard::grabPiece(int i) {
+    selectedSquareIndex=i;
+    mouseSelectedSquare = selectedSquareIndex;
+
+//    if ((getColorFromPieceCode(squares[selectedSquareIndex]) == ChessPiece::PieceColor::WHITE && turn)
+//        || (getColorFromPieceCode(squares[selectedSquareIndex]) == ChessPiece::PieceColor::BLACK && !turn)) {
         possibilities.clear();
-        attackedSquaresDraw.clear();
-        possibleMoves(selectedSquareIndex, false, possibilities);
-    } else {
-        if (turn)
-            std::cout << "White's turn" << std::endl;
-        else
-            std::cout << "Black's turn" << std::endl;
-    }
+//        attackedSquaresDraw.clear();
+        return possibleMoves(i, false, possibilities);
+//    } else {
+//        if (turn)
+//            std::cout << "It is white's turn" << std::endl;
+//        else
+//            std::cout << "It is black's turn" << std::endl;
+//    }
 }
 
 void ChessBoard::releasePiece(unsigned int mouseX, unsigned int mouseY) {
@@ -167,79 +215,12 @@ void ChessBoard::releasePiece(unsigned int mouseX, unsigned int mouseY) {
         return;
     };
 
-    ChessPiece::PieceColor selectedPieceColor = ChessPiece::getPieceColor(selectedPieceCode);
-
     if (possibilities.contains(targetSquareIndex)) {
-        squares[selectedSquareIndex] = 0;
-        if ((targetSquareIndex / 8 == 7 || targetSquareIndex / 8 == 0) &&
-            (selectedPieceCode & 0b00000001) == 0b00000001) {
-            // promote
-            // promotionPrompt(targetSquareIndex);
-            squares[targetSquareIndex] = 0b00010000 | selectedPieceColor;
-        } else {
-            squares[targetSquareIndex] = selectedPieceCode;
-
-            if (selectedPieceCode == 0b10100000){
-                bKingSquare = targetSquareIndex;
-            } else if (selectedPieceCode == 0b01100000){
-                wKingSquare = targetSquareIndex;
-            }
-
-            // send tower back if castling
-            if (wCastleKingSide && selectedSquareIndex == 60 && targetSquareIndex == 62){
-                //do castle white king, king side
-                squares[63] = 0;
-                squares[61] = ChessPiece::PieceColor::WHITE | 0b1000;
-            }
-            if (wCastleQueenSide && selectedSquareIndex == 60 && targetSquareIndex == 58){
-                //do castle white king, queen side
-                squares[56] = 0;
-                squares[59] = ChessPiece::PieceColor::WHITE | 0b1000;
-            }
-            if (bCastleKingSide && selectedSquareIndex == 4 && targetSquareIndex == 6){
-                //do castle black king, king side
-                squares[7] = 0;
-                squares[5] = ChessPiece::PieceColor::BLACK | 0b1000;
-            }
-            if (bCastleQueenSide && selectedSquareIndex == 4 && targetSquareIndex == 2){
-                //do castle black king, queen side
-                squares[0] = 0;
-                squares[3] = ChessPiece::PieceColor::BLACK | 0b1000;
-            }
-
-            if (selectedSquareIndex == 63 || selectedSquareIndex == 60 || targetSquareIndex == 63)
-                wCastleKingSide = false;
-            if (selectedSquareIndex == 56 || selectedSquareIndex == 60 || targetSquareIndex == 56)
-                wCastleQueenSide = false;
-            if (selectedSquareIndex == 0 || selectedSquareIndex == 4 || targetSquareIndex == 0)
-                bCastleKingSide = false;
-            if (selectedSquareIndex == 7 || selectedSquareIndex == 4 || targetSquareIndex == 7)
-                bCastleQueenSide = false;
-
-            if (abs(selectedSquareIndex - targetSquareIndex) == 16 && (selectedPieceCode & 0b00000001) == Pawn) {
-                // if pawn moved two squares
-                // mark middle square as potential target
-                unsigned short row = selectedSquareIndex / 8;
-                enPassantEnabledSquare = (row == 1) ? selectedSquareIndex + 8 : selectedSquareIndex - 8;
-
-            } else if (targetSquareIndex == enPassantEnabledSquare && (selectedPieceCode & 0b00000001) == Pawn) {
-                // if a pawn attacks an enPassantEnabledSquare, an en passant occurred. Opponent pawn must be removed.
-                unsigned short row = targetSquareIndex / 8;
-                squares[targetSquareIndex + ((row == 2) ? 8 : -8)] = 0;
-                enPassantEnabledSquare = 0b11111111;
-            } else {
-                enPassantEnabledSquare = 0b11111111;
-            }
-
-        }
-        turn = (turn == WHITE) ? BLACK : WHITE;
-        selectedSquareIndex = -1;
+        makeMove(mouseSelectedSquare, targetSquareIndex);
     }
 
     selectedPieceCode = 0;
     possibilities.clear();
-    attackedSquaresDraw.clear();
-
 }
 
 bool ChessBoard::isChecked(unsigned int kingSquare) {
@@ -260,11 +241,11 @@ int ChessBoard::getSquareUnderMousePos(unsigned int mouseX, unsigned int mouseY)
     return squareY * 8 + squareX;
 }
 
-void ChessBoard::possibleMoves(int currentSquare, bool checkingCheck, std::unordered_set<unsigned short> &targetSet) {
+std::unordered_set<unsigned short> ChessBoard::possibleMoves(int currentSquare, bool checkingCheck, std::unordered_set<unsigned short> &targetSet) {
 
     int pieceCode = squares[currentSquare];
 
-    if (pieceCode == 0) return;
+    if (pieceCode == 0) return {};
 
     int spacesAbove = currentSquare / 8;
     int spacesBelow = 7 - currentSquare / 8;
@@ -578,6 +559,8 @@ void ChessBoard::possibleMoves(int currentSquare, bool checkingCheck, std::unord
             break;
         }
     }
+
+    return possibilities;
 }
 
 void
@@ -646,7 +629,8 @@ bool ChessBoard::addTarget(unsigned short originSquare, unsigned short targetSqu
         }
         if (targetSquare == 58 && selectedSquareIndex == 60) {
             // white wants to castle queen side
-            if (squares[57] != 0 || squares[58] != 0 || squares[59] != 0 || isChecked(60) || isChecked(58) || isChecked(59))
+            if (squares[57] != 0 || squares[58] != 0 || squares[59] != 0 || isChecked(60) || isChecked(58) ||
+                isChecked(59))
                 return false;
         }
         if (targetSquare == 6 && selectedSquareIndex == 4) {
@@ -664,12 +648,18 @@ bool ChessBoard::addTarget(unsigned short originSquare, unsigned short targetSqu
         bool wCastleQueenSideOld = wCastleQueenSide;
         bool bCastleKingSideOld = bCastleKingSide;
         bool bCastleQueenSideOld = bCastleQueenSide;
+        unsigned short enPassantEnabledSquareOld = enPassantEnabledSquare;
+        int selectedSquareIndexOld = selectedSquareIndex;
+        bool leCrossaint = false;
 
-        unsigned short originalPieceCode = makeMove(originSquare, targetSquare);
-        if (!isChecked((selectedPieceCode & 0b00100000) != 0 ? targetSquare : (selectedPieceColor == ChessPiece::WHITE ? wKingSquare : bKingSquare)))
+        unsigned short originalPieceCode = takePiece(originSquare, targetSquare);
+        if (!isChecked((selectedPieceCode & 0b00100000) != 0 ? targetSquare : (selectedPieceColor == ChessPiece::WHITE
+                                                                               ? wKingSquare : bKingSquare)))
             set.insert(targetSquare);
+
         undoMove(originSquare, targetSquare, originalPieceCode, wCastleKingSideOld, wCastleQueenSideOld,
-                 bCastleKingSideOld, bCastleQueenSideOld);
+                 bCastleKingSideOld, bCastleQueenSideOld, enPassantEnabledSquareOld, selectedSquareIndexOld,
+                 leCrossaint);
     } else {
         set.insert(targetSquare);
     }
@@ -682,7 +672,7 @@ const unsigned short *ChessBoard::getSquares() const {
     return squares;
 }
 
-unsigned short ChessBoard::makeMove(unsigned short origin, unsigned short targetSquare) {
+unsigned short ChessBoard::takePiece(unsigned short origin, unsigned short targetSquare) {
     unsigned short targetPiece = squares[targetSquare];
     squares[targetSquare] = selectedPieceCode;
     squares[origin] = 0;
@@ -690,14 +680,106 @@ unsigned short ChessBoard::makeMove(unsigned short origin, unsigned short target
     return targetPiece;
 }
 
+unsigned short ChessBoard::makeMove(unsigned short origin, unsigned short targetSquare) {
+    unsigned short targetPiece = squares[targetSquare];
+    selectedPieceCode = squares[origin];
+    squares[targetSquare] = selectedPieceCode;
+    squares[origin] = 0;
+
+    ChessPiece::PieceColor selectedPieceColor = ChessPiece::getPieceColor(selectedPieceCode);
+
+    if ((targetSquare / 8 == 7 || targetSquare / 8 == 0) &&
+        (selectedPieceCode & 0b00000001) == 0b00000001) {
+        // promote
+        // promotionPrompt(targetSquareIndex);
+        squares[targetSquare] = 0b00010000 | selectedPieceColor;
+    } else {
+        squares[targetSquare] = selectedPieceCode;
+
+        if (selectedPieceCode == 0b10100000) {
+            bKingSquare = targetSquare;
+        } else if (selectedPieceCode == 0b01100000) {
+            wKingSquare = targetSquare;
+        }
+
+        // send tower back if castling
+        if (wCastleKingSide && selectedSquareIndex == 60 && targetSquare == 62) {
+            //do castle white king, king side
+            squares[63] = 0;
+            squares[61] = ChessPiece::PieceColor::WHITE | 0b1000;
+        }
+        if (wCastleQueenSide && selectedSquareIndex == 60 && targetSquare == 58) {
+            //do castle white king, queen side
+            squares[56] = 0;
+            squares[59] = ChessPiece::PieceColor::WHITE | 0b1000;
+        }
+        if (bCastleKingSide && selectedSquareIndex == 4 && targetSquare == 6) {
+            //do castle black king, king side
+            squares[7] = 0;
+            squares[5] = ChessPiece::PieceColor::BLACK | 0b1000;
+        }
+        if (bCastleQueenSide && selectedSquareIndex == 4 && targetSquare == 2) {
+            //do castle black king, queen side
+            squares[0] = 0;
+            squares[3] = ChessPiece::PieceColor::BLACK | 0b1000;
+        }
+
+        if (selectedSquareIndex == 63 || selectedSquareIndex == 60 || targetSquare == 63)
+            wCastleKingSide = false;
+        if (selectedSquareIndex == 56 || selectedSquareIndex == 60 || targetSquare == 56)
+            wCastleQueenSide = false;
+        if (selectedSquareIndex == 0 || selectedSquareIndex == 4 || targetSquare == 0)
+            bCastleKingSide = false;
+        if (selectedSquareIndex == 7 || selectedSquareIndex == 4 || targetSquare == 7)
+            bCastleQueenSide = false;
+    }
+
+    if (abs(selectedSquareIndex - targetSquare) == 16 && (selectedPieceCode & 0b00000001) == Pawn) {
+        // if pawn moved two squares, mark middle square as potential target
+        unsigned short row = selectedSquareIndex / 8;
+        enPassantEnabledSquare = (row == 1) ? selectedSquareIndex + 8 : selectedSquareIndex - 8;
+
+    } else if (targetSquare == enPassantEnabledSquare && (selectedPieceCode & 0b00000001) == Pawn) {
+        // if a pawn attacks an enPassantEnabledSquare, an en passant occurred. Opponent pawn must be removed.
+        unsigned short row = targetSquare / 8;
+        squares[targetSquare + ((row == 2) ? 8 : -8)] = 0;
+        enPassantEnabledSquare = 0b11111111;
+    } else {
+        enPassantEnabledSquare = 0b11111111;
+    }
+
+    turn = (turn == WHITE) ? BLACK : WHITE;
+    selectedSquareIndex = -1;
+    return targetPiece;
+}
+
 void
 ChessBoard::undoMove(unsigned short originSquare, unsigned short targetSquare, unsigned short originalPieceCode,
-                     bool wCastleKingSide, bool wCastleQueenSide, bool bCastleKingSide, bool bCastleQueenSide) {
+                     bool wCastleKingSideOld, bool wCastleQueenSideOld, bool bCastleKingSideOld,
+                     bool bCastleQueenSideOld,
+                     unsigned short enPassantEnabledSquareOld, int selectedSquareIndexOld,
+                     bool &leCrossaint) {
+
+    wCastleKingSide = wCastleKingSideOld;
+    wCastleQueenSide = wCastleQueenSideOld;
+    bCastleKingSide = bCastleKingSideOld;
+    bCastleQueenSide = bCastleQueenSideOld;
+    enPassantEnabledSquare = enPassantEnabledSquareOld;
+    selectedSquareIndex = selectedSquareIndexOld;
+
+    if (leCrossaint) {
+        // en passant attack was done
+        targetSquare = getColorFromPieceCode(originalPieceCode) == ChessPiece::PieceColor::WHITE
+                       ? targetSquare += 8 : targetSquare -= 8;
+    }
+
     squares[originSquare] = squares[targetSquare];
     squares[targetSquare] = originalPieceCode;
-    for (unsigned short sq: attackedSquares) {
-        attackedSquaresDraw.insert(sq);
-    }
+
+//    for (unsigned short sq: attackedSquares) {
+//        attackedSquaresDraw.insert(sq);
+//    }
+
     attackedSquares.clear();
 }
 
@@ -705,6 +787,9 @@ std::unordered_set<unsigned short> ChessBoard::getSquaresAttackedByOpponent() {
     attackedSquares.clear();
 
     for (int i = 0; i < 64; ++i) {
+        if (i == 48) {
+            std::cout << "a";
+        }
         if (squares[i] != 0 && getColorFromPieceCode(squares[i]) != getColorFromPieceCode(selectedPieceCode)) {
             possibleMoves(i, true, attackedSquares);
         }

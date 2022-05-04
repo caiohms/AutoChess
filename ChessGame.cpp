@@ -9,7 +9,7 @@ void ChessGame::setMousePos(int x, int y) {
 }
 
 void ChessGame::grabPiece(int x, int y) {
-    board.grabPiece(x, y);
+    board.mouseGrabPiece(x, y);
 }
 
 void ChessGame::releasePiece(int x, int y) {
@@ -26,4 +26,8 @@ const unsigned short *ChessGame::getBoardSquares() {
 
 void ChessGame::setBoardSize(sf::Vector2<unsigned int> vector2) {
     board.setBoardSize(vector2);
+}
+
+long ChessGame::moveMaker(int i, sf::RenderWindow & window) {
+    return board.moveMaker(i, window);
 }
