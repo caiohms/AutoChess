@@ -28,6 +28,6 @@ void ChessGame::setBoardSize(sf::Vector2<unsigned int> vector2) {
     board.setBoardSize(vector2);
 }
 
-long ChessGame::moveMaker(int i, sf::RenderWindow & window) {
-    return board.moveMaker(i, window);
+long ChessGame::moveMaker(int i, sf::RenderWindow & window, PlayerTurn playerTurn) {
+    return board.moveMaker(i, window, playerTurn);
 }

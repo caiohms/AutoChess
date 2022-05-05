@@ -26,6 +26,9 @@ enum PlayerTurn {
 class ChessBoard {
 
 private:
+
+    sf::RenderWindow & window;
+
     sf::Font font;
 
     PlayerTurn &turn;
@@ -103,7 +106,7 @@ public:
 
     void initTextures();
 
-    ChessBoard(int width, int height, const sf::Font &font, PlayerTurn &turn);
+    ChessBoard(int width, int height, const sf::Font &font, PlayerTurn &turn, sf::RenderWindow &window);
 
     void draw(sf::RenderWindow &window);
 
@@ -132,8 +135,9 @@ public:
     unsigned short makeMove(unsigned short origin, unsigned short targetSquare);
 
     void undoMove(unsigned short originSquare, unsigned short targetSquare, unsigned short originalPieceCode,
-                  bool wCastleKingSideOld, bool wCastleQueenSideOld, bool bCastleKingSideOld, bool bCastleQueenSideOld,
-                  unsigned short enPassantEnabledSquareOld, int selectedSquareIndexOld, bool &leCrossaint);
+                  bool wCastleKingSideOld, bool wCastleQueenSideOld, bool bCastleKingSideOld,
+                  bool bCastleQueenSideOld, unsigned short enPassantEnabledSquareOld,
+                  int selectedSquareIndexOld, bool &leCrossaint, PlayerTurn turnOld, sf::RenderWindow &window);
 
     static unsigned int getColorFromPieceCode(unsigned short selectedPieceCode);
 
@@ -143,7 +147,7 @@ public:
 
     void mouseGrabPiece(unsigned int mouseX, unsigned int mouseY);
 
-    long moveMaker(int depth, sf::RenderWindow &window);
+    long moveMaker(int depth, sf::RenderWindow &window, PlayerTurn playerTurn);
 };
 
 

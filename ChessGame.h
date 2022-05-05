@@ -30,7 +30,7 @@ public:
 
     void setBoardSize(sf::Vector2<unsigned int> vector2);
 
-    long moveMaker(int i, sf::RenderWindow &window);
+    long moveMaker(int i, sf::RenderWindow &window, PlayerTurn playerTurn);
 };
 
 
