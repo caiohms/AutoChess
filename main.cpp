@@ -63,26 +63,24 @@ int main() {
                             int y = event.mouseButton.y;
 //                            game.grabPiece(x, y);
 
+                            for (int i = 0; i < 4; ++i) {
+                                using std::chrono::high_resolution_clock;
+                                using std::chrono::duration_cast;
+                                using std::chrono::duration;
+                                using std::chrono::milliseconds;
 
-                            using std::chrono::high_resolution_clock;
-                            using std::chrono::duration_cast;
-                            using std::chrono::duration;
-                            using std::chrono::milliseconds;
+                                auto t1 = high_resolution_clock::now();
 
-                            auto t1 = high_resolution_clock::now();
+                                long a = game.moveMaker(i, window, PlayerTurn::BLACK);
 
-                            long a = game.moveMaker(3, window, PlayerTurn::WHITE);
+                                auto t2 = high_resolution_clock::now();
 
-                            auto t2 = high_resolution_clock::now();
+                                /* Getting number of milliseconds as an integer. */
+                                auto ms_int = duration_cast<milliseconds>(t2 - t1);
 
-                            /* Getting number of milliseconds as an integer. */
-                            auto ms_int = duration_cast<milliseconds>(t2 - t1);
+                                std::cout << "Depth: " << i << " Result: " << a << " positions  Time: " << ms_int.count() << "ms\n";
 
-                            /* Getting number of milliseconds as a double. */
-                            duration<double, std::milli> ms_double = t2 - t1;
-
-                            std::cout << ms_int.count() << "ms\n";
-                            std::cout << "Processed " << a << " boards" << std::endl;
+                            }
 
                             break;
                         }

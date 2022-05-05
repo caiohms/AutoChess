@@ -27,6 +27,8 @@ class ChessBoard {
 
 private:
 
+    bool debugging = false;
+
     sf::RenderWindow & window;
 
     sf::Font font;
@@ -46,8 +48,8 @@ private:
     std::vector<ChessPiece> bCapturedPieces = {};
     std::vector<ChessPiece> wCapturedPieces = {};
 
-    int selectedSquareIndex = -1;
-    int mouseSelectedSquare = -1;
+    int selectedSquareIndex = 255;
+    unsigned int mouseSelectedSquare = 255;
     unsigned short selectedPieceCode = 0b11111111;
 
     int mouseXpos = -1;
@@ -112,7 +114,9 @@ public:
 
     void setBoardSize(const sf::Vector2u &size);
 
-    std::unordered_set<unsigned short> grabPiece(int i);
+    std::unordered_set<unsigned short> grabPiece(unsigned int squareIdx);
+
+    std::unordered_set<unsigned short> grabPiece(unsigned int squareIdx, PlayerTurn playerTurn);
 
     void releasePiece(unsigned int mouseX, unsigned int mouseY);
 
