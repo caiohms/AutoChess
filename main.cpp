@@ -63,7 +63,7 @@ int main() {
                             int y = event.mouseButton.y;
 //                            game.grabPiece(x, y);
 
-                            for (int i = 0; i < 4; ++i) {
+                            for (int i = 1; i <= 7; ++i) {
                                 using std::chrono::high_resolution_clock;
                                 using std::chrono::duration_cast;
                                 using std::chrono::duration;
@@ -79,7 +79,6 @@ int main() {
                                 auto ms_int = duration_cast<milliseconds>(t2 - t1);
 
                                 std::cout << "Depth: " << i << " Result: " << a << " positions  Time: " << ms_int.count() << "ms\n";
-
                             }
 
                             break;
