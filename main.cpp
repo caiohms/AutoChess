@@ -2,17 +2,21 @@
 #include <SFML\\Graphics.hpp>
 #include "ChessBoard.h"
 #include "ChessGame.h"
+#include "AI.h"
 #include <algorithm>
 #include <iostream>
 #include <chrono>
 
 #define MIN_WINDOW_WIDTH 1280
 #define MIN_WINDOW_HEIGHT 720
-
 #define INIT_WINDOW_WIDTH 1280
 #define INIT_WINDOW_HEIGHT 720
 
 int main() {
+    PlayerTurn turn = WHITE;
+
+    AI ai(turn);
+    ai.minimax(0 , 0, 0, 0, WHITE);
 
     sf::RenderWindow window(sf::VideoMode(INIT_WINDOW_WIDTH, INIT_WINDOW_HEIGHT), "O Xadrez da vez");
     sf::Font font;
@@ -22,7 +26,6 @@ int main() {
         system("pause");
     }
 
-    PlayerTurn turn = WHITE;
     ChessBoard board(INIT_WINDOW_WIDTH, INIT_WINDOW_HEIGHT, font, turn, window);
     ChessGame game(board, turn);
 
