@@ -82,7 +82,18 @@ private:
     ChessPiece wQueen = ChessPiece(sf::Sprite());
     ChessPiece wKing = ChessPiece(sf::Sprite());
 
+    //POSITION 3
+//    unsigned short squares[64] = {
+//            0, 0, 0, 0, 0, 0, 0, 0,
+//            0, 0, B_PAWN, 0, 0, 0, 0, 0,
+//            0, 0, 0, B_PAWN, 0, 0, 0, 0,
+//            W_KING, W_PAWN, 0, 0, 0, 0, 0, B_ROOK,
+//            0, W_ROOK, 0, 0, 0, B_PAWN, 0, B_KING,
+//            0, 0, 0, 0, 0, 0, 0, 0,
+//            0, 0, 0, 0, W_PAWN, 0, W_PAWN, 0,
+//            0, 0, 0, 0, 0, 0, 0, 0};
 
+//POSITION 5
     unsigned short squares[64] = {
             B_ROOK, B_KNIGHT, B_BISHOP, B_QUEEN, 0, B_KING, 0, B_ROOK,
             B_PAWN, B_PAWN, 0, W_PAWN, B_BISHOP, B_PAWN, B_PAWN, B_PAWN,
