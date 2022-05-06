@@ -6,17 +6,20 @@
 #include <SFML/Graphics/Font.hpp>
 #include <SFML/Graphics/RenderWindow.hpp>
 #include "ChessBoard.h"
+#include "AI.h"
 
 class ChessGame {
 private:
     ChessBoard board;
 
-    PlayerTurn &playerTurn;
+    AI ai;
+
+    PlayerTurn playerTurn;
 
     double evalValue = 0.0;
 
 public:
-    explicit ChessGame(ChessBoard &chessBoard, PlayerTurn &turn);
+    explicit ChessGame(ChessBoard &chessBoard, PlayerTurn &turn, AI &ai);
 
     void setMousePos(int x, int y);
 
@@ -31,6 +34,8 @@ public:
     void setBoardSize(sf::Vector2<unsigned int> vector2);
 
     long moveMaker(int i, sf::RenderWindow &window, PlayerTurn playerTurn);
+
+    void makeAutomatedMove(int from, int to);
 };
 
 

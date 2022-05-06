@@ -8,7 +8,7 @@
 class ChessPiece {
 public:
 
-    explicit ChessPiece(sf::Sprite sprite);
+    ChessPiece();
 
     void Init(const std::string &texFile);
 

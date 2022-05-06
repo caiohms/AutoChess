@@ -41,7 +41,7 @@ ChessBoard::ChessBoard(int width, int height, const sf::Font &font, PlayerTurn &
     initTextures();
 }
 
-void ChessBoard::draw(sf::RenderWindow &window) {
+void ChessBoard::draw() {
     sf::Text t;
     t.setFont(font);
 
@@ -100,7 +100,7 @@ void ChessBoard::draw(sf::RenderWindow &window) {
 //                window.draw(darkTargetedRect);
 //        }
 
-        ChessBoard::drawPiece(squares[i], xPos, yPos, boardEdge, window);
+        ChessBoard::drawPiece(squares[i], xPos, yPos, boardEdge);
 
         if (possibilities.contains(i)) {
             window.draw(targetCircleShape);
@@ -111,8 +111,7 @@ void ChessBoard::draw(sf::RenderWindow &window) {
 
 
     if (selectedPieceCode > 0) {
-        ChessBoard::drawPiece(selectedPieceCode, mouseXpos - squareEdge / 2, mouseYpos - squareEdge / 2, boardEdge,
-                              window);
+        ChessBoard::drawPiece(selectedPieceCode, mouseXpos - squareEdge / 2, mouseYpos - squareEdge / 2, boardEdge);
     }
 }
 
@@ -137,10 +136,10 @@ void ChessBoard::initTextures() {
     wKing.Init("resources\\sprites\\white-king.png");
 }
 
-long ChessBoard::moveMaker(int depth, sf::RenderWindow &window, PlayerTurn playerTurn) {
+long ChessBoard::moveMaker(int depth, PlayerTurn playerTurn) {
     if (debugging) {
         window.clear(sf::Color(35, 57, 76));
-        draw(window);
+        draw();
         window.display();
     }
 
@@ -169,12 +168,12 @@ long ChessBoard::moveMaker(int depth, sf::RenderWindow &window, PlayerTurn playe
                 unsigned int opc = makeMove(i, target);
 //                std::cout <<
 
-                a += moveMaker(depth - 1, window, playerTurn);
+                a += moveMaker(depth - 1, playerTurn);
 
 
                 undoMove(i, target, opc, wCastleKingSideOld, wCastleQueenSideOld,
                          bCastleKingSideOld, bCastleQueenSideOld, enPassantEnabledSquareOld, selectedSquareIndexOld,
-                         leCrossaint, turn, window);
+                         leCrossaint, turn);
             }
     }
 
@@ -187,7 +186,7 @@ void ChessBoard::mouseGrabPiece(unsigned int mouseX, unsigned int mouseY) {
         return;
     }
 
-    unsigned int selectedSquare = getSquareUnderMousePos(mouseX, mouseY);
+    int selectedSquare = getSquareUnderMousePos(mouseX, mouseY);
     selectedSquareIndex = selectedSquare;
     selectedPieceCode = squares[selectedSquare];
 
@@ -213,7 +212,7 @@ std::unordered_set<unsigned short> ChessBoard::grabPiece(unsigned int squareIdx,
     return {};
 }
 
-std::unordered_set<unsigned short> ChessBoard::grabPiece(unsigned int squareIdx) {
+std::unordered_set<unsigned short> ChessBoard::grabPiece(unsigned short squareIdx) {
     selectedSquareIndex = squareIdx;
     mouseSelectedSquare = selectedSquareIndex;
 
@@ -591,7 +590,7 @@ ChessBoard::possibleMoves(int currentSquare, bool checkingCheck, std::unordered_
 }
 
 void
-ChessBoard::drawPiece(unsigned short pieceCode, float xPos, float yPos, float boardEdge, sf::RenderWindow &window) {
+ChessBoard::drawPiece(unsigned short pieceCode, float xPos, float yPos, float boardEdge) {
     switch (pieceCode) {
         case 0b10000001:
             bPawn.draw(boardEdge, xPos, yPos, window);
@@ -651,7 +650,7 @@ bool ChessBoard::addTarget(unsigned short originSquare, unsigned short targetSqu
 //TODO
     if (debugging) {
         window.clear(sf::Color(35, 57, 76));
-        draw(window);
+        draw();
         window.display();
     }
 
@@ -695,17 +694,13 @@ bool ChessBoard::addTarget(unsigned short originSquare, unsigned short targetSqu
 
         undoMove(originSquare, targetSquare, originalPieceCode, wCastleKingSideOld, wCastleQueenSideOld,
                  bCastleKingSideOld, bCastleQueenSideOld, enPassantEnabledSquareOld, selectedSquareIndexOld,
-                 leCrossaint, turn, window);
+                 leCrossaint, turn);
     } else {
         set.insert(targetSquare);
     }
 
     if (targetPieceColor == oppositePieceColor) return false;
     return true;
-}
-
-const unsigned short *ChessBoard::getSquares() const {
-    return squares;
 }
 
 unsigned short ChessBoard::takePiece(unsigned short origin, unsigned short targetSquare) {
@@ -803,7 +798,7 @@ void
 ChessBoard::undoMove(unsigned short originSquare, unsigned short targetSquare, unsigned short originalTakenPieceCode,
                      bool wCastleKingSideOld, bool wCastleQueenSideOld, bool bCastleKingSideOld,
                      bool bCastleQueenSideOld, unsigned short enPassantEnabledSquareOld,
-                     int selectedSquareIndexOld, bool &leCrossaint, PlayerTurn turnOld, sf::RenderWindow &window) {
+                     int selectedSquareIndexOld, bool &leCrossaint, PlayerTurn turnOld) {
 
     if (squares[targetSquare] == W_KING)
         wKingSquare = originSquare;
@@ -856,7 +851,7 @@ ChessBoard::undoMove(unsigned short originSquare, unsigned short targetSquare, u
 
     if (debugging) {
         window.clear(sf::Color(35, 57, 76));
-        draw(window);
+        draw();
         window.display();
     }
 }
@@ -870,5 +865,29 @@ std::unordered_set<unsigned short> ChessBoard::getSquaresAttackedByOpponent() {
         }
     }
     return attackedSquares;
+}
+
+const unsigned short *ChessBoard::getSquares() const {
+    return squares;
+}
+
+unsigned short ChessBoard::getEnPassantEnabledSquare() const {
+    return enPassantEnabledSquare;
+}
+
+bool ChessBoard::isBCastleKingSide() const {
+    return bCastleKingSide;
+}
+
+bool ChessBoard::isBCastleQueenSide() const {
+    return bCastleQueenSide;
+}
+
+bool ChessBoard::isWCastleKingSide() const {
+    return wCastleKingSide;
+}
+
+bool ChessBoard::isWCastleQueenSide() const {
+    return wCastleQueenSide;
 }
 

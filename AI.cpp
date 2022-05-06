@@ -1,18 +1,29 @@
 #include "AI.h"
+#include "ChessBoardState.h"
 #include <limits>
 #include <iostream>
 
-AI::AI(PlayerTurn &turn) : turn(turn) {}
+AI::AI(ChessBoard &board) : board(board) {}
 
-int AI::minimax(int position, int depth, double alpha, double beta, PlayerTurn playerTurn) {
+double AI::minimax(ChessBoard chessBoard, int depth, double alpha, double beta, PlayerTurn playerTurn) {
 
 //    playerTurn = (playerTurn == WHITE) ? BLACK : WHITE;
 
 //    if (depth == 0) ||
 
 //    if (playerTurn) // Black
-    int maxEval = std::numeric_limits<double>::infinity();
+    double maxEval = std::numeric_limits<double>::infinity();
     std::cout << maxEval << std::endl;
+
+    return maxEval;
+}
+
+void AI::doEvaluate() {
+    ChessBoardState boardState = ChessBoardState(board.isBCastleKingSide(), board.isBCastleQueenSide(),
+                                                 board.isWCastleKingSide(), board.isWCastleQueenSide(),
+                                                 board.getEnPassantEnabledSquare(), board.getSquares());
+
+    std::cout << "Evaluating board" << std::endl;
 
 
 }

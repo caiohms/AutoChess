@@ -2,19 +2,20 @@
 #ifndef AUTOCHESS_AI_H
 #define AUTOCHESS_AI_H
 
-enum PlayerTurn {
-    WHITE = true, BLACK = false
-};
+#include "ChessBoard.h"
 
 class AI {
 private:
 
-    PlayerTurn &turn;
+    ChessBoard &board;
+
+    double minimax(ChessBoard chessBoard, int depth, double alpha, double beta, PlayerTurn playerTurn);
 
 public:
-    AI(PlayerTurn &turn);
+    explicit AI(ChessBoard &board);
 
-    int minimax(int position, int depth, double alpha, double beta, PlayerTurn playerTurn);
+    void doEvaluate();
+
 };
 
 
