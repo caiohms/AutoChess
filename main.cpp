@@ -2,31 +2,30 @@
 #include <SFML\\Graphics.hpp>
 #include "ChessBoard.h"
 #include "ChessGame.h"
-#include <algorithm>
+#include "AI.h"
 #include <iostream>
 #include <chrono>
 
-#define MIN_WINDOW_WIDTH 1280
-#define MIN_WINDOW_HEIGHT 720
-
+#define MIN_WINDOW_WIDTH 480
+#define MIN_WINDOW_HEIGHT 480
 #define INIT_WINDOW_WIDTH 1280
 #define INIT_WINDOW_HEIGHT 720
 
 int main() {
 
     sf::RenderWindow window(sf::VideoMode(INIT_WINDOW_WIDTH, INIT_WINDOW_HEIGHT), "O Xadrez da vez");
+    window.setFramerateLimit(60);
     sf::Font font;
-
     if (!font.loadFromFile("resources\\fonts\\Roboto-Regular.ttf")) {
         std::cout << "Failed to load font" << std::endl;
         system("pause");
     }
 
-    PlayerTurn turn = WHITE;
-    ChessBoard board(INIT_WINDOW_WIDTH, INIT_WINDOW_HEIGHT, font, turn, window);
-    ChessGame game(board, turn);
+    bool turn = true;
 
-    window.setFramerateLimit(60);
+    ChessBoard board(INIT_WINDOW_WIDTH, INIT_WINDOW_HEIGHT, font, turn, window);
+    AI ai(board);
+    ChessGame game(board, turn, ai);
 
     while (window.isOpen()) {
         sf::Event event;
@@ -57,13 +56,13 @@ int main() {
                 }
 
                 case sf::Event::MouseButtonPressed: {
-                    switch (event.key.code) {
+                    switch (event.mouseButton.button) {
                         case sf::Mouse::Button::Left: {
                             int x = event.mouseButton.x;
                             int y = event.mouseButton.y;
                             game.grabPiece(x, y);
 
-//                            for (int i = 1; i <= 7; ++i) {
+//                            for (int i = 1; i <= 4; ++i) {
 //                                using std::chrono::high_resolution_clock;
 //                                using std::chrono::duration_cast;
 //                                using std::chrono::duration;
@@ -71,11 +70,9 @@ int main() {
 //
 //                                auto t1 = high_resolution_clock::now();
 //
-//                                long a = game.moveMaker(i, window, PlayerTurn::BLACK);
+//                                long a = game.moveMaker(i, window, false);
 //
 //                                auto t2 = high_resolution_clock::now();
-//
-//                                /* Getting number of milliseconds as an integer. */
 //                                auto ms_int = duration_cast<milliseconds>(t2 - t1);
 //
 //                                std::cout << "Depth: " << i << " Result: " << a << " positions  Time: " << ms_int.count() << "ms\n";
@@ -90,7 +87,7 @@ int main() {
                 }
 
                 case sf::Event::MouseButtonReleased: {
-                    switch (event.key.code) {
+                    switch (event.mouseButton.button) {
                         case sf::Mouse::Button::Left: {
                             int x = event.mouseButton.x;
                             int y = event.mouseButton.y;
