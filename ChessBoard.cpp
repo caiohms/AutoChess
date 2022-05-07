@@ -2,9 +2,6 @@
 #include "ChessPiece.h"
 #include <set>
 #include <iostream>
-#include <unistd.h>
-
-
 
 ChessBoard::ChessBoard(int width, int height, const sf::Font &font, PlayerTurn &turn, sf::RenderWindow &window)
         : turn(turn), window(window) {
@@ -638,13 +635,6 @@ bool ChessBoard::addTarget(unsigned short originSquare, unsigned short targetSqu
     ChessPiece::PieceColor targetPieceColor = ChessPiece::getPieceColor(squares[targetSquare]);
     if (targetPieceColor == selectedPieceColor)
         return false;
-
-//TODO
-    if (debugging) {
-        window.clear(sf::Color(35, 57, 76));
-        draw();
-        window.display();
-    }
 
 
     if (!checkingCheck) {

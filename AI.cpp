@@ -82,6 +82,7 @@ double AI::minimax(ChessBoard chessBoard, int depth, double alpha, double beta, 
                     ChessBoardState cbs = ChessBoardState(chessBoard);
 
                     double eval = minimax(chessBoard, depth - 1, alpha, beta, BLACK);
+//                    std::cout << "Instant eval: " << eval << std::endl;
 
                     board.undoMove(i, target, opc, wCastleKingSideOld, wCastleQueenSideOld,
                                    bCastleKingSideOld, bCastleQueenSideOld, enPassantEnabledSquareOld,
