@@ -10,7 +10,7 @@ class ChessBoardState {
 public:
     ChessBoardState(bool bCastleKingSide, bool bCastleQueenSide, bool wCastleKingSide,
                     bool wCastleQueenSide, unsigned short wKingSquare, unsigned short bKingSquare,
-                    unsigned short enPassantEnabledSquare, int selectedSquareIndex, bool playerTurn,
+                    unsigned short enPassantEnabledSquare, bool playerTurn,
                     unsigned short *squares);
 
     bool playerTurn;
@@ -22,8 +22,6 @@ public:
     bool bCastleQueenSide;
     bool wCastleKingSide;
     bool wCastleQueenSide;
-
-    int selectedSquareIndex;
 
     unsigned short enPassantEnabledSquare;
 

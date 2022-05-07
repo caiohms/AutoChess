@@ -47,9 +47,7 @@ private:
     std::vector<ChessPiece> bCapturedPieces = {};
     std::vector<ChessPiece> wCapturedPieces = {};
 
-    int selectedSquareIndex = 255;
     unsigned int mouseSelectedSquare = 255;
-    unsigned short selectedPieceCode = 0b11111111;
 
     int mouseXpos = -1;
     int mouseYpos = -1;
@@ -152,7 +150,7 @@ public:
 
     std::unordered_set<unsigned short> grabPiece(unsigned int squareIdx, bool playerTurn);
 
-    void releasePiece(unsigned int mouseX, unsigned int mouseY);
+    void mouseReleasePiece(unsigned int mouseX, unsigned int mouseY);
 
     void drawPiece(unsigned short pieceCode, float xPos, float yPos, float boardEdge);
 
@@ -169,7 +167,7 @@ public:
 
     bool isChecked(unsigned int kingSquare);
 
-    unsigned short makeMove(unsigned short origin, unsigned short targetSquare);
+    unsigned short makeMove(unsigned short originSquare, unsigned short targetSquare);
 
     void undoMove(ChessBoardState previousBoardState);
 
@@ -200,8 +198,6 @@ public:
     unsigned short getBKingSquare() const;
 
     bool getTurn() const;
-
-    int getSelectedSquareIndex() const;
 };
 
 

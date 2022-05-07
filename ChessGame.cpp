@@ -17,12 +17,12 @@ void ChessGame::releasePiece(int x, int y) {
     unsigned short oldSquares[64];
     std::copy_n(getBoardSquares(), 64, oldSquares);
 
-    board.releasePiece(x, y);
+    board.mouseReleasePiece(x, y);
 
     for (int i = 0; i < 64; ++i) {
         if (getBoardSquares()[i] != oldSquares[i]) {
             std::cout << "Board changed!" << std::endl;
-            ai.runEval();
+            ai.runEval(board);
             break;
         }
     }

@@ -26,9 +26,9 @@ public:
 
     explicit AI(ChessBoard &board);
 
-    void runEval();
+    void runEval(ChessBoard chessBoard);
 
-    double evaluateBoard(ChessBoardState boardState, bool playerTurn);
+    double evaluateBoard(ChessBoardState boardState, bool playerTurn) const;
 };
 
 
