@@ -3,7 +3,7 @@
 #include "ChessGame.h"
 #include "ChessBoard.h"
 
-ChessGame::ChessGame(ChessBoard &chessBoard, PlayerTurn &turn, AI &ai) : board(chessBoard), playerTurn(turn), ai(ai) {}
+ChessGame::ChessGame(ChessBoard &chessBoard, bool &turn, AI &ai) : board(chessBoard), playerTurn(turn), ai(ai) {}
 
 void ChessGame::setMousePos(int x, int y) {
     board.setMousePos(x, y);
@@ -37,7 +37,7 @@ void ChessGame::setBoardSize(sf::Vector2<unsigned int> vector2) {
     board.setBoardSize(vector2);
 }
 
-long ChessGame::moveMaker(int i, sf::RenderWindow &window, PlayerTurn playerTurn) {
+long ChessGame::moveMaker(int i, sf::RenderWindow &window, bool playerTurn) {
     return board.moveMaker(i, playerTurn);
 }
 

@@ -5,6 +5,10 @@
 #include <unordered_set>
 #include "ChessPiece.h"
 
+class ChessBoardState;
+
+#include "ChessBoardState.h"
+
 #define W_PAWN 0b01000001
 #define W_KNIGHT 0b01000010
 #define W_BISHOP 0b01000100
@@ -26,10 +30,6 @@
 #define QUEEN_CODE 0b10000
 #define KING_CODE 0b100000
 
-enum PlayerTurn {
-    WHITE = true, BLACK = false
-};
-
 class ChessBoard {
 
 private:
@@ -40,7 +40,7 @@ private:
 
     sf::Font font;
 
-    PlayerTurn &turn;
+    bool & turn;
 
     unsigned short enPassantEnabledSquare = UINT8_MAX;
 
@@ -150,7 +150,7 @@ public:
 
     void initTextures();
 
-    ChessBoard(int width, int height, const sf::Font &font, PlayerTurn &turn, sf::RenderWindow &window);
+    ChessBoard(int width, int height, const sf::Font &font, bool &turn, sf::RenderWindow &window);
 
     void draw();
 
@@ -158,7 +158,7 @@ public:
 
     std::unordered_set<unsigned short> grabPiece(unsigned short squareIdx);
 
-    std::unordered_set<unsigned short> grabPiece(unsigned int squareIdx, PlayerTurn playerTurn);
+    std::unordered_set<unsigned short> grabPiece(unsigned int squareIdx, bool playerTurn);
 
     void releasePiece(unsigned int mouseX, unsigned int mouseY);
 
@@ -179,10 +179,7 @@ public:
 
     unsigned short makeMove(unsigned short origin, unsigned short targetSquare);
 
-    void undoMove(unsigned short originSquare, unsigned short targetSquare, unsigned short originalTakenPieceCode,
-                  bool wCastleKingSideOld, bool wCastleQueenSideOld, bool bCastleKingSideOld,
-                  bool bCastleQueenSideOld, unsigned short enPassantEnabledSquareOld,
-                  int selectedSquareIndexOld, bool &leCrossaint, PlayerTurn turnOld);
+    void undoMove(ChessBoardState previousBoardState);
 
     static unsigned int getColorFromPieceCode(unsigned short selectedPieceCode);
 
@@ -192,7 +189,7 @@ public:
 
     void mouseGrabPiece(unsigned int mouseX, unsigned int mouseY);
 
-    long moveMaker(int depth, PlayerTurn playerTurn);
+    long moveMaker(int depth, bool playerTurn);
 
     const unsigned short *getSquares() const;
 
@@ -205,6 +202,14 @@ public:
     bool isWCastleKingSide() const;
 
     bool isWCastleQueenSide() const;
+
+    unsigned short getWKingSquare() const;
+
+    unsigned short getBKingSquare() const;
+
+    bool getTurn() const;
+
+    int getSelectedSquareIndex() const;
 };
 
 

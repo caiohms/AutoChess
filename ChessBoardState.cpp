@@ -3,24 +3,41 @@
 #include "ChessBoardState.h"
 
 ChessBoardState::ChessBoardState(bool bCastleKingSide, bool bCastleQueenSide, bool wCastleKingSide,
-                                 bool wCastleQueenSide, unsigned short enPassantEnabledSquare,
-                                 const unsigned short *squares)
+                                 bool wCastleQueenSide, unsigned short wKingSquare, unsigned short bKingSquare,
+                                 unsigned short enPassantEnabledSquare, int selectedSquareIndex,
+                                 bool playerTurn, unsigned short *squares)
         : bCastleKingSide(bCastleKingSide),
           bCastleQueenSide(bCastleQueenSide),
           wCastleKingSide(wCastleKingSide),
           wCastleQueenSide(wCastleQueenSide),
-          enPassantEnabledSquare(enPassantEnabledSquare) {
-
+          wKingSquare(wKingSquare),
+          bKingSquare(bKingSquare),
+          enPassantEnabledSquare(enPassantEnabledSquare),
+          selectedSquareIndex(selectedSquareIndex),
+          playerTurn(playerTurn) {
     copyArray(squares, this->squares);
 }
+//
+//ChessBoardState::ChessBoardState(const ChessBoard &board)
+//        : bCastleKingSide(board.isBCastleKingSide()),
+//          bCastleQueenSide(board.isBCastleQueenSide()),
+//          wCastleKingSide(board.isWCastleKingSide()),
+//          wCastleQueenSide(board.isWCastleQueenSide()),
+//          bKingSquare(board.getBKingSquare()),
+//          wKingSquare(board.getWKingSquare()),
+//          enPassantEnabledSquare(board.getEnPassantEnabledSquare()),
+//          playerTurn(board.getTurn()) {
+//    copyArray(board.getSquares(), this->squares);
+//}
 
-ChessBoardState::ChessBoardState(const ChessBoard &board)
-        : bCastleKingSide(board.isBCastleKingSide()),
-          bCastleQueenSide(board.isBCastleQueenSide()),
-          wCastleKingSide(board.isWCastleKingSide()),
-          wCastleQueenSide(board.isWCastleQueenSide()),
-          enPassantEnabledSquare(board.getEnPassantEnabledSquare()) {
-    copyArray(board.getSquares(), this->squares);
+ChessBoardState ChessBoardState::fromChessBoard(ChessBoard *pBoard) {
+
+    unsigned short stateSquares[64];
+    copyArray(pBoard->getSquares(), stateSquares);
+
+    return {pBoard->isBCastleKingSide(), pBoard->isBCastleQueenSide(), pBoard->isWCastleKingSide(),
+            pBoard->isWCastleQueenSide(), pBoard->getWKingSquare(), pBoard->getBKingSquare(),
+            pBoard->getEnPassantEnabledSquare(), pBoard->getSelectedSquareIndex(), pBoard->getTurn(), stateSquares};
 }
 
 void ChessBoardState::copyArray(const unsigned short *pSrc, unsigned short *pDest) {

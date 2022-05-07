@@ -14,14 +14,14 @@
 int main() {
 
     sf::RenderWindow window(sf::VideoMode(INIT_WINDOW_WIDTH, INIT_WINDOW_HEIGHT), "O Xadrez da vez");
-//    window.setFramerateLimit(60);
+    window.setFramerateLimit(60);
     sf::Font font;
     if (!font.loadFromFile("resources\\fonts\\Roboto-Regular.ttf")) {
         std::cout << "Failed to load font" << std::endl;
         system("pause");
     }
 
-    PlayerTurn turn = WHITE;
+    bool turn = true;
 
     ChessBoard board(INIT_WINDOW_WIDTH, INIT_WINDOW_HEIGHT, font, turn, window);
     AI ai(board);
@@ -60,7 +60,7 @@ int main() {
                         case sf::Mouse::Button::Left: {
                             int x = event.mouseButton.x;
                             int y = event.mouseButton.y;
-                            game.grabPiece(x, y);
+//                            game.grabPiece(x, y);
 
                             for (int i = 1; i <= 4; ++i) {
                                 using std::chrono::high_resolution_clock;
@@ -70,7 +70,7 @@ int main() {
 
                                 auto t1 = high_resolution_clock::now();
 
-                                long a = game.moveMaker(i, window, PlayerTurn::BLACK);
+                                long a = game.moveMaker(i, window, false);
 
                                 auto t2 = high_resolution_clock::now();
                                 auto ms_int = duration_cast<milliseconds>(t2 - t1);

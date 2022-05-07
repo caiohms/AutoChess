@@ -8,17 +8,17 @@
 class AI {
 private:
 
-    double pawnValue = 1.0;
-    double bishopValue = 3.0;
-    double knightValue = 3.0;
-    double rookValue = 5.0;
-    double queenValue = 9.0;
-    double kingValue = 20.0;
+    const double pawnValue = 1.0;
+    const double bishopValue = 3.0;
+    const double knightValue = 3.0;
+    const double rookValue = 5.0;
+    const double queenValue = 9.0;
+    const double kingValue = 20.0;
 
 
     ChessBoard &board;
 
-    double minimax(ChessBoard chessBoard, int depth, double alpha, double beta, PlayerTurn playerTurn);
+    double minimax(ChessBoard chessBoard, int depth, double alpha, double beta, bool playerTurn);
 
 public:
 
@@ -28,7 +28,7 @@ public:
 
     void runEval();
 
-    double evaluateBoard(ChessBoardState boardState, PlayerTurn playerTurn);
+    double evaluateBoard(ChessBoardState boardState, bool playerTurn);
 };
 
 
