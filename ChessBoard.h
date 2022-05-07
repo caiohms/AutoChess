@@ -44,14 +44,6 @@ private:
 
     unsigned short enPassantEnabledSquare = UINT8_MAX;
 
-//    unsigned short wKingSquare = 60;
-//    unsigned short bKingSquare = 5;
-//
-//    bool bCastleKingSide = false;
-//    bool bCastleQueenSide = false;
-//    bool wCastleKingSide = true;
-//    bool wCastleQueenSide = true;
-
     std::vector<ChessPiece> bCapturedPieces = {};
     std::vector<ChessPiece> wCapturedPieces = {};
 
