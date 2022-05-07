@@ -1,7 +1,5 @@
 
-#include <algorithm>
 #include <iterator>
-#include <iostream>
 #include "ChessBoardState.h"
 
 ChessBoardState::ChessBoardState(bool bCastleKingSide, bool bCastleQueenSide, bool wCastleKingSide,
@@ -14,6 +12,15 @@ ChessBoardState::ChessBoardState(bool bCastleKingSide, bool bCastleQueenSide, bo
           enPassantEnabledSquare(enPassantEnabledSquare) {
 
     copyArray(squares, this->squares);
+}
+
+ChessBoardState::ChessBoardState(const ChessBoard &board)
+        : bCastleKingSide(board.isBCastleKingSide()),
+          bCastleQueenSide(board.isBCastleQueenSide()),
+          wCastleKingSide(board.isWCastleKingSide()),
+          wCastleQueenSide(board.isWCastleQueenSide()),
+          enPassantEnabledSquare(board.getEnPassantEnabledSquare()) {
+    copyArray(board.getSquares(), this->squares);
 }
 
 void ChessBoardState::copyArray(const unsigned short *pSrc, unsigned short *pDest) {

@@ -10,11 +10,11 @@
 
 class ChessGame {
 private:
-    ChessBoard board;
+    ChessBoard & board;
 
-    AI ai;
+    AI & ai;
 
-    PlayerTurn playerTurn;
+    PlayerTurn & playerTurn;
 
     double evalValue = 0.0;
 

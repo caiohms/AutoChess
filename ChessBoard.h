@@ -19,6 +19,13 @@
 #define B_QUEEN 0b10010000
 #define B_KING 0b10100000
 
+#define PAWN_CODE 0b1
+#define KNIGHT_CODE 0b10
+#define BISHOP_CODE 0b100
+#define ROOK_CODE 0b1000
+#define QUEEN_CODE 0b10000
+#define KING_CODE 0b100000
+
 enum PlayerTurn {
     WHITE = true, BLACK = false
 };
@@ -29,7 +36,7 @@ private:
 
     bool debugging = false;
 
-    sf::RenderWindow & window;
+    sf::RenderWindow &window;
 
     sf::Font font;
 
@@ -124,18 +131,7 @@ private:
 // STANDARD
     unsigned short wKingSquare = 60;
     unsigned short bKingSquare = 4;
-public:
-    unsigned short getEnPassantEnabledSquare() const;
 
-    bool isBCastleKingSide() const;
-
-    bool isBCastleQueenSide() const;
-
-    bool isWCastleKingSide() const;
-
-    bool isWCastleQueenSide() const;
-
-private:
     bool bCastleKingSide = true;
     bool bCastleQueenSide = true;
     bool wCastleKingSide = true;
@@ -170,7 +166,8 @@ public:
 
     void setMousePos(int mouseX, int mouseY);
 
-    std::unordered_set<unsigned short> possibleMoves(int currentSquare, bool checkingCheck, std::unordered_set<unsigned short> &targetSet);
+    std::unordered_set<unsigned short>
+    possibleMoves(int currentSquare, bool checkingCheck, std::unordered_set<unsigned short> &targetSet);
 
     int getSquareUnderMousePos(unsigned int mouseX, unsigned int mouseY);
 
@@ -198,6 +195,16 @@ public:
     long moveMaker(int depth, PlayerTurn playerTurn);
 
     const unsigned short *getSquares() const;
+
+    unsigned short getEnPassantEnabledSquare() const;
+
+    bool isBCastleKingSide() const;
+
+    bool isBCastleQueenSide() const;
+
+    bool isWCastleKingSide() const;
+
+    bool isWCastleQueenSide() const;
 };
 
 

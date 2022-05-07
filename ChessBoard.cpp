@@ -4,14 +4,7 @@
 #include <iostream>
 #include <unistd.h>
 
-enum PieceFromCode {
-    Pawn = 0b1,
-    Knight = 0b10,
-    Bishop = 0b100,
-    Rook = 0b1000,
-    Queen = 0b10000,
-    King = 0b100000,
-};
+
 
 ChessBoard::ChessBoard(int width, int height, const sf::Font &font, PlayerTurn &turn, sf::RenderWindow &window)
         : turn(turn), window(window) {
@@ -154,8 +147,7 @@ long ChessBoard::moveMaker(int depth, PlayerTurn playerTurn) {
         if (squares[i] == 0) continue;
         int selectedSquareIndex = i;
         std::unordered_set<unsigned short> set = grabPiece(i, playerTurn);
-        size_t s = set.size();
-        if (s > 0)
+        if (!set.empty())
             for (unsigned short target: set) {
                 bool wCastleKingSideOld = wCastleKingSide;
                 bool wCastleQueenSideOld = wCastleQueenSide;
@@ -768,7 +760,7 @@ unsigned short ChessBoard::makeMove(unsigned short origin, unsigned short target
             bCastleKingSide = false;
     }
 
-    if (abs(selectedSquareIndex - targetSquare) == 16 && (selectedPieceCode & 0b00000001) == Pawn) {
+    if (abs(selectedSquareIndex - targetSquare) == 16 && (selectedPieceCode & 0b00000001) == PAWN_CODE) {
         // if pawn moved two squares, mark middle square as potential target
         unsigned short row = selectedSquareIndex / 8;
         enPassantEnabledSquare = (row == 1) ? selectedSquareIndex + 8 : selectedSquareIndex - 8;
@@ -780,7 +772,7 @@ unsigned short ChessBoard::makeMove(unsigned short origin, unsigned short target
             enPassantEnabledSquare = 0b11111111;
         }
 
-    } else if (targetSquare == enPassantEnabledSquare && (selectedPieceCode & 0b00000001) == Pawn) {
+    } else if (targetSquare == enPassantEnabledSquare && (selectedPieceCode & 0b00000001) == PAWN_CODE) {
         // if a pawn attacks an enPassantEnabledSquare, an en passant occurred. Opponent pawn must be removed.
         unsigned short row = targetSquare / 8;
         squares[targetSquare + ((row == 2) ? 8 : -8)] = 0;
