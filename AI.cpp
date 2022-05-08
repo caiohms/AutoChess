@@ -26,7 +26,32 @@ double AI::minimax(ChessBoard chessBoard, int depth, double alpha, double beta, 
 // if stalemate
 // return 0
 
-    if (!playerTurn) {
+    if (playerTurn) {
+
+        double maxEval = -std::numeric_limits<double>::infinity();
+
+        for (int i = 0; i < 64; ++i) {
+            if (chessBoard.getSquares()[i] == 0) continue;
+            std::unordered_set<unsigned short> set = chessBoard.grabPiece(i, playerTurn);
+            if (!set.empty())
+                for (unsigned short target: set) {
+                    auto previousBoardState = ChessBoardState::fromChessBoard(&chessBoard);
+
+                    chessBoard.makeMove(i, target);
+
+                    double eval = minimax(chessBoard, depth - 1, alpha, beta, false);
+
+                    chessBoard.undoMove(previousBoardState);
+
+                    maxEval = std::max(maxEval, eval);
+                    alpha = std::max(alpha, eval);
+                    if (beta <= alpha)
+                        break;
+                }
+        }
+
+        return maxEval;
+    } else {
         double minEval = std::numeric_limits<double>::infinity();
         for (int i = 0; i < 64; ++i) {
             if (chessBoard.getSquares()[i] == 0) continue;
@@ -52,34 +77,6 @@ double AI::minimax(ChessBoard chessBoard, int depth, double alpha, double beta, 
 
         return minEval;
 
-    } else {
-
-        double maxEval = -std::numeric_limits<double>::infinity();
-
-        for (int i = 0; i < 64; ++i) {
-            if (chessBoard.getSquares()[i] == 0) continue;
-            std::unordered_set<unsigned short> set = chessBoard.grabPiece(i, playerTurn);
-            if (!set.empty())
-                for (unsigned short target: set) {
-
-                    auto previousBoardState = ChessBoardState::fromChessBoard(&chessBoard);
-
-                    chessBoard.makeMove(i, target);
-
-                    double eval = minimax(chessBoard, depth - 1, alpha, beta, false);
-//                    std::cout << "Instant eval: " << eval << std::endl;
-
-                    chessBoard.undoMove(previousBoardState);
-
-                    maxEval = std::max(maxEval, eval);
-                    alpha = std::max(alpha, eval);
-
-                    if (beta <= alpha)
-                        break;
-                }
-        }
-
-        return maxEval;
     }
 }
 
@@ -89,7 +86,7 @@ void AI::runEval(ChessBoard chessBoard, bool turn) {
 
     auto start = std::chrono::high_resolution_clock::now();
 
-    double result = minimax(board, 1, -std::numeric_limits<double>::infinity(), std::numeric_limits<double>::infinity(),
+    double result = minimax(board, 2, -std::numeric_limits<double>::infinity(), std::numeric_limits<double>::infinity(),
                             turn);
 
     auto stop = std::chrono::high_resolution_clock::now();

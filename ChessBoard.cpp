@@ -134,9 +134,7 @@ void ChessBoard::initTextures() {
 
 long ChessBoard::moveMaker(int depth, bool playerTurn) {
     if (debugging) {
-        window.clear(sf::Color(35, 57, 76));
-        draw();
-        window.display();
+        redrawWindow();
     }
 
     playerTurn = !playerTurn;
@@ -152,19 +150,6 @@ long ChessBoard::moveMaker(int depth, bool playerTurn) {
         std::unordered_set<unsigned short> set = grabPiece(i, playerTurn);
         if (!set.empty())
             for (unsigned short target: set) {
-                bool wCastleKingSideOld = wCastleKingSide;
-                bool wCastleQueenSideOld = wCastleQueenSide;
-                bool bCastleKingSideOld = bCastleKingSide;
-                bool bCastleQueenSideOld = bCastleQueenSide;
-                unsigned short enPassantEnabledSquareOld = enPassantEnabledSquare;
-                int selectedSquareIndexOld = selectedSquareIndex;
-                bool leCrossaint = false;
-
-                if (debugging) {
-                    window.clear(sf::Color(35, 57, 76));
-                    draw();
-                    window.display();
-                }
 
                 ChessBoardState previousState = ChessBoardState::fromChessBoard(this);
 
@@ -697,9 +682,7 @@ unsigned short ChessBoard::takePiece(unsigned short origin, unsigned short targe
 
 
     if (debugging) {
-        window.clear(sf::Color(35, 57, 76));
-        draw();
-        window.display();
+        redrawWindow();
     }
 
     return targetPiece;
@@ -799,9 +782,7 @@ void ChessBoard::undoMove(ChessBoardState previousBoardState) {
     attackedSquares.clear();
 
     if (debugging) {
-        window.clear(sf::Color(35, 57, 76));
-        draw();
-        window.display();
+        redrawWindow();
     }
 }
 
@@ -850,4 +831,10 @@ unsigned short ChessBoard::getBKingSquare() const {
 
 bool ChessBoard::getTurn() const {
     return turn;
+}
+
+void ChessBoard::redrawWindow() {
+    window.clear(sf::Color(35, 57, 76));
+    draw();
+    window.display();
 }
