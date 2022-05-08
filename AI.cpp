@@ -84,24 +84,19 @@ double AI::minimax(ChessBoard chessBoard, int depth, double alpha, double beta, 
 }
 
 
-void AI::runEval(ChessBoard chessBoard) {
-
-    auto cbs = ChessBoardState::fromChessBoard(&chessBoard);
-
+void AI::runEval(ChessBoard chessBoard, bool turn) {
     std::cout << "Evaluating board" << std::endl;
 
     auto start = std::chrono::high_resolution_clock::now();
 
-    double result = minimax(board, 3, -std::numeric_limits<double>::infinity(), std::numeric_limits<double>::infinity(),
-                            true);
-    double stateEval = evaluateBoard(cbs, true);
+    double result = minimax(board, 1, -std::numeric_limits<double>::infinity(), std::numeric_limits<double>::infinity(),
+                            turn);
 
     auto stop = std::chrono::high_resolution_clock::now();
-    auto duration = duration_cast<std::chrono::microseconds>(stop - start);
-    std::cout << "Instant eval: " << stateEval << std::endl;
+    auto duration = duration_cast<std::chrono::milliseconds>(stop - start);
     std::cout << "Future evaluated to: " << result << std::endl;
     std::cout << "Boards evaluated: " << numEvals << std::endl;
-    std::cout << "Time taken to evaluate: " << duration.count() / 1000 << "ms" << std::endl << "-------" << std::endl;
+    std::cout << "Time taken to evaluate: " << duration.count() << "ms" << std::endl << "-------" << std::endl;
 
 }
 
