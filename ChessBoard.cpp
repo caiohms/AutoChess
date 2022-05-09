@@ -146,13 +146,11 @@ long ChessBoard::moveMaker(int depth, bool playerTurn) {
     for (int i = 0; i < 64; ++i) {
 
         if (squares[i] == 0) continue;
-        int selectedSquareIndex = i;
         std::unordered_set<unsigned short> set = grabPiece(i, playerTurn);
         if (!set.empty())
             for (unsigned short target: set) {
 
-                ChessBoardState previousState = ChessBoardState::fromChessBoard(this);
-
+                auto previousState = ChessBoardState::fromChessBoard(this);
                 makeMove(i, target);
 
                 a += moveMaker(depth - 1, playerTurn);

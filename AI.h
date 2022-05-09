@@ -18,7 +18,7 @@ private:
 
     ChessBoard &board;
 
-    double minimax(ChessBoard chessBoard, int depth, double alpha, double beta, bool playerTurn);
+    double minimax(ChessBoard &chessBoard, int depth, double alpha, double beta, bool playerTurn);
 
 public:
 
