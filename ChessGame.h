@@ -2,7 +2,6 @@
 #ifndef AUTOCHESS_CHESSGAME_H
 #define AUTOCHESS_CHESSGAME_H
 
-
 #include <SFML/Graphics/Font.hpp>
 #include <SFML/Graphics/RenderWindow.hpp>
 #include "ChessBoard.h"

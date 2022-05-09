@@ -40,7 +40,7 @@ private:
 
     sf::Font font;
 
-    bool & turn;
+    bool &turn;
 
     unsigned short enPassantEnabledSquare = UINT8_MAX;
 
@@ -126,6 +126,9 @@ private:
     bool bCastleQueenSide = true;
     bool wCastleKingSide = true;
     bool wCastleQueenSide = true;
+
+public:
+
     unsigned short squares[64] = {
             B_ROOK, B_KNIGHT, B_BISHOP, B_QUEEN, B_KING, B_BISHOP, B_KNIGHT, B_ROOK,
             B_PAWN, B_PAWN, B_PAWN, B_PAWN, B_PAWN, B_PAWN, B_PAWN, B_PAWN,
@@ -135,8 +138,6 @@ private:
             0, 0, 0, 0, 0, 0, 0, 0,
             W_PAWN, W_PAWN, W_PAWN, W_PAWN, W_PAWN, W_PAWN, W_PAWN, W_PAWN,
             W_ROOK, W_KNIGHT, W_BISHOP, W_QUEEN, W_KING, W_BISHOP, W_KNIGHT, W_ROOK};
-
-public:
 
     void initTextures();
 
@@ -156,24 +157,22 @@ public:
 
     void setMousePos(int mouseX, int mouseY);
 
-    std::unordered_set<unsigned short>
-    possibleMoves(int currentSquare, bool checkingCheck, std::unordered_set<unsigned short> &targetSet);
+    std::unordered_set<unsigned short> possibleMoves(int currentSquare);
 
     int getSquareUnderMousePos(unsigned int mouseX, unsigned int mouseY);
 
     bool addTarget(unsigned short originSquare, unsigned short targetSquare, ChessPiece::PieceColor selectedPieceColor,
-                   ChessPiece::PieceColor oppositePieceColor, bool checkingCheck,
-                   std::unordered_set<unsigned short> &set);
+                   ChessPiece::PieceColor oppositePieceColor);
 
-    bool isChecked(unsigned int kingSquare);
+    bool isChecked(unsigned short square);
 
     unsigned short makeMove(unsigned short originSquare, unsigned short targetSquare);
 
     void undoMove(ChessBoardState previousBoardState);
 
-    static unsigned int getColorFromPieceCode(unsigned short selectedPieceCode);
+    inline static unsigned int getColorCodeFromPieceCode(unsigned short selectedPieceCode);
 
-    std::unordered_set<unsigned short> getSquaresAttackedByOpponent();
+    inline static ChessPiece::PieceColor getPieceColorFromPieceCode(unsigned short pieceCode);
 
     unsigned short takePiece(unsigned short origin, unsigned short targetSquare);
 
@@ -198,6 +197,10 @@ public:
     unsigned short getBKingSquare()const;
 
     bool getTurn() const;
+
+    void redrawWindow();
+
+    unsigned short getPieceCode(unsigned short pieceValue);
 };
 
 

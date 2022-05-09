@@ -23,8 +23,9 @@ void ChessGame::releasePiece(int x, int y) {
 
     for (int i = 0; i < 64; ++i) {
         if (getBoardSquares()[i] != oldSquares[i]) {
-            std::cout << "Board changed!" << std::endl;
-            ai.runEval(board);
+            std::cout << "Board changed." << std::endl;
+            ai.numEvals = 0;
+            ai.runEval(board, playerTurn);
             break;
         }
     }
