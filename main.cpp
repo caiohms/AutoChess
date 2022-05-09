@@ -62,7 +62,7 @@ int main() {
                             int y = event.mouseButton.y;
                             game.grabPiece(x, y);
 
-//                            for (int i = 1; i <= 4; ++i) {
+//                            for (int i = 1; i <= 1; ++i) {
 //                                using std::chrono::high_resolution_clock;
 //                                using std::chrono::duration_cast;
 //                                using std::chrono::duration;

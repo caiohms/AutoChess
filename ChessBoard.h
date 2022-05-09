@@ -40,7 +40,7 @@ private:
 
     sf::Font font;
 
-    bool & turn;
+    bool &turn;
 
     unsigned short enPassantEnabledSquare = UINT8_MAX;
 
@@ -91,22 +91,22 @@ private:
 //            0, 0, 0, 0, 0, 0, 0, 0};
 
 //POSITION 5
-    unsigned short wKingSquare = 60;
-    unsigned short bKingSquare = 5;
-
-    bool bCastleKingSide = false;
-    bool bCastleQueenSide = false;
-    bool wCastleKingSide = true;
-    bool wCastleQueenSide = true;
-    unsigned short squares[64] = {
-            B_ROOK, B_KNIGHT, B_BISHOP, B_QUEEN, 0, B_KING, 0, B_ROOK,
-            B_PAWN, B_PAWN, 0, W_PAWN, B_BISHOP, B_PAWN, B_PAWN, B_PAWN,
-            0, 0, B_PAWN, 0, 0, 0, 0, 0,
-            0, 0, 0, 0, 0, 0, 0, 0,
-            0, 0, W_BISHOP, 0, 0, 0, 0, 0,
-            0, 0, 0, 0, 0, 0, 0, 0,
-            W_PAWN, W_PAWN, W_PAWN, 0, W_KNIGHT, B_KNIGHT, W_PAWN, W_PAWN,
-            W_ROOK, W_KNIGHT, W_BISHOP, W_QUEEN, W_KING, 0, 0, W_ROOK};
+//    unsigned short wKingSquare = 60;
+//    unsigned short bKingSquare = 5;
+//
+//    bool bCastleKingSide = false;
+//    bool bCastleQueenSide = false;
+//    bool wCastleKingSide = true;
+//    bool wCastleQueenSide = true;
+//    unsigned short squares[64] = {
+//            B_ROOK, B_KNIGHT, B_BISHOP, B_QUEEN, 0, B_KING, 0, B_ROOK,
+//            B_PAWN, B_PAWN, 0, W_PAWN, B_BISHOP, B_PAWN, B_PAWN, B_PAWN,
+//            0, 0, B_PAWN, 0, 0, 0, 0, 0,
+//            0, 0, 0, 0, 0, 0, 0, 0,
+//            0, 0, W_BISHOP, 0, 0, 0, 0, 0,
+//            0, 0, 0, 0, 0, 0, 0, 0,
+//            W_PAWN, W_PAWN, W_PAWN, 0, W_KNIGHT, B_KNIGHT, W_PAWN, W_PAWN,
+//            W_ROOK, W_KNIGHT, W_BISHOP, W_QUEEN, W_KING, 0, 0, W_ROOK};
 
 //    unsigned short squares[64] = {
 //            B_ROOK, 0, 0, 0, B_KING, 0, 0, B_ROOK,
@@ -119,24 +119,25 @@ private:
 //            W_ROOK, 0, 0, 0, W_KING, 0, 0, W_ROOK};
 
 // STANDARD
-//    unsigned short wKingSquare = 60;
-//    unsigned short bKingSquare = 4;
-//
-//    bool bCastleKingSide = true;
-//    bool bCastleQueenSide = true;
-//    bool wCastleKingSide = true;
-//    bool wCastleQueenSide = true;
-//    unsigned short squares[64] = {
-//            B_ROOK, B_KNIGHT, B_BISHOP, B_QUEEN, B_KING, B_BISHOP, B_KNIGHT, B_ROOK,
-//            B_PAWN, B_PAWN, B_PAWN, B_PAWN, B_PAWN, B_PAWN, B_PAWN, B_PAWN,
-//            0, 0, 0, 0, 0, 0, 0, 0,
-//            0, 0, 0, 0, 0, 0, 0, 0,
-//            0, 0, 0, 0, 0, 0, 0, 0,
-//            0, 0, 0, 0, 0, 0, 0, 0,
-//            W_PAWN, W_PAWN, W_PAWN, W_PAWN, W_PAWN, W_PAWN, W_PAWN, W_PAWN,
-//            W_ROOK, W_KNIGHT, W_BISHOP, W_QUEEN, W_KING, W_BISHOP, W_KNIGHT, W_ROOK};
+    unsigned short wKingSquare = 60;
+    unsigned short bKingSquare = 4;
+
+    bool bCastleKingSide = true;
+    bool bCastleQueenSide = true;
+    bool wCastleKingSide = true;
+    bool wCastleQueenSide = true;
 
 public:
+
+    unsigned short squares[64] = {
+            B_ROOK, B_KNIGHT, B_BISHOP, B_QUEEN, B_KING, B_BISHOP, B_KNIGHT, B_ROOK,
+            B_PAWN, B_PAWN, B_PAWN, B_PAWN, B_PAWN, B_PAWN, B_PAWN, B_PAWN,
+            0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0,
+            W_PAWN, W_PAWN, W_PAWN, W_PAWN, W_PAWN, W_PAWN, W_PAWN, W_PAWN,
+            W_ROOK, W_KNIGHT, W_BISHOP, W_QUEEN, W_KING, W_BISHOP, W_KNIGHT, W_ROOK};
 
     void initTextures();
 
@@ -156,24 +157,22 @@ public:
 
     void setMousePos(int mouseX, int mouseY);
 
-    std::unordered_set<unsigned short>
-    possibleMoves(int currentSquare, bool checkingCheck, std::unordered_set<unsigned short> &targetSet);
+    std::unordered_set<unsigned short> possibleMoves(int currentSquare);
 
     int getSquareUnderMousePos(unsigned int mouseX, unsigned int mouseY);
 
     bool addTarget(unsigned short originSquare, unsigned short targetSquare, ChessPiece::PieceColor selectedPieceColor,
-                   ChessPiece::PieceColor oppositePieceColor, bool checkingCheck,
-                   std::unordered_set<unsigned short> &set);
+                   ChessPiece::PieceColor oppositePieceColor);
 
-    bool isChecked(unsigned int kingSquare);
+    bool isChecked(unsigned short square);
 
     unsigned short makeMove(unsigned short originSquare, unsigned short targetSquare);
 
     void undoMove(ChessBoardState previousBoardState);
 
-    static unsigned int getColorFromPieceCode(unsigned short selectedPieceCode);
+    inline static unsigned int getColorCodeFromPieceCode(unsigned short selectedPieceCode);
 
-    std::unordered_set<unsigned short> getSquaresAttackedByOpponent();
+    inline static ChessPiece::PieceColor getPieceColorFromPieceCode(unsigned short pieceCode);
 
     unsigned short takePiece(unsigned short origin, unsigned short targetSquare);
 
@@ -200,6 +199,8 @@ public:
     bool getTurn() const;
 
     void redrawWindow();
+
+    unsigned short getPieceCode(unsigned short pieceValue);
 };
 
 

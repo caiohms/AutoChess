@@ -3,8 +3,12 @@
 #include <limits>
 #include <iostream>
 #include <chrono>
+#include <utility>
 
 AI::AI(ChessBoard &board) : board(board) {}
+
+
+
 
 double AI::minimax(ChessBoard chessBoard, int depth, double alpha, double beta, bool playerTurn) {
 
@@ -31,7 +35,7 @@ double AI::minimax(ChessBoard chessBoard, int depth, double alpha, double beta, 
         double maxEval = -std::numeric_limits<double>::infinity();
 
         for (int i = 0; i < 64; ++i) {
-            if (chessBoard.getSquares()[i] == 0) continue;
+            if (chessBoard.squares[i] == 0) continue;
             std::unordered_set<unsigned short> set = chessBoard.grabPiece(i, playerTurn);
             if (!set.empty())
                 for (unsigned short target: set) {
@@ -54,7 +58,7 @@ double AI::minimax(ChessBoard chessBoard, int depth, double alpha, double beta, 
     } else {
         double minEval = std::numeric_limits<double>::infinity();
         for (int i = 0; i < 64; ++i) {
-            if (chessBoard.getSquares()[i] == 0) continue;
+            if (chessBoard.squares[i] == 0) continue;
             std::unordered_set<unsigned short> set = chessBoard.grabPiece(i, playerTurn);
             if (!set.empty())
                 for (unsigned short target: set) {
@@ -76,7 +80,6 @@ double AI::minimax(ChessBoard chessBoard, int depth, double alpha, double beta, 
         }
 
         return minEval;
-
     }
 }
 
@@ -86,7 +89,7 @@ void AI::runEval(ChessBoard chessBoard, bool turn) {
 
     auto start = std::chrono::high_resolution_clock::now();
 
-    double result = minimax(board, 2, -std::numeric_limits<double>::infinity(), std::numeric_limits<double>::infinity(),
+    double result = minimax(std::move(chessBoard), 1, -std::numeric_limits<double>::infinity(), std::numeric_limits<double>::infinity(),
                             turn);
 
     auto stop = std::chrono::high_resolution_clock::now();
