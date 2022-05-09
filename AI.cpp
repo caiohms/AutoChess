@@ -3,6 +3,7 @@
 #include <limits>
 #include <iostream>
 #include <chrono>
+#include "ChessBoard.h"
 
 AI::AI(ChessBoard &board) : board(board) {}
 
@@ -25,6 +26,7 @@ double AI::minimax(ChessBoard chessBoard, int depth, double alpha, double beta, 
 // TODO: stalemate
 // if stalemate
 // return 0
+
 
     if (!playerTurn) {
         double minEval = std::numeric_limits<double>::infinity();
@@ -49,11 +51,7 @@ double AI::minimax(ChessBoard chessBoard, int depth, double alpha, double beta, 
                         break;
                 }
         }
-
-        return minEval;
-
     } else {
-
         double maxEval = -std::numeric_limits<double>::infinity();
 
         for (int i = 0; i < 64; ++i) {
@@ -78,8 +76,6 @@ double AI::minimax(ChessBoard chessBoard, int depth, double alpha, double beta, 
                         break;
                 }
         }
-
-        return maxEval;
     }
 }
 
@@ -88,11 +84,11 @@ void AI::runEval(ChessBoard chessBoard) {
 
     auto cbs = ChessBoardState::fromChessBoard(&chessBoard);
 
-    std::cout << "Evaluating board" << std::endl;
+//    std::cout << "Evaluating board" << std::endl;
 
     auto start = std::chrono::high_resolution_clock::now();
 
-    double result = minimax(board, 3, -std::numeric_limits<double>::infinity(), std::numeric_limits<double>::infinity(),
+    double result = minimax(board, 1, -std::numeric_limits<double>::infinity(), std::numeric_limits<double>::infinity(),
                             true);
     double stateEval = evaluateBoard(cbs, true);
 
@@ -109,11 +105,15 @@ double AI::evaluateBoard(ChessBoardState boardState, bool playerTurn) const {
 
     double whiteEval = 0;
     double blackEval = 0;
+    int countB = 0;
+    int countW = 0;
+//    const double endgameMaterialStart = rookValue * 2 + bishopValue + knightValue;
 
     for (unsigned short square: boardState.squares) {
         switch (square) {
             case B_PAWN:
                 blackEval += pawnValue;
+                countB += 1;
                 break;
             case B_KNIGHT:
                 blackEval += knightValue;
@@ -132,6 +132,7 @@ double AI::evaluateBoard(ChessBoardState boardState, bool playerTurn) const {
                 break;
             case W_PAWN:
                 whiteEval += pawnValue;
+                countW += 1;
                 break;
             case W_KNIGHT:
                 whiteEval += knightValue;
@@ -152,6 +153,40 @@ double AI::evaluateBoard(ChessBoardState boardState, bool playerTurn) const {
                 break;
         }
     }
-
-    return whiteEval - blackEval;
+//    int whiteMaterialWithoutPawns = whiteEval - (countW * pawnValue);
+//    int blackMaterialWithoutPawns = blackEval - (countB * pawnValue);
+//
+//    float whiteEndgamePhaseWeight = EndgamePhaseWeight(whiteMaterialWithoutPawns, endgameMaterialStart);
+//    float blackEndgamePhaseWeight = EndgamePhaseWeight(blackMaterialWithoutPawns, endgameMaterialStart);
+//
+//    unsigned short wKingSquare = board.getWKingSquare();
+//    unsigned short bKingSquare = board.getBKingSquare();
+//    whiteEval += forcerKingEndgame(wKingSquare, bKingSquare, whiteEval, blackEval, blackEndgamePhaseWeight);
+//    blackEval += forcerKingEndgame(bKingSquare, wKingSquare, blackEval, whiteEval, whiteEndgamePhaseWeight);
+//
+//
+//    return whiteEval - blackEval;
+//}
+//
+//double AI::forcerKingEndgame(short friendlySquareKing, short opponentSquareKing, int materialFriend, int materialOpponent,
+//                      float endgameWeight) const {
+//    double score = 0;
+//
+//    if (materialFriend > materialOpponent + pawnValue * 2 && endgameWeight > 0) {
+//
+//        int friendlyKingSquare = board.getSquares()[friendlySquareKing];
+//        int opponentKingSquare = board.getSquares()[opponentSquareKing];
+//        score += PrecomputedMoveData.centreManhattanDistance[opponentKingSquare] * 10;
+//
+//        // use ortho dst to promote direct opposition
+//        score += (14 - PrecomputedMoveData.NumRookMovesToReachSquare(friendlyKingSquare, opponentKingSquare)) * 4;
+//
+//        return (int) (score * endgameWeight);
+//    }
+//    return 0;
+//}
+//
+//double AI::EndgamePhaseWeight(int materialCount, double endgameMaterialStart) {
+//    const double multiplier = 1 / endgameMaterialStart;
+//    return 1 - std::min(1.0, materialCount * multiplier);
 }

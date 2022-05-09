@@ -193,9 +193,9 @@ public:
 
     bool isWCastleQueenSide() const;
 
-    unsigned short getWKingSquare() const;
+    unsigned short getWKingSquare()const;
 
-    unsigned short getBKingSquare() const;
+    unsigned short getBKingSquare()const;
 
     bool getTurn() const;
 };
