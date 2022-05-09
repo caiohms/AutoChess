@@ -18,7 +18,7 @@ private:
 
     ChessBoard &board;
 
-    double minimax(ChessBoard chessBoard, int depth, double alpha, double beta, bool playerTurn);
+    double minimax(ChessBoard &chessBoard, int depth, double alpha, double beta, bool playerTurn);
 
 public:
 
@@ -26,7 +26,7 @@ public:
 
     explicit AI(ChessBoard &board);
 
-    void runEval(ChessBoard chessBoard);
+    void runEval(ChessBoard chessBoard, bool turn);
 
     double evaluateBoard(ChessBoardState boardState, bool playerTurn) const;
 };

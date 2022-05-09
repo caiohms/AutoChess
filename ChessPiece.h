@@ -15,10 +15,10 @@ public:
     void draw(float edge, float d, float d1, sf::RenderWindow &renderWindow);
 
     enum PieceColor {
-        BLACK = 0b10000000, WHITE = 0b01000000, BLANK
+        BLACK = 0b10000000, WHITE = 0b01000000, BLANK = 0
     };
 
-    static PieceColor getPieceColor(unsigned short pieceCode);
+    inline PieceColor getPieceColor(unsigned short pieceCode);
 
 private:
     sf::Sprite sprite;

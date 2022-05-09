@@ -20,7 +20,7 @@ void ChessPiece::draw(float edge, float xPos, float yPos, sf::RenderWindow &rend
 
 ChessPiece::ChessPiece() = default;
 
-ChessPiece::PieceColor ChessPiece::getPieceColor(unsigned short pieceCode) {
+inline ChessPiece::PieceColor ChessPiece::getPieceColor(unsigned short pieceCode) {
     unsigned short value = pieceCode & 0b11000000;
     if (value == 0b10000000)
         return PieceColor::BLACK;
