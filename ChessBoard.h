@@ -4,6 +4,9 @@
 #include <SFML/Graphics.hpp>
 #include <unordered_set>
 #include "ChessPiece.h"
+#include <fstream>
+#include <string>
+#include <iostream>
 
 class ChessBoardState;
 
@@ -33,6 +36,8 @@ class ChessBoardState;
 class ChessBoard {
 
 private:
+
+
 
     bool debugging = false;
 
@@ -122,6 +127,10 @@ private:
     unsigned short wKingSquare = 60;
     unsigned short bKingSquare = 4;
 
+    bool gameFinished = false;
+public:
+    bool isGameFinished() const;
+
     bool bCastleKingSide = true;
     bool bCastleQueenSide = true;
     bool wCastleKingSide = true;
@@ -178,7 +187,7 @@ public:
 
     void mouseGrabPiece(unsigned int mouseX, unsigned int mouseY);
 
-    long moveMaker(int depth, bool playerTurn);
+    long moveMaker(int depth, bool playerTurn, std::ofstream &ofstream);
 
     const unsigned short *getSquares() const;
 
@@ -201,6 +210,10 @@ public:
     void redrawWindow();
 
     unsigned short getPieceCode(unsigned short pieceValue);
+
+    void checkGameFinished();
+
+    std::string printFen();
 };
 
 

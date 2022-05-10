@@ -2,10 +2,11 @@
 #include <iterator>
 #include "ChessBoardState.h"
 
-ChessBoardState::ChessBoardState(bool bCastleKingSide, bool bCastleQueenSide, bool wCastleKingSide,
+ChessBoardState::ChessBoardState(bool gameFinished, bool bCastleKingSide, bool bCastleQueenSide, bool wCastleKingSide,
                                  bool wCastleQueenSide, unsigned short wKingSquare, unsigned short bKingSquare,
                                  unsigned short enPassantEnabledSquare, bool playerTurn, unsigned short *squares)
-        : bCastleKingSide(bCastleKingSide),
+        : gameFinished(gameFinished),
+          bCastleKingSide(bCastleKingSide),
           bCastleQueenSide(bCastleQueenSide),
           wCastleKingSide(wCastleKingSide),
           wCastleQueenSide(wCastleQueenSide),
@@ -33,7 +34,8 @@ ChessBoardState ChessBoardState::fromChessBoard(ChessBoard *pBoard) {
     unsigned short stateSquares[64];
     copyArray(pBoard->getSquares(), stateSquares);
 
-    return {pBoard->isBCastleKingSide(), pBoard->isBCastleQueenSide(), pBoard->isWCastleKingSide(),
+    return {pBoard->isGameFinished(), pBoard->isBCastleKingSide(), pBoard->isBCastleQueenSide(),
+            pBoard->isWCastleKingSide(),
             pBoard->isWCastleQueenSide(), pBoard->getWKingSquare(), pBoard->getBKingSquare(),
             pBoard->getEnPassantEnabledSquare(), pBoard->getTurn(), stateSquares};
 }

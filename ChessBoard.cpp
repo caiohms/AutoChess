@@ -132,14 +132,17 @@ void ChessBoard::initTextures() {
     wKing.Init("resources\\sprites\\white-king.png");
 }
 
-long ChessBoard::moveMaker(int depth, bool playerTurn) {
+long ChessBoard::moveMaker(int depth, bool playerTurn, std::ofstream &ofstream) {
     if (debugging) {
         redrawWindow();
     }
 
     playerTurn = !playerTurn;
 
-    if (depth == 0) return 1;
+    if (depth == 0) {
+//        ofstream << printFen() + "\n";
+        return 1;
+    }
 
     long a = 0;
 
@@ -153,7 +156,7 @@ long ChessBoard::moveMaker(int depth, bool playerTurn) {
                 auto previousState = ChessBoardState::fromChessBoard(this);
                 makeMove(i, target);
 
-                a += moveMaker(depth - 1, playerTurn);
+                a += moveMaker(depth - 1, playerTurn, ofstream);
 
                 undoMove(previousState);
             }
@@ -229,6 +232,8 @@ void ChessBoard::mouseReleasePiece(unsigned int mouseX, unsigned int mouseY) {
 }
 
 bool ChessBoard::isChecked(unsigned short square) {
+
+
     int pieceCode = squares[square];
 
     ChessPiece::PieceColor squareColor;
@@ -548,8 +553,9 @@ int ChessBoard::getSquareUnderMousePos(unsigned int mouseX, unsigned int mouseY)
     return squareY * 8 + squareX;
 }
 
-std::unordered_set<unsigned short>
-ChessBoard::possibleMoves(int currentSquare) {
+std::unordered_set<unsigned short> ChessBoard::possibleMoves(int currentSquare) {
+
+    if (gameFinished) return {};
 
     int pieceCode = squares[currentSquare];
 
@@ -881,26 +887,28 @@ bool ChessBoard::addTarget(unsigned short originSquare, unsigned short targetSqu
     if (targetPieceColor == selectedPieceColor)
         return false;
 
-    if (targetSquare == 62 && originSquare == 60) {
-        // white wants to castle king side
-        if (squares[61] != 0 || squares[62] != 0 || isChecked(60) || isChecked(61) || isChecked(62))
-            return false;
-    }
-    if (targetSquare == 58 && originSquare == 60) {
-        // white wants to castle queen side
-        if (squares[57] != 0 || squares[58] != 0 || squares[59] != 0 || isChecked(60) || isChecked(58) ||
-            isChecked(59))
-            return false;
-    }
-    if (targetSquare == 6 && originSquare == 4) {
-        // black wants to castle king side
-        if (squares[5] != 0 || squares[6] != 0 || isChecked(4) || isChecked(5) || isChecked(6))
-            return false;
-    }
-    if (targetSquare == 2 && originSquare == 4) {
-        // black wants to castle queen side
-        if (squares[1] != 0 || squares[2] != 0 || squares[3] != 0 || isChecked(4) || isChecked(2) || isChecked(3))
-            return false;
+    if (selectedPiece & 0b00100000) {
+        if (targetSquare == 62 && originSquare == 60) {
+            // white wants to castle king side
+            if (squares[61] != 0 || squares[62] != 0 || isChecked(60) || isChecked(61) || isChecked(62))
+                return false;
+        }
+        if (targetSquare == 58 && originSquare == 60) {
+            // white wants to castle queen side
+            if (squares[57] != 0 || squares[58] != 0 || squares[59] != 0 || isChecked(60) || isChecked(58) ||
+                isChecked(59))
+                return false;
+        }
+        if (targetSquare == 6 && originSquare == 4) {
+            // black wants to castle king side
+            if (squares[5] != 0 || squares[6] != 0 || isChecked(4) || isChecked(5) || isChecked(6))
+                return false;
+        }
+        if (targetSquare == 2 && originSquare == 4) {
+            // black wants to castle queen side
+            if (squares[1] != 0 || squares[2] != 0 || squares[3] != 0 || isChecked(4) || isChecked(2) || isChecked(3))
+                return false;
+        }
     }
 
     ChessBoardState previousState = ChessBoardState::fromChessBoard(this);
@@ -1011,10 +1019,14 @@ unsigned short ChessBoard::makeMove(unsigned short originSquare, unsigned short 
     }
 
     turn = !turn;
+
+    checkGameFinished();
+
     return targetPiece;
 }
 
 void ChessBoard::undoMove(ChessBoardState previousBoardState) {
+    gameFinished = previousBoardState.gameFinished;
     wKingSquare = previousBoardState.wKingSquare;
     bKingSquare = previousBoardState.bKingSquare;
     wCastleKingSide = previousBoardState.wCastleKingSide;
@@ -1077,4 +1089,71 @@ void ChessBoard::redrawWindow() {
 
 inline unsigned short ChessBoard::getPieceCode(unsigned short pieceValue) {
     return pieceValue & 0b00111111;
+}
+
+void ChessBoard::checkGameFinished() {
+    int pieceCount = 0;
+    for (int i = 0; i < 64; ++i) {
+        if (squares[i] != 0) pieceCount++;
+    }
+    if (pieceCount < 3) gameFinished = true;
+}
+
+bool ChessBoard::isGameFinished() const {
+    return gameFinished;
+}
+
+std::string ChessBoard::printFen() {
+    std::string s;
+    for (int i = 0; i < 64; ++i) {
+        if (i % 8 == 0 && i != 0 && i != 63) s += "/";
+        if (squares[i] == 0) {
+            s += "1";
+        }
+
+        if (getPieceColorFromPieceCode(squares[i]) == ChessPiece::WHITE)
+            switch (getPieceCode(squares[i])) {
+                case PAWN_CODE:
+                    s += "P";
+                    break;
+                case ROOK_CODE:
+                    s += "R";
+                    break;
+                case KNIGHT_CODE:
+                    s += "N";
+                    break;
+                case BISHOP_CODE:
+                    s += "B";
+                    break;
+                case QUEEN_CODE:
+                    s += "Q";
+                    break;
+                case KING_CODE:
+                    s += "K";
+                    break;
+            }
+        else
+            switch (getPieceCode(squares[i])) {
+                case PAWN_CODE:
+                    s += "p";
+                    break;
+                case ROOK_CODE:
+                    s += "r";
+                    break;
+                case KNIGHT_CODE:
+                    s += "n";
+                    break;
+                case BISHOP_CODE:
+                    s += "b";
+                    break;
+                case QUEEN_CODE:
+                    s += "q";
+                    break;
+                case KING_CODE:
+                    s += "k";
+                    break;
+            }
+    }
+    s += " w - - 0 1";
+    return s;
 }

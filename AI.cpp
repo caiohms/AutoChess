@@ -13,9 +13,7 @@ double AI::minimax(ChessBoard &chessBoard, int depth, double alpha, double beta,
     numEvals++;
 
     if (depth == 0) {
-        auto boardState = ChessBoardState::fromChessBoard(&chessBoard);
-        double e = evaluateBoard(boardState, playerTurn);
-//        std::cout << e << std::endl;
+        double e = evaluateBoard(chessBoard, playerTurn);
         return e;
     }
 
@@ -93,7 +91,7 @@ void AI::runEval(ChessBoard chessBoard, bool turn) {
 
 }
 
-double AI::evaluateBoard(ChessBoardState boardState, bool playerTurn) const {
+double AI::evaluateBoard(ChessBoard &chessBoard, bool playerTurn) const {
 
     double whiteEval = 0;
     double blackEval = 0;
@@ -101,7 +99,7 @@ double AI::evaluateBoard(ChessBoardState boardState, bool playerTurn) const {
     int countW = 0;
 //    const double endgameMaterialStart = rookValue * 2 + bishopValue + knightValue;
 
-    for (unsigned short square: boardState.squares) {
+    for (unsigned short square: chessBoard.squares) {
         switch (square) {
             case B_PAWN:
                 blackEval += pawnValue;

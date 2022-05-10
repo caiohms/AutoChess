@@ -62,7 +62,9 @@ int main() {
                             int y = event.mouseButton.y;
 //                            game.grabPiece(x, y);
 
-                            for (int i = 1; i <= 8; ++i) {
+                            std::ofstream out("txt.txt");
+
+                            for (int i = 5; i <= 5; ++i) {
                                 using std::chrono::high_resolution_clock;
                                 using std::chrono::duration_cast;
                                 using std::chrono::duration;
@@ -70,13 +72,15 @@ int main() {
 
                                 auto t1 = high_resolution_clock::now();
 
-                                long a = game.moveMaker(i, window, false);
+                                long a = game.moveMaker(i, window, !turn, out);
 
                                 auto t2 = high_resolution_clock::now();
                                 auto ms_int = duration_cast<milliseconds>(t2 - t1);
 
                                 std::cout << "Depth: " << i << " Result: " << a << " positions  Time: " << ms_int.count() << "ms\n";
                             }
+
+                            out.close();
 
                             break;
                         }

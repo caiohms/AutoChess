@@ -39,8 +39,8 @@ void ChessGame::setBoardSize(sf::Vector2<unsigned int> vector2) {
     board.setBoardSize(vector2);
 }
 
-long ChessGame::moveMaker(int i, sf::RenderWindow &window, bool playerTurn) {
-    return board.moveMaker(i, playerTurn);
+long ChessGame::moveMaker(int i, sf::RenderWindow &window, bool playerTurn, std::ofstream &ofstream) {
+    return board.moveMaker(i, playerTurn, ofstream);
 }
 
 const unsigned short *ChessGame::getBoardSquares() {

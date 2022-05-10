@@ -87,7 +87,7 @@ public:
 
     void runEval(ChessBoard chessBoard, bool turn);
 
-    double evaluateBoard(ChessBoardState boardState, bool playerTurn) const;
+    double evaluateBoard(ChessBoard &chessBoard, bool playerTurn) const;
 
     double
     forcerKingEndgame(short friendlySquareKing, short opponentSquareKing, int materialFriend, int materialOpponent,
