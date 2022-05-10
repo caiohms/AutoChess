@@ -927,7 +927,6 @@ unsigned short ChessBoard::takePiece(unsigned short origin, unsigned short targe
 }
 
 unsigned short ChessBoard::makeMove(unsigned short originSquare, unsigned short targetSquare) {
-
     unsigned short targetPiece = squares[targetSquare];
     unsigned short originPiece = squares[originSquare];
     squares[targetSquare] = targetPiece;
