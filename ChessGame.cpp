@@ -2,6 +2,7 @@
 #include <iostream>
 #include "ChessGame.h"
 #include "ChessBoard.h"
+#include <chrono>
 
 ChessGame::ChessGame(ChessBoard &chessBoard, bool &turn, AI &ai) : board(chessBoard), playerTurn(turn), ai(ai) {}
 
@@ -14,6 +15,7 @@ void ChessGame::grabPiece(int x, int y) {
 }
 
 void ChessGame::releasePiece(int x, int y) {
+
     unsigned short oldSquares[64];
     std::copy_n(getBoardSquares(), 64, oldSquares);
 
@@ -27,7 +29,6 @@ void ChessGame::releasePiece(int x, int y) {
             break;
         }
     }
-
 }
 
 void ChessGame::draw(sf::RenderWindow &window) {

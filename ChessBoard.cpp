@@ -101,7 +101,7 @@ void ChessBoard::draw() {
         window.draw(text);
     }
 
-    if (mouseSelectedSquare > 0 && mouseSelectedSquare < 64) {
+    if (mouseSelectedSquare >= 0 && mouseSelectedSquare < 64) {
         unsigned short mouseFollowingPieceCode = squares[mouseSelectedSquare];
 
         if (mouseFollowingPieceCode > 0) {
@@ -211,7 +211,7 @@ std::unordered_set<unsigned short> ChessBoard::grabPiece(unsigned short squareId
 }
 
 void ChessBoard::mouseReleasePiece(unsigned int mouseX, unsigned int mouseY) {
-    if (mouseSelectedSquare == 0) return;
+    if (mouseSelectedSquare == -1) return;
 
     int targetSquareIndex = getSquareUnderMousePos(mouseX, mouseY);
 
