@@ -260,6 +260,7 @@ bool ChessBoard::isChecked(unsigned short square) {
             code = getPieceCode(squareValue);
             if (code == BISHOP_CODE || code == QUEEN_CODE)
                 return true;
+            else break;
         }
     }
     for (int i = 1; i <= minTopRight; ++i) {
@@ -272,6 +273,7 @@ bool ChessBoard::isChecked(unsigned short square) {
             code = getPieceCode(squareValue);
             if (code == BISHOP_CODE || code == QUEEN_CODE)
                 return true;
+            else break;
         }
     }
     for (int i = 1; i <= minBottomLeft; ++i) {
@@ -284,6 +286,7 @@ bool ChessBoard::isChecked(unsigned short square) {
             code = getPieceCode(squareValue);
             if (code == BISHOP_CODE || code == QUEEN_CODE)
                 return true;
+            else break;
         }
     }
     for (int i = 1; i <= minBottomRight; ++i) {
@@ -296,6 +299,7 @@ bool ChessBoard::isChecked(unsigned short square) {
             code = getPieceCode(squareValue);
             if (code == BISHOP_CODE || code == QUEEN_CODE)
                 return true;
+            else break;
         }
     }
     for (int i = 1; i <= spacesAbove; ++i) {
@@ -309,6 +313,7 @@ bool ChessBoard::isChecked(unsigned short square) {
             code = getPieceCode(squareValue);
             if (code == ROOK_CODE || code == QUEEN_CODE)
                 return true;
+            else break;
         }
     }
     for (int i = 1; i <= spacesBelow; ++i) {
@@ -321,6 +326,7 @@ bool ChessBoard::isChecked(unsigned short square) {
             code = getPieceCode(squareValue);
             if (code == ROOK_CODE || code == QUEEN_CODE)
                 return true;
+            else break;
         }
     }
     for (int i = 1; i <= spacesLeft; ++i) { ;
@@ -333,6 +339,7 @@ bool ChessBoard::isChecked(unsigned short square) {
             code = getPieceCode(squareValue);
             if (code == ROOK_CODE || code == QUEEN_CODE)
                 return true;
+            else break;
         }
     }
     for (int i = 1; i <= spacesRight; ++i) {
@@ -345,6 +352,7 @@ bool ChessBoard::isChecked(unsigned short square) {
             code = getPieceCode(squareValue);
             if (code == ROOK_CODE || code == QUEEN_CODE)
                 return true;
+            else break;
         }
     }
 

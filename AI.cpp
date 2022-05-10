@@ -82,7 +82,7 @@ void AI::runEval(ChessBoard chessBoard, bool turn) {
 
     auto start = std::chrono::high_resolution_clock::now();
 
-    double result = minimax(chessBoard, 5, -std::numeric_limits<double>::infinity(), std::numeric_limits<double>::infinity(),
+    double result = minimax(chessBoard, 2, -std::numeric_limits<double>::infinity(), std::numeric_limits<double>::infinity(),
                             turn);
 
     auto stop = std::chrono::high_resolution_clock::now();

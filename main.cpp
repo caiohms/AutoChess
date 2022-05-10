@@ -60,23 +60,23 @@ int main() {
                         case sf::Mouse::Button::Left: {
                             int x = event.mouseButton.x;
                             int y = event.mouseButton.y;
-                            game.grabPiece(x, y);
+//                            game.grabPiece(x, y);
 
-//                            for (int i = 1; i <= 1; ++i) {
-//                                using std::chrono::high_resolution_clock;
-//                                using std::chrono::duration_cast;
-//                                using std::chrono::duration;
-//                                using std::chrono::milliseconds;
-//
-//                                auto t1 = high_resolution_clock::now();
-//
-//                                long a = game.moveMaker(i, window, false);
-//
-//                                auto t2 = high_resolution_clock::now();
-//                                auto ms_int = duration_cast<milliseconds>(t2 - t1);
-//
-//                                std::cout << "Depth: " << i << " Result: " << a << " positions  Time: " << ms_int.count() << "ms\n";
-//                            }
+                            for (int i = 1; i <= 8; ++i) {
+                                using std::chrono::high_resolution_clock;
+                                using std::chrono::duration_cast;
+                                using std::chrono::duration;
+                                using std::chrono::milliseconds;
+
+                                auto t1 = high_resolution_clock::now();
+
+                                long a = game.moveMaker(i, window, false);
+
+                                auto t2 = high_resolution_clock::now();
+                                auto ms_int = duration_cast<milliseconds>(t2 - t1);
+
+                                std::cout << "Depth: " << i << " Result: " << a << " positions  Time: " << ms_int.count() << "ms\n";
+                            }
 
                             break;
                         }
