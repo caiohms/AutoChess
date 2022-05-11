@@ -8,13 +8,12 @@
 
 AI::AI(ChessBoard &board) : board(board) {}
 
-double AI::minimax(ChessBoard &chessBoard, int depth, double alpha, double beta, bool playerTurn) {
+evalResult AI::minimax(ChessBoard &chessBoard, int depth, double alpha, double beta, bool playerTurn) {
 
     numEvals++;
 
     if (depth == 0) {
-        double e = evaluateBoard(chessBoard, playerTurn);
-        return e;
+        return {"", evaluateBoard(chessBoard, playerTurn)};
     }
 
 //    if (gameover){
@@ -38,19 +37,20 @@ double AI::minimax(ChessBoard &chessBoard, int depth, double alpha, double beta,
                     auto previousBoardState = ChessBoardState::fromChessBoard(&chessBoard);
 
                     chessBoard.makeMove(i, target, false);
-                    double eval = minimax(chessBoard, depth - 1, alpha, beta, false);
+                    evalResult result = minimax(chessBoard, depth - 1, alpha, beta, false);
                     chessBoard.undoMove(previousBoardState);
 
-                    maxEval = std::max(maxEval, eval);
-                    alpha = std::max(alpha, eval);
+                    maxEval = std::max(maxEval, result.rating);
+                    alpha = std::max(alpha, result.rating);
                     if (beta <= alpha)
                         break;
                 }
         }
-        return maxEval;
+        evalResult maxEvalResult("", maxEval);
+        return maxEvalResult;
     } else {
         double minEval = std::numeric_limits<double>::infinity();
-        for (int i = 0; i < 64; ++i) {
+        for (int i = 63; i >= 0; --i) {
             if (chessBoard.squares[i] == 0) continue;
             std::unordered_set<unsigned short> set = chessBoard.grabPiece(i, playerTurn);
             if (!set.empty())
@@ -59,18 +59,19 @@ double AI::minimax(ChessBoard &chessBoard, int depth, double alpha, double beta,
                     auto previousBoardState = ChessBoardState::fromChessBoard(&chessBoard);
 
                     chessBoard.makeMove(i, target, false);
-                    double eval = minimax(chessBoard, depth - 1, alpha, beta, true);
+                    evalResult result = minimax(chessBoard, depth - 1, alpha, beta, true);
                     chessBoard.undoMove(previousBoardState);
 
-                    minEval = std::min(minEval, eval);
-                    beta = std::min(beta, eval);
+                    minEval = std::min(minEval, result.rating);
+                    beta = std::min(beta, result.rating);
 
                     if (beta <= alpha)
                         break;
                 }
         }
 
-        return minEval;
+        evalResult minEvalResult("", minEval);
+        return minEvalResult;
     }
 }
 
@@ -80,12 +81,13 @@ void AI::runEval(ChessBoard chessBoard, bool turn) {
 
     auto start = std::chrono::high_resolution_clock::now();
 
-    double result = minimax(chessBoard, 2, -std::numeric_limits<double>::infinity(), std::numeric_limits<double>::infinity(),
+    evalResult result = minimax(chessBoard, 5, -std::numeric_limits<double>::infinity(), std::numeric_limits<double>::infinity(),
                             turn);
 
     auto stop = std::chrono::high_resolution_clock::now();
     auto duration = duration_cast<std::chrono::milliseconds>(stop - start);
-    std::cout << "Future evaluated to: " << result << std::endl;
+    std::cout << "Eval: " << result.rating << std::endl;
+    std::cout << "Moves: " << result.moves << std::endl;
     std::cout << "Boards evaluated: " << numEvals << std::endl;
     std::cout << "Time taken to evaluate: " << duration.count() << "ms" << std::endl << "-------" << std::endl;
 
@@ -144,3 +146,5 @@ double AI::evaluateBoard(ChessBoard &chessBoard, bool playerTurn) const {
 
     return whiteEval - blackEval;
 }
+
+evalResult::evalResult(std::string commands, double rating) : moves(std::move(commands)), rating(rating) {}
