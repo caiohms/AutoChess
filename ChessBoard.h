@@ -37,8 +37,6 @@ class ChessBoard {
 
 private:
 
-
-
     bool debugging = false;
 
     sf::RenderWindow &window;
@@ -127,6 +125,7 @@ private:
     unsigned short wKingSquare = 60;
     unsigned short bKingSquare = 4;
 
+    bool gameTied = false;
     bool gameFinished = false;
 public:
     bool isGameFinished() const;

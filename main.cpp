@@ -79,7 +79,6 @@ int main() {
 
                                 std::cout << "Depth: " << i << " Result: " << a << " positions  Time: " << ms_int.count() << "ms\n";
                             }
-
                             out.close();
 
                             break;

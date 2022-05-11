@@ -431,7 +431,7 @@ bool ChessBoard::isChecked(unsigned short square) {
             }
         }
         if (spacesLeft > 0) {
-            squareValue = squares[square + 5];
+            squareValue = squares[square + 15];
             if (getColorCodeFromPieceCode(squareValue) == oppositePieceColor) {
                 code = getPieceCode(squareValue);
                 if (code == KNIGHT_CODE)
@@ -916,8 +916,7 @@ bool ChessBoard::addTarget(unsigned short originSquare, unsigned short targetSqu
     takePiece(originSquare, targetSquare);
 
     // if king is selected, kingSquare is the targetSquare. else it is the saved kingsquare.
-    if (!isChecked((selectedPiece & 0b00100000) != 0 ? targetSquare : (selectedPieceColor == ChessPiece::WHITE
-                                                                       ? wKingSquare : bKingSquare)))
+    if (!isChecked((selectedPiece & KING_CODE) != 0 ? targetSquare : (selectedPieceColor == ChessPiece::WHITE ? wKingSquare : bKingSquare)))
         possibilities.insert(targetSquare);
 
     undoMove(previousState);
@@ -1093,10 +1092,24 @@ inline unsigned short ChessBoard::getPieceCode(unsigned short pieceValue) {
 
 void ChessBoard::checkGameFinished() {
     int pieceCount = 0;
-    for (int i = 0; i < 64; ++i) {
-        if (squares[i] != 0) pieceCount++;
+
+    for (unsigned short square: squares) {
+        if (square != 0) pieceCount++;
     }
-    if (pieceCount < 3) gameFinished = true;
+
+    if (pieceCount < 3) {
+        gameTied = true;
+        gameFinished = true;
+    }
+
+    bool kingUnderCheck = turn ? isChecked(wKingSquare) : isChecked(bKingSquare);
+
+    unsigned short currentTurnKing = turn ? wKingSquare : bKingSquare;
+
+//    if (kingUnderCheck && grabPiece(currentTurnKing).empty()) {
+//        std::cout << "Checkmate! " << (turn ? "white" : "black") << " wins." << std::endl;
+//        system("pause");
+//    }
 }
 
 bool ChessBoard::isGameFinished() const {
