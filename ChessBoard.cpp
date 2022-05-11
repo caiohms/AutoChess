@@ -154,7 +154,7 @@ long ChessBoard::moveMaker(int depth, bool playerTurn, std::ofstream &ofstream) 
             for (unsigned short target: set) {
 
                 auto previousState = ChessBoardState::fromChessBoard(this);
-                makeMove(i, target);
+                makeMove(i, target, false);
 
                 a += moveMaker(depth - 1, playerTurn, ofstream);
 
@@ -224,7 +224,7 @@ void ChessBoard::mouseReleasePiece(unsigned int mouseX, unsigned int mouseY) {
     }
 
     if (possibilities.contains(targetSquareIndex)) {
-        makeMove(mouseSelectedSquare, targetSquareIndex);
+        makeMove(mouseSelectedSquare, targetSquareIndex, true);
     }
 
     mouseSelectedSquare = -1;
@@ -916,7 +916,9 @@ bool ChessBoard::addTarget(unsigned short originSquare, unsigned short targetSqu
     takePiece(originSquare, targetSquare);
 
     // if king is selected, kingSquare is the targetSquare. else it is the saved kingsquare.
-    if (!isChecked((selectedPiece & KING_CODE) != 0 ? targetSquare : (selectedPieceColor == ChessPiece::WHITE ? wKingSquare : bKingSquare)))
+    if (!isChecked(
+            (selectedPiece & KING_CODE) != 0 ? targetSquare : (selectedPieceColor == ChessPiece::WHITE ? wKingSquare
+                                                                                                       : bKingSquare)))
         possibilities.insert(targetSquare);
 
     undoMove(previousState);
@@ -941,7 +943,7 @@ unsigned short ChessBoard::takePiece(unsigned short origin, unsigned short targe
     return targetPiece;
 }
 
-unsigned short ChessBoard::makeMove(unsigned short originSquare, unsigned short targetSquare) {
+unsigned short ChessBoard::makeMove(unsigned short originSquare, unsigned short targetSquare, bool manualMovement) {
     unsigned short targetPiece = squares[targetSquare];
     unsigned short originPiece = squares[originSquare];
     squares[targetSquare] = targetPiece;
@@ -1019,7 +1021,8 @@ unsigned short ChessBoard::makeMove(unsigned short originSquare, unsigned short 
 
     turn = !turn;
 
-    checkGameFinished();
+    if (manualMovement)
+        checkGameFinished();
 
     return targetPiece;
 }
@@ -1093,23 +1096,36 @@ inline unsigned short ChessBoard::getPieceCode(unsigned short pieceValue) {
 void ChessBoard::checkGameFinished() {
     int pieceCount = 0;
 
-    for (unsigned short square: squares) {
-        if (square != 0) pieceCount++;
-    }
-
-    if (pieceCount < 3) {
-        gameTied = true;
-        gameFinished = true;
-    }
-
     bool kingUnderCheck = turn ? isChecked(wKingSquare) : isChecked(bKingSquare);
 
     unsigned short currentTurnKing = turn ? wKingSquare : bKingSquare;
 
-//    if (kingUnderCheck && grabPiece(currentTurnKing).empty()) {
-//        std::cout << "Checkmate! " << (turn ? "white" : "black") << " wins." << std::endl;
-//        system("pause");
-//    }
+    bool noMovesAvailable = true;
+
+    possibilities.clear();
+
+    for (int i = 0; i < 63; ++i) {
+        if (squares[i] != 0) pieceCount++;
+    }
+
+    for (int i = 0; i < 63; i++) {
+        if (!possibleMoves(i).empty()) {
+            noMovesAvailable = false;
+            break;
+        }
+    }
+
+    if (kingUnderCheck && noMovesAvailable) {
+        redrawWindow();
+        std::cout << "Checkmate! " << (!turn ? "white" : "black") << " wins." << std::endl;
+        system("pause");
+        system("exit");
+    } else if (noMovesAvailable || pieceCount < 3) {
+        redrawWindow();
+        std::cout << "It's a draw!" << std::endl;
+        system("pause");
+        system("exit");
+    }
 }
 
 bool ChessBoard::isGameFinished() const {

@@ -48,5 +48,5 @@ const unsigned short *ChessGame::getBoardSquares() {
 }
 
 void ChessGame::makeAutomatedMove(int from, int to) {
-    board.makeMove(from, to);
+    board.makeMove(from, to, false);
 }

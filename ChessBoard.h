@@ -174,7 +174,7 @@ public:
 
     bool isChecked(unsigned short square);
 
-    unsigned short makeMove(unsigned short originSquare, unsigned short targetSquare);
+    unsigned short makeMove(unsigned short originSquare, unsigned short targetSquare, bool manualMovement);
 
     void undoMove(ChessBoardState previousBoardState);
 

@@ -37,7 +37,7 @@ double AI::minimax(ChessBoard &chessBoard, int depth, double alpha, double beta,
                 for (unsigned short target: set) {
                     auto previousBoardState = ChessBoardState::fromChessBoard(&chessBoard);
 
-                    chessBoard.makeMove(i, target);
+                    chessBoard.makeMove(i, target, false);
                     double eval = minimax(chessBoard, depth - 1, alpha, beta, false);
                     chessBoard.undoMove(previousBoardState);
 
@@ -58,7 +58,7 @@ double AI::minimax(ChessBoard &chessBoard, int depth, double alpha, double beta,
 
                     auto previousBoardState = ChessBoardState::fromChessBoard(&chessBoard);
 
-                    chessBoard.makeMove(i, target);
+                    chessBoard.makeMove(i, target, false);
                     double eval = minimax(chessBoard, depth - 1, alpha, beta, true);
                     chessBoard.undoMove(previousBoardState);
 
