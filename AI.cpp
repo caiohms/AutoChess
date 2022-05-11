@@ -99,84 +99,48 @@ double AI::evaluateBoard(ChessBoard &chessBoard, bool playerTurn) const {
     int countW = 0;
 //    const double endgameMaterialStart = rookValue * 2 + bishopValue + knightValue;
 
-    for (unsigned short square: chessBoard.squares) {
-        switch (square) {
+    for (int x = 0; x < 64; ++x){
+        switch (chessBoard.squares[x]) {
             case B_PAWN:
-                blackEval += pawnValue;
-                countB += 1;
+                blackEval += pawnValue + pawnWeight[63 - x];
                 break;
             case B_KNIGHT:
-                blackEval += knightValue;
+                blackEval += knightValue + knightWeight[x];
                 break;
             case B_BISHOP:
-                blackEval += bishopValue;
+                blackEval += bishopValue + bishopWeight[x];
                 break;
             case B_ROOK:
-                blackEval += rookValue;
+                blackEval += rookValue + rookWeight[x];
                 break;
             case B_QUEEN:
-                blackEval += queenValue;
+                blackEval += queenValue + queenWeight[x];
                 break;
             case B_KING:
-                blackEval += kingValue;
+                blackEval += kingValue + KingWeight[63 - x];
                 break;
             case W_PAWN:
-                whiteEval += pawnValue;
-                countW += 1;
+                whiteEval += pawnValue + pawnWeight[x];
                 break;
             case W_KNIGHT:
-                whiteEval += knightValue;
+                whiteEval += knightValue + knightWeight[x];
                 break;
             case W_BISHOP:
-                whiteEval += bishopValue;
+                whiteEval += bishopValue + bishopWeight[x];
                 break;
             case W_ROOK:
-                whiteEval += rookValue;
+                whiteEval += rookValue +  rookWeight[x];
                 break;
             case W_QUEEN:
-                whiteEval += queenValue;
+                whiteEval += queenValue + queenWeight[x];
                 break;
             case W_KING:
-                whiteEval += kingValue;
+                whiteEval += kingValue + KingWeight[63];
                 break;
             default:
                 break;
         }
     }
-//    int whiteMaterialWithoutPawns = whiteEval - (countW * pawnValue);
-//    int blackMaterialWithoutPawns = blackEval - (countB * pawnValue);
-//
-//    float whiteEndgamePhaseWeight = EndgamePhaseWeight(whiteMaterialWithoutPawns, endgameMaterialStart);
-//    float blackEndgamePhaseWeight = EndgamePhaseWeight(blackMaterialWithoutPawns, endgameMaterialStart);
-//
-//    unsigned short wKingSquare = board.getWKingSquare();
-//    unsigned short bKingSquare = board.getBKingSquare();
-//    whiteEval += forcerKingEndgame(wKingSquare, bKingSquare, whiteEval, blackEval, blackEndgamePhaseWeight);
-//    blackEval += forcerKingEndgame(bKingSquare, wKingSquare, blackEval, whiteEval, whiteEndgamePhaseWeight);
-//
-//
+
     return whiteEval - blackEval;
 }
-//
-//double AI::forcerKingEndgame(short friendlySquareKing, short opponentSquareKing, int materialFriend, int materialOpponent,
-//                      float endgameWeight) const {
-//    double score = 0;
-//
-//    if (materialFriend > materialOpponent + pawnValue * 2 && endgameWeight > 0) {
-//
-//        int friendlyKingSquare = board.getSquares()[friendlySquareKing];
-//        int opponentKingSquare = board.getSquares()[opponentSquareKing];
-//        score += PrecomputedMoveData.centreManhattanDistance[opponentKingSquare] * 10;
-//
-//        // use ortho dst to promote direct opposition
-//        score += (14 - PrecomputedMoveData.NumRookMovesToReachSquare(friendlyKingSquare, opponentKingSquare)) * 4;
-//
-//        return (int) (score * endgameWeight);
-//    }
-//    return 0;
-//}
-//
-//double AI::EndgamePhaseWeight(int materialCount, double endgameMaterialStart) {
-//    const double multiplier = 1 / endgameMaterialStart;
-//    return 1 - std::min(1.0, materialCount * multiplier);
-//}
