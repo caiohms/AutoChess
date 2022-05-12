@@ -5,12 +5,11 @@
 #include "ChessBoard.h"
 #include "ChessBoardState.h"
 
-typedef struct evalResult {
-    std::string moves;
+typedef struct EvalResult {
+    EvalResult(const std::array<std::string, 10> &moves, double rating);
 
+    std::array<std::string, 10> moves;
     double rating;
-
-    evalResult(std::string commands, double rating);
 } evalResult;
 
 
@@ -26,7 +25,9 @@ private:
 
     ChessBoard &board;
 
-    evalResult minimax(ChessBoard &chessBoard, int depth, double alpha, double beta, bool playerTurn);
+    EvalResult
+    minimax(ChessBoard &chessBoard, int depth, double alpha, double beta, bool playerTurn, EvalResult evalResult,
+            std::string move);
 
     double knightWeight[64] = {
             0.1, 0.2, 0.3, 0.3, 0.3, 0.3, 0.2, 0.1,
