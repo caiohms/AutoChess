@@ -469,7 +469,7 @@ bool ChessBoard::isChecked(unsigned short square) {
         squareValue = squares[square + 7];
         if (getColorCodeFromPieceCode(squareValue) == oppositePieceColor) {
             code = getPieceCode(squareValue);
-            if (code == KING_CODE || code == PAWN_CODE)
+            if (code == KING_CODE || squareValue == W_PAWN)
                 return true;
         }
     }
@@ -477,7 +477,7 @@ bool ChessBoard::isChecked(unsigned short square) {
         squareValue = squares[square + 9];
         if (getColorCodeFromPieceCode(squareValue) == oppositePieceColor) {
             code = getPieceCode(squareValue);
-            if (code == KING_CODE || code == PAWN_CODE)
+            if (code == KING_CODE || squareValue == W_PAWN)
                 return true;
         }
     }
@@ -485,7 +485,7 @@ bool ChessBoard::isChecked(unsigned short square) {
         squareValue = squares[square - 9];
         if (getColorCodeFromPieceCode(squareValue) == oppositePieceColor) {
             code = getPieceCode(squareValue);
-            if (code == KING_CODE || code == PAWN_CODE)
+            if (code == KING_CODE || squareValue == B_PAWN)
                 return true;
         }
     }
@@ -493,7 +493,7 @@ bool ChessBoard::isChecked(unsigned short square) {
         squareValue = squares[square - 7];
         if (getColorCodeFromPieceCode(squareValue) == oppositePieceColor) {
             code = getPieceCode(squareValue);
-            if (code == KING_CODE || code == PAWN_CODE)
+            if (code == KING_CODE || squareValue == B_PAWN)
                 return true;
         }
     }
