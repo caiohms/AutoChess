@@ -14,21 +14,24 @@ AI::minimax(ChessBoard &chessBoard, int depth, double alpha, double beta, bool p
 
     numEvals++;
 
-
-    if (depth == 0) {
-//        evalResult.moves[0] = std::move(move);
-        evalResult.rating = evaluateBoard(chessBoard, playerTurn);
+    if (chessBoard.checkmate) {
+        if (playerTurn) {
+            evalResult.rating = (-100000 * depth);
+            return evalResult;
+        }
+        evalResult.rating = (100000 * depth);
         return evalResult;
     }
 
-//    if (gameover){
-//        if blacklost return 10000*depth;
-//        else return -10000*depth;
-//        TODO:game over
+    if (chessBoard.gameTied) {
+        evalResult.rating = 0;
+        return evalResult;
+    }
 
-// TODO: stalemate
-// if stalemate
-// return 0
+    if (depth == 0) {
+        evalResult.rating = evaluateBoard(chessBoard, playerTurn);
+        return evalResult;
+    }
 
     if (playerTurn) {
 
@@ -48,7 +51,7 @@ AI::minimax(ChessBoard &chessBoard, int depth, double alpha, double beta, bool p
                     evalResult = minimax(chessBoard, depth - 1, alpha, beta, false, evalResult, _move);
                     chessBoard.undoMove(previousBoardState);
 
-                    if (evalResult.rating > maxEval){
+                    if (evalResult.rating > maxEval) {
                         maxEval = evalResult.rating;
                         evalResponse = evalResult;
                     }
@@ -83,7 +86,7 @@ AI::minimax(ChessBoard &chessBoard, int depth, double alpha, double beta, bool p
                     evalResult = minimax(chessBoard, depth - 1, alpha, beta, true, evalResult, _move);
                     chessBoard.undoMove(previousBoardState);
 
-                    if (evalResult.rating < minEval){
+                    if (evalResult.rating < minEval) {
                         minEval = evalResult.rating;
                         evalResponse = evalResult;
                     }
@@ -106,24 +109,39 @@ AI::minimax(ChessBoard &chessBoard, int depth, double alpha, double beta, bool p
 
 
 void AI::runEval(ChessBoard chessBoard, bool turn) {
+    if (turn) return;
     std::cout << "Evaluating board" << std::endl;
 
-    auto start = std::chrono::high_resolution_clock::now();
+    long long int duration = 0;
 
-    EvalResult result = minimax(chessBoard, 5, -std::numeric_limits<double>::infinity(),
-                                std::numeric_limits<double>::infinity(),
-                                turn, EvalResult({}, 0), std::string());
+    int depth = 5;
 
-    auto stop = std::chrono::high_resolution_clock::now();
-    auto duration = duration_cast<std::chrono::milliseconds>(stop - start);
-    std::cout << "Eval: " << result.rating << std::endl;
+    EvalResult result = EvalResult({}, 0);
+
+    while (duration < 5000) {
+        auto start = std::chrono::high_resolution_clock::now();
+
+        result = minimax(chessBoard, depth, -std::numeric_limits<double>::infinity(),
+                         std::numeric_limits<double>::infinity(),
+                         turn, EvalResult({}, 0), std::string());
+
+        auto stop = std::chrono::high_resolution_clock::now();
+        duration = duration_cast<std::chrono::milliseconds>(stop - start).count();
+        depth++;
+        if (duration < 5000) std::cout << "Deepening search to depth: " << depth << std::endl;
+    }
+
+    depth--;
+
+    std::cout << "Depth: " << depth << std::endl;
+    std::cout << "Evaluation: " << result.rating << std::endl;
     std::cout << "Moves: ";
-    std::for_each(result.moves.begin(), result.moves.end(), [&](const auto &item) {
-        std::cout << item;
-    });
+    for (int i = result.moves.size() - 1; i >= 0; --i) {
+        std::cout << result.moves[i];
+    }
     std::cout << std::endl;
     std::cout << "Boards evaluated: " << numEvals << std::endl;
-    std::cout << "Time taken to evaluate: " << duration.count() << "ms" << std::endl << "-------" << std::endl;
+    std::cout << "Time taken to evaluate: " << duration << "ms" << std::endl << "-------" << std::endl;
 
 }
 
@@ -141,16 +159,16 @@ double AI::evaluateBoard(ChessBoard &chessBoard, bool playerTurn) const {
                 blackEval += pawnValue + pawnWeight[63 - x];
                 break;
             case B_KNIGHT:
-                blackEval += knightValue + knightWeight[x];
+                blackEval += knightValue + knightWeight[63 - x];
                 break;
             case B_BISHOP:
-                blackEval += bishopValue + bishopWeight[x];
+                blackEval += bishopValue + bishopWeight[63 - x];
                 break;
             case B_ROOK:
-                blackEval += rookValue + rookWeight[x];
+                blackEval += rookValue + rookWeight[63 - x];
                 break;
             case B_QUEEN:
-                blackEval += queenValue + queenWeight[x];
+                blackEval += queenValue + queenWeight[63 - x];
                 break;
             case B_KING:
                 blackEval += kingValue + KingWeight[63 - x];
@@ -171,7 +189,7 @@ double AI::evaluateBoard(ChessBoard &chessBoard, bool playerTurn) const {
                 whiteEval += queenValue + queenWeight[x];
                 break;
             case W_KING:
-                whiteEval += kingValue + KingWeight[63];
+                whiteEval += kingValue + KingWeight[x];
                 break;
             default:
                 break;

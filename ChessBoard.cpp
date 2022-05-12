@@ -574,6 +574,10 @@ std::unordered_set<unsigned short> ChessBoard::possibleMoves(int currentSquare) 
     ChessPiece::PieceColor selectedPieceColor = getPieceColorFromPieceCode(pieceCode);
     ChessPiece::PieceColor oppositePieceColor = getPieceColorFromPieceCode(pieceCode ^ 0b11000000 << 6 >> 6);
 
+    if ((selectedPieceColor == ChessPiece::WHITE && !turn) || (selectedPieceColor == ChessPiece::BLACK && turn)) {
+        return {};
+    }
+
     int targetSquare;
 
     switch (pieceCode & 0b00111111) {
@@ -1021,13 +1025,14 @@ unsigned short ChessBoard::makeMove(unsigned short originSquare, unsigned short 
 
     turn = !turn;
 
-    if (manualMovement)
-        checkGameFinished();
+    checkGameFinished(manualMovement);
 
     return targetPiece;
 }
 
 void ChessBoard::undoMove(ChessBoardState previousBoardState) {
+    checkmate = previousBoardState.checkmate;
+    gameTied = previousBoardState.gameTied;
     gameFinished = previousBoardState.gameFinished;
     wKingSquare = previousBoardState.wKingSquare;
     bKingSquare = previousBoardState.bKingSquare;
@@ -1093,7 +1098,7 @@ inline unsigned short ChessBoard::getPieceCode(unsigned short pieceValue) {
     return pieceValue & 0b00111111;
 }
 
-void ChessBoard::checkGameFinished() {
+void ChessBoard::checkGameFinished(bool manualMovement) {
     int pieceCount = 0;
 
     bool kingUnderCheck = turn ? isChecked(wKingSquare) : isChecked(bKingSquare);
@@ -1116,20 +1121,19 @@ void ChessBoard::checkGameFinished() {
     }
 
     if (kingUnderCheck && noMovesAvailable) {
-        redrawWindow();
-        std::cout << "Checkmate! " << (!turn ? "white" : "black") << " wins." << std::endl;
-        system("pause");
-        system("exit");
+        checkmate = true;
     } else if (noMovesAvailable || pieceCount < 3) {
-        redrawWindow();
-        std::cout << "It's a draw!" << std::endl;
-        system("pause");
-        system("exit");
+        gameTied = true;
     }
-}
 
-bool ChessBoard::isGameFinished() const {
-    return gameFinished;
+    if (manualMovement) {
+        redrawWindow();
+        if (checkmate) {
+            std::cout << "Checkmate! " << (!turn ? "white" : "black") << " wins." << std::endl;
+        } else if (gameTied) {
+            std::cout << "It's a draw!" << std::endl;
+        }
+    }
 }
 
 std::string ChessBoard::printFen() {

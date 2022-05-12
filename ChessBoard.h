@@ -125,10 +125,10 @@ private:
     unsigned short wKingSquare = 60;
     unsigned short bKingSquare = 4;
 
-    bool gameTied = false;
-    bool gameFinished = false;
 public:
-    bool isGameFinished() const;
+    bool gameTied = false;
+    bool checkmate = false;
+    bool gameFinished = false;
 
     bool bCastleKingSide = true;
     bool bCastleQueenSide = true;
@@ -210,7 +210,7 @@ public:
 
     unsigned short getPieceCode(unsigned short pieceValue);
 
-    void checkGameFinished();
+    void checkGameFinished(bool manualMovement);
 
     std::string printFen();
 };

@@ -8,9 +8,13 @@ class ChessBoard;
 
 class ChessBoardState {
 public:
-    ChessBoardState(bool gameFinished, bool bCastleKingSide, bool bCastleQueenSide, bool wCastleKingSide,
-                    bool wCastleQueenSide, unsigned short wKingSquare, unsigned short bKingSquare,
+    ChessBoardState(bool checkmate, bool gameTied, bool gameFinished, bool bCastleKingSide, bool bCastleQueenSide,
+                    bool wCastleKingSide, bool wCastleQueenSide, unsigned short wKingSquare, unsigned short bKingSquare,
                     unsigned short enPassantEnabledSquare, bool playerTurn, unsigned short *squares);
+
+    bool gameTied;
+    bool checkmate;
+
     bool gameFinished;
     bool playerTurn;
 
