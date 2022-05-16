@@ -13,7 +13,7 @@
 
 int main() {
 
-    sf::RenderWindow window(sf::VideoMode(INIT_WINDOW_WIDTH, INIT_WINDOW_HEIGHT), "O Xadrez da vez");
+    sf::RenderWindow window(sf::VideoMode(INIT_WINDOW_WIDTH, INIT_WINDOW_HEIGHT), "Le Forque");
     window.setFramerateLimit(60);
     sf::Font font;
     if (!font.loadFromFile("resources\\fonts\\Roboto-Regular.ttf")) {
@@ -46,7 +46,7 @@ int main() {
 
                     window.setSize(sf::Vector2u(w, h));
                     window.setView(sf::View(sf::FloatRect(0, 0, (float) w, (float) h)));
-                    game.setBoardSize(sf::Vector2u(minSide, minSide));
+                    game.setGameSize(sf::Vector2u(minSide, minSide));
                     break;
                 }
 

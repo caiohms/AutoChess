@@ -104,7 +104,7 @@ public:
 
     explicit AI(ChessBoard &board);
 
-    void runEval(ChessBoard chessBoard, bool turn);
+    double runEval(ChessBoard chessBoard, bool turn);
 
     double evaluateBoard(ChessBoard &chessBoard, bool playerTurn) const;
 

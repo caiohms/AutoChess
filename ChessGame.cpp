@@ -15,7 +15,7 @@ void ChessGame::grabPiece(int x, int y) {
 }
 
 void ChessGame::releasePiece(int x, int y) {
-
+    double rating = 0;
     unsigned short oldSquares[64];
     std::copy_n(getBoardSquares(), 64, oldSquares);
 
@@ -25,7 +25,7 @@ void ChessGame::releasePiece(int x, int y) {
         if (getBoardSquares()[i] != oldSquares[i]) {
             std::cout << "Board changed." << std::endl;
             ai.numEvals = 0;
-            ai.runEval(board, playerTurn);
+            rating = ai.runEval(board, playerTurn);
             break;
         }
     }
@@ -35,7 +35,7 @@ void ChessGame::draw(sf::RenderWindow &window) {
     board.draw();
 }
 
-void ChessGame::setBoardSize(sf::Vector2<unsigned int> vector2) {
+void ChessGame::setGameSize(sf::Vector2<unsigned int> vector2) {
     board.setBoardSize(vector2);
 }
 

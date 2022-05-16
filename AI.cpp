@@ -108,8 +108,8 @@ AI::minimax(ChessBoard &chessBoard, int depth, double alpha, double beta, bool p
 }
 
 
-void AI::runEval(ChessBoard chessBoard, bool turn) {
-    if (turn) return;
+double AI::runEval(ChessBoard chessBoard, bool turn) {
+    if (turn) return 0.0;
     std::cout << "Evaluating board" << std::endl;
 
     long long int duration = 0;
@@ -118,7 +118,7 @@ void AI::runEval(ChessBoard chessBoard, bool turn) {
 
     EvalResult result = EvalResult({}, 0);
 
-    while (duration < 5000) {
+    while (duration < 7000) {
         auto start = std::chrono::high_resolution_clock::now();
 
         result = minimax(chessBoard, depth, -std::numeric_limits<double>::infinity(),
@@ -128,7 +128,7 @@ void AI::runEval(ChessBoard chessBoard, bool turn) {
         auto stop = std::chrono::high_resolution_clock::now();
         duration = duration_cast<std::chrono::milliseconds>(stop - start).count();
         depth++;
-        if (duration < 5000) std::cout << "Deepening search to depth: " << depth << std::endl;
+        if (duration < 7000) std::cout << "Deepening search to depth: " << depth << std::endl;
     }
 
     depth--;
@@ -143,6 +143,7 @@ void AI::runEval(ChessBoard chessBoard, bool turn) {
     std::cout << "Boards evaluated: " << numEvals << std::endl;
     std::cout << "Time taken to evaluate: " << duration << "ms" << std::endl << "-------" << std::endl;
 
+    return result.rating;
 }
 
 double AI::evaluateBoard(ChessBoard &chessBoard, bool playerTurn) const {
