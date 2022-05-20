@@ -4,6 +4,14 @@
 #include <set>
 #include <iostream>
 
+/**
+ * The Chess Board constructor
+ * @param width The screen width the game will start with
+ * @param height The screen height the game will start with
+ * @param font The font object to write with
+ * @param turn The player turn reference
+ * @param window The window object which we draw to
+ */
 ChessBoard::ChessBoard(int width, int height, const sf::Font &font, bool &turn, sf::RenderWindow &window)
         : turn(turn), window(window) {
     this->boardSize.x = width;
@@ -32,6 +40,9 @@ ChessBoard::ChessBoard(int width, int height, const sf::Font &font, bool &turn, 
     initTextures();
 }
 
+/**
+ * When this function is called, draw the board on the window render target buffer.
+ */
 void ChessBoard::draw() {
     sf::Text text;
     text.setFont(font);
@@ -111,11 +122,18 @@ void ChessBoard::draw() {
     }
 }
 
+/**
+ * Resizes the board. Called when the game window is resized.
+ * @param size The Vector2u containing x and y sizes. Remember that ideally the board is represented by a square.
+ */
 void ChessBoard::setBoardSize(const sf::Vector2u &size) {
     boardOutline.setSize(sf::Vector2f((float) size.x - 20, (float) size.y - 20));
     ChessBoard::boardSize = size;
 }
 
+/**
+ * The texture files are loaded as textures and added to the sprites, which are drawn onto the window
+ */
 void ChessBoard::initTextures() {
     bPawn.Init("resources\\sprites\\black-pawn.png");
     bBishop.Init("resources\\sprites\\black-bishop.png");
@@ -132,6 +150,14 @@ void ChessBoard::initTextures() {
     wKing.Init("resources\\sprites\\white-king.png");
 }
 
+/**
+ * This method is used to performance test the other methods within this class. It attempts to perform all possible
+ * moves until the specified depth.
+ * @param depth The maximum depth to which the method is recursively called
+ * @param playerTurn The current player turn at depth
+ * @param ofstream The ofstream buffer when writing moves to file for debugging purposes.
+ * @return The number of board states reached
+ */
 long ChessBoard::moveMaker(int depth, bool playerTurn, std::ofstream &ofstream) {
     if (debugging) {
         redrawWindow();
@@ -165,6 +191,12 @@ long ChessBoard::moveMaker(int depth, bool playerTurn, std::ofstream &ofstream) 
     return a;
 }
 
+/**
+ * When the player selects a piece with the mouse, the mouse coordinates are received as parameters, and then the
+ * selected piece index on the board is calculated. Then grabPiece() is called, passing the selected index as a parameter
+ * @param mouseX The mouse X coordinate
+ * @param mouseY The mouse Y coordinate
+ */
 void ChessBoard::mouseGrabPiece(unsigned int mouseX, unsigned int mouseY) {
     if (mouseX + 10 > boardSize.x || mouseY + 10 > boardSize.y || mouseX < 10 || mouseY < 10) {
         mouseSelectedSquare = -1;
@@ -178,6 +210,14 @@ void ChessBoard::mouseGrabPiece(unsigned int mouseX, unsigned int mouseY) {
     grabPiece(selectedSquare);
 }
 
+/**
+ * The grabPiece method is called when a piece is to be moved. It calculates all positions the selected piece may move to.
+ * This version receives the playerTurn as a copied parameter.
+ * This is useful when we want to pass a different value than what is stored in the global 'turn' variable.
+ * @param squareIdx The selected square index
+ * @param playerTurn The player turn boolean to be used
+ * @return The unordered set of target squares that the piece may be moved to.
+ */
 std::unordered_set<unsigned short> ChessBoard::grabPiece(unsigned int squareIdx, bool playerTurn) {
     mouseSelectedSquare = squareIdx;
 
@@ -186,16 +226,16 @@ std::unordered_set<unsigned short> ChessBoard::grabPiece(unsigned int squareIdx,
         possibilities.clear();
 //        attackedSquaresDraw.clear();
         return possibleMoves(squareIdx);
-//    } else {
-//        if (playerTurn)
-//            std::cout << "It is white's turn" << std::endl;
-//        else
-//            std::cout << "It is black's turn" << std::endl;
     }
 
     return {};
 }
 
+/**
+ * Same as above but this method uses the global turn value instead
+ * @param squareIdx The selected square index
+ * @return The unordered set of target squares that the piece may be moved to.
+ */
 std::unordered_set<unsigned short> ChessBoard::grabPiece(unsigned short squareIdx) {
 
     if ((getColorCodeFromPieceCode(squares[squareIdx]) == ChessPiece::PieceColor::WHITE && turn)
@@ -203,16 +243,21 @@ std::unordered_set<unsigned short> ChessBoard::grabPiece(unsigned short squareId
         possibilities.clear();
 //        attackedSquaresDraw.clear();
         return possibleMoves(squareIdx);
-//    } else {
-//        if (playerTurn)
-//            std::cout << "It is white's turn" << std::endl;
-//        else
-//            std::cout << "It is black's turn" << std::endl;
     }
 
     return {};
 }
 
+/**
+ * When the player releases the mouse button, they may be moving a piece. This method evaluates the user action.
+ * * If the user releases the mouse button over the same piece that was selected, it mean the user simply selected it and
+ * did not make a move.
+ * * If the user releases the mouse button outside the game window, no moves are made.
+ * * If the user releases the mouse button over a square contained in the possible moves list attributed to the selected
+ * piece, the move is executed.
+ * @param mouseX The mouse X coordinate
+ * @param mouseY The mouse Y coordinate
+ */
 void ChessBoard::mouseReleasePiece(unsigned int mouseX, unsigned int mouseY) {
     if (mouseSelectedSquare == -1) return;
 
@@ -231,6 +276,11 @@ void ChessBoard::mouseReleasePiece(unsigned int mouseX, unsigned int mouseY) {
     possibilities.clear();
 }
 
+/**
+ * Evaluates if a square is attacked by enemy pieces.
+ * @param square The square to evaluate
+ * @return True if the square is attacked by an enemy piece, false otherwise.
+ */
 bool ChessBoard::isChecked(unsigned short square) {
 
 
@@ -534,11 +584,21 @@ bool ChessBoard::isChecked(unsigned short square) {
     return false;
 }
 
+/**
+ * Uses fast bitwise AND operation to extract the color code from the piece raw code.
+ * @param selectedPieceCode The piece to be evaluated (i.e. White pawn = 0b01000001)
+ * @return The piece color unsigned int value (i.e. White = 0b01000000)
+ */
 inline unsigned int ChessBoard::getColorCodeFromPieceCode(unsigned short selectedPieceCode) {
     unsigned int selectedColor = selectedPieceCode & 0b11000000;
     return selectedColor;
 }
 
+/**
+ * Uses fast bitwise AND operation to extract the color code from the piece raw code. Returns a piece color code Enum.
+ * @param pieceCode The piece unsigned short value
+ * @return The square color enum. May be BLANK, WHITE, BLACK
+ */
 inline ChessPiece::PieceColor ChessBoard::getPieceColorFromPieceCode(unsigned short pieceCode) {
     if (pieceCode == 0b11000000) return ChessPiece::BLANK;
     else if (pieceCode & 0b01000000) return ChessPiece::WHITE;
@@ -546,6 +606,12 @@ inline ChessPiece::PieceColor ChessBoard::getPieceColorFromPieceCode(unsigned sh
     return ChessPiece::BLANK;
 }
 
+/**
+ * Get which square the user mouse is hovering over
+ * @param mouseX The mouse X coordinate
+ * @param mouseY The mouse Y coordinate
+ * @return The square index
+ */
 int ChessBoard::getSquareUnderMousePos(unsigned int mouseX, unsigned int mouseY) {
     unsigned short squareX = (mouseX) / ((boardSize.x) / 8);
     unsigned short squareY = (mouseY) / ((boardSize.y) / 8);
@@ -553,6 +619,11 @@ int ChessBoard::getSquareUnderMousePos(unsigned int mouseX, unsigned int mouseY)
     return squareY * 8 + squareX;
 }
 
+/**
+ * Get a set of squared that the selected piece may move to
+ * @param currentSquare The selected square
+ * @return The unordered_set containing board square indexes to which the piece may move to
+ */
 std::unordered_set<unsigned short> ChessBoard::possibleMoves(int currentSquare) {
 
     if (gameFinished) return {};
@@ -834,8 +905,14 @@ std::unordered_set<unsigned short> ChessBoard::possibleMoves(int currentSquare) 
     return possibilities;
 }
 
-void
-ChessBoard::drawPiece(unsigned short pieceCode, float xPos, float yPos, float boardEdge) {
+/**
+ * Draws a piece on the window buffer
+ * @param pieceCode The piece code to be drawn
+ * @param xPos The piece X position on the window
+ * @param yPos The piece Y position on the window
+ * @param boardEdge The length of the board edge. Used to calculate the dimensions of the sprite which will be drawn
+ */
+void ChessBoard::drawPiece(unsigned short pieceCode, float xPos, float yPos, float boardEdge) {
     switch (pieceCode) {
         case 0b10000001:
             bPawn.draw(boardEdge, xPos, yPos, window);
@@ -878,11 +955,26 @@ ChessBoard::drawPiece(unsigned short pieceCode, float xPos, float yPos, float bo
     }
 }
 
+/**
+ * Sets the mouse position in the class variables. Called by the ChessGame.setMousePos() method which is called in the
+ * main thread when the user changes the mouse position
+ * @param mouseX The mouse X position
+ * @param mouseY The mouse Y position
+ */
 void ChessBoard::setMousePos(int mouseX, int mouseY) {
     this->mouseXpos = mouseX;
     this->mouseYpos = mouseY;
 }
 
+/**
+ * Called for each position evaluated in the possibleMoves() method. This method evaluates if a piece may move to a
+ * target square based on conditions such as: king in check, en passant, castle ability etc.
+ * @param originSquare The origin the piece originally sits at
+ * @param targetSquare The target square (move) being evaluated
+ * @param selectedPieceColor The selected piece color
+ * @param oppositePieceColor The opposite piece color
+ * @return True if the move is valid, false otherwise
+ */
 bool ChessBoard::addTarget(unsigned short originSquare, unsigned short targetSquare,
                            ChessPiece::PieceColor selectedPieceColor, ChessPiece::PieceColor oppositePieceColor) {
     unsigned short selectedPiece = squares[originSquare];
@@ -931,6 +1023,12 @@ bool ChessBoard::addTarget(unsigned short originSquare, unsigned short targetSqu
     return true;
 }
 
+/**
+ * Makes a movement, taking the piece and setting the original square the piece came from to zero.
+ * @param origin The origin from which the piece moved
+ * @param targetSquare The target square the piece moved to
+ * @return The value of the piece that was taken (attacked).
+ */
 unsigned short ChessBoard::takePiece(unsigned short origin, unsigned short targetSquare) {
     unsigned short targetPiece = squares[targetSquare];
     unsigned short originPiece = squares[origin];
@@ -947,6 +1045,15 @@ unsigned short ChessBoard::takePiece(unsigned short origin, unsigned short targe
     return targetPiece;
 }
 
+/**
+ * Executes a movement within the board.
+ * @param originSquare The origin square from which the piece moved
+ * @param targetSquare The target square to which the piece moved
+ * @param manualMovement Boolean value indicating if the move was manual or automated. This is used to finish the game
+ * if a manual move results in a checkmate or draw. If an automated move results in those scenarios, it means the move
+ * was simply made to evaluate the board state (i.e. by the AI minimax), and thus the game should not be finished.
+ * @return The value of the piece that was taken (attacked).
+ */
 unsigned short ChessBoard::makeMove(unsigned short originSquare, unsigned short targetSquare, bool manualMovement) {
     unsigned short targetPiece = squares[targetSquare];
     unsigned short originPiece = squares[originSquare];
@@ -1030,6 +1137,10 @@ unsigned short ChessBoard::makeMove(unsigned short originSquare, unsigned short 
     return targetPiece;
 }
 
+/**
+ * Returns the board to a previously saved state
+ * @param previousBoardState The previous board state to return to
+ */
 void ChessBoard::undoMove(ChessBoardState previousBoardState) {
     checkmate = previousBoardState.checkmate;
     gameTied = previousBoardState.gameTied;
@@ -1088,16 +1199,28 @@ bool ChessBoard::getTurn() const {
     return turn;
 }
 
+/**
+ * Forcefully redraws the window during execution. Useful for debugging.
+ */
 void ChessBoard::redrawWindow() {
     window.clear(sf::Color(35, 57, 76));
     draw();
     window.display();
 }
 
+/**
+ * Gets the piece unsigned short value from the original piece code (removes color value)
+ * @param pieceValue The original piece code value (e.g. White pawn = 0b01000001)
+ * @return The piece code (e.g. Pawn = 0b00000001)
+ */
 inline unsigned short ChessBoard::getPieceCode(unsigned short pieceValue) {
     return pieceValue & 0b00111111;
 }
 
+/**
+ * Sets the game variables when a board is a checkmate or a draw, and finishes the game if the move was manually done.
+ * @param manualMovement True if the movement was manually made. False otherwise.
+ */
 void ChessBoard::checkGameFinished(bool manualMovement) {
     int pieceCount = 0;
 
@@ -1136,6 +1259,10 @@ void ChessBoard::checkGameFinished(bool manualMovement) {
     }
 }
 
+/**
+ * Prints the standard chess Fen notation for the current board. Useful for debugging.
+ * @return The Fen string
+ */
 std::string ChessBoard::printFen() {
     std::string s;
     for (int i = 0; i < 64; ++i) {

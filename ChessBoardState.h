@@ -6,6 +6,10 @@ class ChessBoard;
 
 #include "ChessBoard.h"
 
+/**
+ * This class is used to represent a board state with reduced memory usage. It stores only the variables required to
+ * take the board to a previous state
+ */
 class ChessBoardState {
 public:
     ChessBoardState(bool checkmate, bool gameTied, bool gameFinished, bool bCastleKingSide, bool bCastleQueenSide,

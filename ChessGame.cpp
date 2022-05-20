@@ -14,18 +14,27 @@ void ChessGame::grabPiece(int x, int y) {
     board.mouseGrabPiece(x, y);
 }
 
+/**
+ * Called in the main thread by a mouse movement, indicating a mouse release action which may mean a selected piece is
+ * being moved.
+ * @param x The mouse X position
+ * @param y The mouse Y position
+ */
 void ChessGame::releasePiece(int x, int y) {
-    double rating = 0;
+
+    // The old board state is saved before calling the mouseReleasePiece() method.
     unsigned short oldSquares[64];
     std::copy_n(getBoardSquares(), 64, oldSquares);
 
     board.mouseReleasePiece(x, y);
 
+    // If any piece has changed positions, it means the user moved a piece. The evaluation method is then invoked,
+    // to evaluate the newest board state.
     for (int i = 0; i < 64; ++i) {
         if (getBoardSquares()[i] != oldSquares[i]) {
             std::cout << "Board changed." << std::endl;
             ai.numEvals = 0;
-            rating = ai.runEval(board, playerTurn);
+            ai.runEval(board, playerTurn);
             break;
         }
     }

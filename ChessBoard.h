@@ -82,46 +82,6 @@ private:
     ChessPiece wQueen = ChessPiece();
     ChessPiece wKing = ChessPiece();
 
-    //POSITION 3
-//    unsigned short squares[64] = {
-//            0, 0, 0, 0, 0, 0, 0, 0,
-//            0, 0, B_PAWN, 0, 0, 0, 0, 0,
-//            0, 0, 0, B_PAWN, 0, 0, 0, 0,
-//            W_KING, W_PAWN, 0, 0, 0, 0, 0, B_ROOK,
-//            0, W_ROOK, 0, 0, 0, B_PAWN, 0, B_KING,
-//            0, 0, 0, 0, 0, 0, 0, 0,
-//            0, 0, 0, 0, W_PAWN, 0, W_PAWN, 0,
-//            0, 0, 0, 0, 0, 0, 0, 0};
-
-//POSITION 5
-//    unsigned short wKingSquare = 60;
-//    unsigned short bKingSquare = 5;
-//
-//    bool bCastleKingSide = false;
-//    bool bCastleQueenSide = false;
-//    bool wCastleKingSide = true;
-//    bool wCastleQueenSide = true;
-//    unsigned short squares[64] = {
-//            B_ROOK, B_KNIGHT, B_BISHOP, B_QUEEN, 0, B_KING, 0, B_ROOK,
-//            B_PAWN, B_PAWN, 0, W_PAWN, B_BISHOP, B_PAWN, B_PAWN, B_PAWN,
-//            0, 0, B_PAWN, 0, 0, 0, 0, 0,
-//            0, 0, 0, 0, 0, 0, 0, 0,
-//            0, 0, W_BISHOP, 0, 0, 0, 0, 0,
-//            0, 0, 0, 0, 0, 0, 0, 0,
-//            W_PAWN, W_PAWN, W_PAWN, 0, W_KNIGHT, B_KNIGHT, W_PAWN, W_PAWN,
-//            W_ROOK, W_KNIGHT, W_BISHOP, W_QUEEN, W_KING, 0, 0, W_ROOK};
-
-//    unsigned short squares[64] = {
-//            B_ROOK, 0, 0, 0, B_KING, 0, 0, B_ROOK,
-//            0, 0, 0, 0, 0, 0, 0, 0,
-//            0, 0, 0, 0, 0, 0, 0, 0,
-//            0, 0, 0, 0, 0, 0, 0, 0,
-//            0, 0, 0, 0, 0, 0, 0, 0,
-//            0, 0, 0, 0, 0, 0, 0, 0,
-//            0, 0, 0, 0, 0, 0, 0, 0,
-//            W_ROOK, 0, 0, 0, W_KING, 0, 0, W_ROOK};
-
-// STANDARD
     unsigned short wKingSquare = 60;
     unsigned short bKingSquare = 4;
 

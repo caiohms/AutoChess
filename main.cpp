@@ -4,8 +4,8 @@
 #include "ChessGame.h"
 #include "AI.h"
 #include <iostream>
-#include <chrono>
 
+// Window sizes definition
 #define MIN_WINDOW_WIDTH 480
 #define MIN_WINDOW_HEIGHT 480
 #define INIT_WINDOW_WIDTH 1280
@@ -21,27 +21,33 @@ int main() {
         system("pause");
     }
 
+    // The turn variable is global and referenced by multiple objects
     bool turn = true;
 
+    // Creating ChessBoard, AI, ChessGame objects
     ChessBoard board(INIT_WINDOW_WIDTH, INIT_WINDOW_HEIGHT, font, turn, window);
-    AI ai(board);
+    AI ai;
     ChessGame game(board, turn, ai);
 
     while (window.isOpen()) {
         sf::Event event;
 
+        // Catches window events
         while (window.pollEvent(event)) {
             if (event.type == sf::Event::Closed)
                 window.close();
 
             switch (event.type) {
+                // If the window is resized, we need to resize all game elements drawn within it
                 case sf::Event::Resized: {
                     unsigned int w = event.size.width;
                     unsigned int h = event.size.height;
 
+                    // Assure window size greater than minimum values
                     if (w < MIN_WINDOW_WIDTH) w = MIN_WINDOW_WIDTH;
                     if (h < MIN_WINDOW_HEIGHT) h = MIN_WINDOW_HEIGHT;
 
+                    // The chess board is a square so we use the minimum value between width and height
                     unsigned int minSide = std::min(w, h);
 
                     window.setSize(sf::Vector2u(w, h));
@@ -51,16 +57,22 @@ int main() {
                 }
 
                 case sf::Event::MouseMoved: {
+                    // Send mouse movement to the game object. This is used for dragging pieces
                     game.setMousePos(event.mouseMove.x, event.mouseMove.y);
                     break;
                 }
 
                 case sf::Event::MouseButtonPressed: {
+                    // When any mouse button is pressed, we determine which button was pressed and act accordingly.
+                    // Note that this event only catches Mouse Down events (releasing is handled in another event below)
                     switch (event.mouseButton.button) {
                         case sf::Mouse::Button::Left: {
                             int x = event.mouseButton.x;
                             int y = event.mouseButton.y;
                             game.grabPiece(x, y);
+
+                            // The commented out code below is used to test performance and output the possible board
+                            // states to a file for debugging purposes.
 
 //                            std::ofstream out("txt.txt");
 
@@ -90,6 +102,7 @@ int main() {
                 }
 
                 case sf::Event::MouseButtonReleased: {
+
                     switch (event.mouseButton.button) {
                         case sf::Mouse::Button::Left: {
                             int x = event.mouseButton.x;

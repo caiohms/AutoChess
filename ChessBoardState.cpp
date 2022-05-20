@@ -20,18 +20,6 @@ ChessBoardState::ChessBoardState(bool checkmate, bool gameTied, bool gameFinishe
           playerTurn(playerTurn) {
     copyArray(squares, this->squares);
 }
-//
-//ChessBoardState::ChessBoardState(const ChessBoard &board)
-//        : bCastleKingSide(board.isBCastleKingSide()),
-//          bCastleQueenSide(board.isBCastleQueenSide()),
-//          wCastleKingSide(board.isWCastleKingSide()),
-//          wCastleQueenSide(board.isWCastleQueenSide()),
-//          bKingSquare(board.getBKingSquare()),
-//          wKingSquare(board.getWKingSquare()),
-//          enPassantEnabledSquare(board.getEnPassantEnabledSquare()),
-//          playerTurn(board.getTurn()) {
-//    copyArray(board.getSquares(), this->squares);
-//}
 
 ChessBoardState ChessBoardState::fromChessBoard(ChessBoard *pBoard) {
 

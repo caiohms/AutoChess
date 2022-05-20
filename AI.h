@@ -5,6 +5,7 @@
 #include "ChessBoard.h"
 #include "ChessBoardState.h"
 
+// The EvalResult struct stores the moves list as a string array and the evaluation value.
 typedef struct EvalResult {
     EvalResult(const std::array<std::string, 10> &moves, double rating);
 
@@ -16,6 +17,7 @@ typedef struct EvalResult {
 class AI {
 private:
 
+    // The default values assigned to each piece when evaluating.
     const double pawnValue = 1.0;
     const double bishopValue = 3.0;
     const double knightValue = 3.0;
@@ -23,12 +25,11 @@ private:
     const double queenValue = 9.0;
     const double kingValue = 2000.0;
 
-    ChessBoard &board;
-
     EvalResult
     minimax(ChessBoard &chessBoard, int depth, double alpha, double beta, bool playerTurn, EvalResult evalResult,
             std::string move);
 
+    // The following double arrays represent the bonus values added to each piece depending on their board position
     double knightWeight[64] = {
             0.1, 0.2, 0.3, 0.3, 0.3, 0.3, 0.2, 0.1,
             0.2, 0.4, 0.5, 0.5, 0.5, 0.5, 0.4, 0.2,
@@ -69,15 +70,6 @@ private:
             0, 0.2, 0.3, 0.3, 0.2, 0.3, 0.4, 0,
             0.1, 0.3, 0.4, 0.5, 0.5, 0.4, 0.3, 0.1};
 
-//    double pawnWeight[64] = {
-//            0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1,
-//            1, 1, 1, 1, 1, 1, 1, 1,
-//            0.2, 0.2, 0.4, 0.4, 0.4, 0.4, 0.2, 0.2,
-//            0.2, 0.3, 0.3, 0.4, 0.4, 0.3, 0.2, 0.2,
-//            0.2, 0.3, 0.3, 0.4, 0.4, 0.3, 0.2, 0.2,
-//            0.3, 0.1, 0.1, 0.3, 0.3, 0.1, 0.1, 0.3,
-//            0.2, 0.3, 0.3, 0, 0, 0.3, 0.3, 0.2,
-//            0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2};
     double pawnWeight[64] = {
             1, 1, 1, 1, 1, 1, 1, 1,
             0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5,
@@ -102,17 +94,11 @@ public:
 
     int numEvals = 0;
 
-    explicit AI(ChessBoard &board);
+    explicit AI();
 
     double runEval(ChessBoard chessBoard, bool turn);
 
-    double evaluateBoard(ChessBoard &chessBoard, bool playerTurn) const;
-
-    double
-    forcerKingEndgame(short friendlySquareKing, short opponentSquareKing, int materialFriend, int materialOpponent,
-                      float endgameWeight) const;
-
-    static double EndgamePhaseWeight(int materialCount, double endgameMaterialStart);
+    double evaluateBoard(ChessBoard &chessBoard) const;
 
 };
 
